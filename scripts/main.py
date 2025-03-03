@@ -1,7 +1,9 @@
+"""
+main.py
+"""
+
 # IMPORTS
-# import requests
 import json
-# import sys
 import support_module as S
 
 # Load configuration file
@@ -11,15 +13,7 @@ with open('config.json', 'r', encoding="utf-8") as stream:
 # Connect to API
 creds = S.get_credentials(config['path_to_credentials']) # NOTE: ATM just "path_to_credentials": "path/to/credentials"
 
-# Start session TODO: this would be nicer in a separate function.
-# session = requests.Session()
-# base_url = creds["ADDRESS"]
-# session.headers['referer'] = base_url.removesuffix("api/mlquery/")
-# session.get(base_url + "start/")
-# payload = {
-#     'apikey': creds["APIKEY"],
-#     'csrfmiddlewaretoken': session.cookies.get_dict()['csrftoken']
-# }
+# Start session
 session, payload = S.start_session(creds)
 
 
