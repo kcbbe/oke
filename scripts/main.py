@@ -1,23 +1,67 @@
 """
 main.py
+
+Please find documentation about TenWise Knowledge Map API here:
+https://apimlqv2.tenwiseservice.nl/
 """
 
 # IMPORTS
 import json
-import support_module as S
+import functions as F
 
 # Load configuration file
 with open('config.json', 'r', encoding="utf-8") as stream:
     config = json.load(stream)
 
 # Connect to API
-creds = S.get_credentials(config['path_to_credentials']) # NOTE: ATM just "path_to_credentials": "path/to/credentials"
+creds = F.get_credentials(config['path_to_credentials'])
 
 # Start session
-session, payload = S.start_session(creds)
+session, payload = F.start_session(creds)
+
+# TODO: Get full text from keywords 'pesticides' and 'Parkinsons disease'
+# How to retrieve concept_ids? (Parkinsons Disease (TWDIS_06685))
+# Get all Parkinsons Disease concept_ids
+payload['terms'] = "Parkinson"
+payload['wildcard'] = 'true'
+
+results = session.post(
+    creds["ADDRESS"] + "concept/search/",
+    payload
+)
+
+js = results.json()
+hits = list(js['result']['hits'].keys())
+# NOTE: Disease concepts start with "TWDIS", therefore hits are filtered on "TWDIS": https://apimlqv2.tenwiseservice.nl/html/all_help.html#vocabularies
+park_hits = [h for h in hits if h[:5] == 'TWDIS']
+
+# TODO: Get all pesticides concept_ids
+
+# NOTE: "Parkinsons Disease" id is not queried the same way CXCR3 is queried.. 
+# list_keywords = ["Parkinsons", "CXCR3"]
+# list_keywords = ["Cholesterol", "CXCR3"]
+# payload['terms'] = ",".join(list_keywords)
+
+# payload['terms'] = "CXCR3"
 
 
-# Example (https://apimlqv2.tenwiseservice.nl/html/pythonexample.html)
+# payload['terms'] = "CXCR"
+payload['wildcard'] = 'true'
+
+results = session.post(
+    creds["ADDRESS"] + "concept/search/",
+    payload
+)
+
+js = results.json()
+hits = list(js['result']['hits'].keys())
+
+
+
+
+
+#############################################################################
+####### Example (https://apimlqv2.tenwiseservice.nl/html/pythonexample.html)
 ### Get the relations for 2 concepts ###
 # In this case we look at relations with
 # CXCR3 (HGNC:4540) and Parkinsons Disease (TWDIS_06685)
