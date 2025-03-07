@@ -1,6 +1,6 @@
 # MODULE
 """
-support_module.py: A collection of supporting functions.
+functions.py: A collection of supporting functions.
 
 INITIALISATION
 * get_credentials
@@ -36,11 +36,10 @@ def start_session(login_credentials: dict):
         login_credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
 
     Returns:
-        session (requests): ???
-        payload (dict): A payload template ???
+        session (requests): API session. Provides cookie persistence, connection-pooling, and configuration.
+        payload (dict): A payload template for building queries.
     """
     session = requests.Session()
-    login_credentials["ADDRESS"]
     session.headers['referer'] = login_credentials["ADDRESS"].removesuffix("api/mlquery/") # NOTE: 'referer' is not a typo. Please ignore cSpell.
     session.get(login_credentials["ADDRESS"] + "start/")
     payload = {
@@ -50,6 +49,12 @@ def start_session(login_credentials: dict):
 
     return session, payload
 
+# def get_concept_ids(session, payload, list_keywords):
+#     payload['terms'] = ",".join(list_keywords)
+#     results = session.post(
+#     creds["ADDRESS"] + "concept/search/",
+#     payload
+# )
 
 
 # APPENDIX
