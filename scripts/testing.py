@@ -27,15 +27,35 @@ hits_on_concept_ids = hits_on_concept_ids[:3] # Cap!
 # TODO: Refactor!
 # NOTE: Query up to 50 ids per request. (we could try more with `&per-page=200`) 200 is the max. per-page. https://blog.ourresearch.org/fetch-multiple-dois-in-one-openalex-api-request/
 # If you need more pages, use cursor paging https://docs.openalex.org/how-to-use-the-api/get-lists-of-entities/paging#cursor-paging
-url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(hits_on_concept_ids)},best_open_version:acceptedOrPublished&select=best_oa_location,open_access&mailto=j.beenen@pl.hanze.nl"
-# url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(hits_on_concept_ids)},best_open_version:acceptedOrPublished&mailto=j.beenen@pl.hanze.nl"
+# url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(hits_on_concept_ids)},best_open_version:acceptedOrPublished&select=ids,best_oa_location,open_access&mailto=j.beenen@pl.hanze.nl"
+url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(hits_on_concept_ids)},best_open_version:acceptedOrPublished&mailto=j.beenen@pl.hanze.nl"
 
 # &filter=best_open_version:acceptedOrPublished
 
 
 
-response = requests.get(url).json()
+response = session.get(url).json()
 results = response['results']
+
+
+# TODO: turn this into a function
+collector = dict()
+
+for r in results:
+    pmid = r["ids"]["pmid"].split("/")[-1]
+
+    if r["best_oa_location"]["pdf_url"] is not None:
+        collector[pmid] = r["best_oa_location"]["pdf_url"]
+
+    # TODO: Troubleshoot when `pdf_url` is None, how to extract a pdf in an alternative way:
+    # # if pdf_url is empty, try landing_page_url by appending "/pdf" to it
+    # elif r["best_oa_location"]["pdf_url"] is None:
+    #     # try:
+    #     collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf'
+    #     # check if pdf
+
+
+print(f"Proportion of PMIDs that returned an open access paper: {round(len(results) / len(hits_on_concept_ids) * 100, 2)}%")
 
 print(results)
 # for paper in results, check if an oa_url is available.

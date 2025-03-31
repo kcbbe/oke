@@ -1,3 +1,5 @@
 {
-    "path_to_credentials": "path/to/credentials"
+    "email_address": "user@domain.com",
+    "path_to_credentials": "path/to/credentials",
+    "path_to_pesticide_ids": "path/to/all_pesticide_concept_ids"
 }
