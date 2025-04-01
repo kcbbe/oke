@@ -4,10 +4,15 @@ functions.py: A collection of supporting functions.
 
 INITIALISATION
 * get_credentials
+* start_tenwise_session
+* search_free
+* search_concepts
+* get_pdf_urls_from_pmids
 """
 # IMPORTS
 import requests
 import sys
+import pandas as pd
 
 # FUNCTIONS
 # Get credentials
@@ -49,6 +54,66 @@ def start_tenwise_session(login_credentials: dict):
     }
 
     return session, payload
+
+def search_free(session, payload, credentials, free_terms):
+
+    ### PUBMED USING FREE SEARCH (TODO: 'define free_search')
+    payload['terms'] = free_terms
+    results = session.post(
+        credentials["ADDRESS"] + "refset/free_search",
+        payload
+    )
+
+    js = results.json()
+    hits_on_free_search = js['result']['pmids']
+
+    # js['result'] =
+    # >  parkinson"  , 'hitnr': 126, 'pmids': ['32943485', '...']
+    # >  parkinson's", 'hitnr': 866, 'pmids': ['37354828',
+    # NOTE: I expected 'parkinson' to have more hits, since it would include "parkinson's"?
+
+    return hits_on_free_search
+
+def search_concepts(session, payload, credentials, path_to_pesticide_ids):
+    ### PUBMED USING KMAP
+    # Get all Parkinsons Disease concept_ids
+    payload['terms'] = "parkinson"
+    # payload['terms'] = "parkinson's" # NOTE: this returns an error: "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \'s\')\' at line 1"
+    payload['wildcard'] = 'true'
+
+    results = session.post(
+        credentials["ADDRESS"] + "concept/search/",
+        payload
+    )
+    payload['wildcard'] = 'false' # <- Turn off wildcard (cleaning after myself)
+
+    js = results.json()
+    hits = list(js['result']['hits'].keys())
+    # NOTE: Disease concepts start with "TWDIS", therefore hits are filtered on "TWDIS": https://apimlqv2.tenwiseservice.nl/html/all_help.html#vocabularies
+    park_hits = [h for h in hits if h[:5] == 'TWDIS'] # ['TWDIS_03314', 'TWDIS_03315', ...]
+
+
+    # Get all pesticide concept_ids
+    # Current format is tab-delimited: `TWPHI_XXXXX \t name_pesticide`
+    pest_hits = pd.read_csv(
+        path_to_pesticide_ids,
+        header = None,
+        sep = "\t"
+        ).iloc[:,0].to_list()
+
+    # payload['concept_ids'] = 'TWDIS_17683'
+    payload['concept_ids'] = ",".join([*park_hits, *pest_hits])
+    results = session.post(
+        credentials["ADDRESS"] + "conceptset/evidence/",
+        # creds["ADDRESS"] + "conceptset/hits/",
+        payload
+    )
+    js = results.json()
+    hits_on_concept_ids = [str(d["pmid"]) for d in js['result']['evidence']]
+    # > ['3262231', ...] pmids
+
+    return hits_on_concept_ids
+
 
 # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
 def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:

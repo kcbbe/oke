@@ -1,0 +1,8 @@
+# credentials
+"path_to_credentials": "path/to/credentials"
+"email_address": "user@domain.com"
+
+# search settings
+"search_mode": "concepts" # "free" or "concepts" (TODO: Maybe change this to a TRUE or FALSE?)
+"free_search_terms": "(pesticide OR pesticides) AND parkinson's"
+"path_to_pesticide_ids": "path/to/all_pesticide_concept_ids.tsv"
