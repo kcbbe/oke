@@ -10,9 +10,11 @@ INITIALISATION
 * get_pdf_urls_from_pmids
 """
 # IMPORTS
-import requests
 import sys
+import requests
 import pandas as pd
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError
 
 # FUNCTIONS
 # Get credentials
@@ -75,6 +77,8 @@ def search_free(session, payload, credentials, free_terms):
     return hits_on_free_search
 
 def search_concepts(session, payload, credentials, path_to_pesticide_ids):
+    # TODO: docstring
+    
     ### PUBMED USING KMAP
     # Get all Parkinsons Disease concept_ids
     payload['terms'] = "parkinson"
@@ -127,7 +131,7 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
         pmids (list): list with PubMed ids of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
 
     Returns:
-        collection (dict):
+        pdf_collector, landing_collector (both dict):
     """
 
     # flow control: pmids needs to contain strings, not numerical values.
@@ -172,6 +176,48 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
     print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / response["meta"]["count"] * 100, 2)}%')
 
     return pdf_collector, landing_collector
+
+def get_tei_from_pdf_urls(pdf_urls : dict(), servername, portnumber) -> dict():
+    catch_errors = dict()
+    # Used code structure from https://github.com/TenWise-Dev/jrc-public/blob/main/lib/PDF2Tei.py (commit# b90181a805bd7dc5277c5d650bd5b7ffa4fe97be)
+    
+    # TODO: check if server is live at http://assemblix:8670/api/isalive NOTE: <- Is dit gevoelige informatie?????
+    # If not, make it alive!
+    
+    for pmid in pdf_urls:
+        try:
+            req = Request(
+                url = pdf_urls[pmid],
+                headers = {"User-Agent": "Mozilla/6.0"}
+            )
+            # TODO: urllib.error.HTTPError: HTTP Error 403: Forbidden
+            input_json = {"input" : urlopen(req).read()}
+
+            response = requests.post(
+                f'http://{servername}:{portnumber}/api/processFulltextDocument',
+                files = input_json,
+                timeout = 30
+            )
+
+            if response.status_code == 200:
+            # TODO: monitor response.status_code
+                pdf_urls[pmid] = response.text
+            else:
+                catch_errors[pmid] = response.status_code
+                # TODO: How to report errors? 
+                error_code_to_text = {
+                    204: "Process was completed, but no content could be extracted and structured",
+                    400: "Wrong request, missing parameters, missing header",
+                    500: "Indicate an internal service error, further described by a provided message",
+                    503: "The service is not available, which usually means that all the threads are currently used"
+                }
+                # See here what the code means: https://grobid.readthedocs.io/en/latest/Grobid-service/#apiprocessfulltextdocument
+
+        except HTTPError:
+            pdf_urls[pmid] = None
+
+    return pdf_urls
+
 
 # APPENDIX
 if __name__ == "__main__":

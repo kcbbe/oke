@@ -1,6 +1,8 @@
 # credentials
 "path_to_credentials": "path/to/credentials"
 "email_address": "user@domain.com"
+"grobid_servername" : "server_alias"
+"grobid_portnumber" : "portnumber"
 
 # search settings
 "search_mode": "concepts" # "free" or "concepts" (TODO: Maybe change this to a TRUE or FALSE?)
