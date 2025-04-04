@@ -28,6 +28,8 @@ import sys
 with open('config.yaml', 'r', encoding="utf-8") as stream:
     config = yaml.safe_load(stream)
 
+##############################################################
+
 # Connect to API
 creds = F.get_credentials(config['path_to_credentials'])
 
@@ -46,7 +48,7 @@ if config["search_mode"].lower().strip() == "free":
 
 # Option 2) Get pmid ids on concept_ids from TenWise vocabularies
 # TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
-if config["search_mode"].lower().strip() == "concepts":
+elif config["search_mode"].lower().strip() == "concepts":
     pmid_hits = F.search_concepts(
         session,
         payload,
@@ -61,6 +63,9 @@ else:
 pmid_hits = pmid_hits[:12]
 
 
+##############################################################
+
+
 # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
 pdf_urls, landing_urls = F.get_pdf_urls_from_pmids(pmid_hits, config["email_address"])
 # TODO: further data exploration of the papers???????????? ??????????? ?
@@ -69,6 +74,10 @@ pdf_urls, landing_urls = F.get_pdf_urls_from_pmids(pmid_hits, config["email_addr
 # TODO: Add a 'safepoint': pickle all input_json, `filename` = `pmid`
 # (is there a better way? I don't think a mysql is necessary since its just contains two columns (pmid, content)
 # (So that the documents remain accessible if it is ever removed from online)
+
+
+##############################################################
+
 
 # TODO: Check if GROBID is running
 # if http://assemblix:8670/api/isalive == 'true':
