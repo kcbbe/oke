@@ -65,6 +65,9 @@ def search_free(session, payload, credentials, free_terms):
     js = results.json()
     hits_on_free_search = js['result']['pmids']
 
+    # This will become the header of column:
+    hits_on_free_search.insert(0, "pmid")
+
     # js['result'] =
     # >  parkinson"  , 'hitnr': 126, 'pmids': ['32943485', '...']
     # >  parkinson's", 'hitnr': 866, 'pmids': ['37354828',
@@ -92,7 +95,7 @@ def search_concepts(session, payload, credentials, path_to_pesticide_ids):
     hits = list(js['result']['hits'].keys())
     # NOTE: Disease concepts start with "TWDIS", therefore hits are filtered on "TWDIS": https://apimlqv2.tenwiseservice.nl/html/all_help.html#vocabularies
     park_hits = [h for h in hits if h[:5] == 'TWDIS'] # ['TWDIS_03314', 'TWDIS_03315', ...]
-
+    
 
     # Get all pesticide concept_ids
     # Current format is tab-delimited: `TWPHI_XXXXX \t name_pesticide`
@@ -102,6 +105,7 @@ def search_concepts(session, payload, credentials, path_to_pesticide_ids):
         sep = "\t"
         ).iloc[:,0].to_list()
 
+    # Combine both concept_ids
     # payload['concept_ids'] = 'TWDIS_17683'
     payload['concept_ids'] = ",".join([*park_hits, *pest_hits])
     results = session.post(
@@ -112,6 +116,9 @@ def search_concepts(session, payload, credentials, path_to_pesticide_ids):
     js = results.json()
     hits_on_concept_ids = [str(d["pmid"]) for d in js['result']['evidence']]
     # > ['3262231', ...] pmids
+
+    # This will become the header of column:
+    hits_on_concept_ids.insert(0, "pmid")
 
     return hits_on_concept_ids
 
@@ -170,10 +177,10 @@ if __name__ == "__main__":
     pmid_hits = pmid_hits[:12]
 
     try:
-        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.txt", "w") as output:
+        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.csv", "w") as output:
             output.write(',\n'.join(pmid_hits))
     except FileNotFoundError:
         Path("output").mkdir(exist_ok = True)
-        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.txt", "w") as output:
+        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.csv", "w") as output:
             output.write(',\n'.join(pmid_hits))
     print("End of concept2pmid.py")
