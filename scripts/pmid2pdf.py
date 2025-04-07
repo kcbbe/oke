@@ -78,31 +78,38 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
 def get_pdf_papers_from_url(pdf_urls: dict):
     """
     """
+
+    # Collect results
     collect_errors = []
     success_counter = 0
 
+    # Create `pdf_papers` directory, if it does not yet exists.
+    Path("data/pdf_papers/").mkdir(exist_ok = True)
+
+    # Iterate
     for pdf_key in pdf_urls:
 
-        # This should help to by pass bot checks:
-        req = Request(
-            url = pdf_urls[pdf_key],
-            headers = {"User-Agent": "Mozilla/6.0"}
-        )
-        try:
-            input_json = {"output" : urlopen(req).read()}
-            success_counter+=1
+        # Check if file already in output folder
+        if Path(f"data/pdf_papers/{pdf_key}.pdf").exists():
+            success_counter += 1
 
-            # Save pdf
+        # Else, download the file and save as `key`
+        else:
+            # This should help to by pass bot checks
+            req = Request(
+                url = pdf_urls[pdf_key],
+                headers = {"User-Agent": "Mozilla/6.0"}
+            )
             try:
-                with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
-                    output.write(input_json["output"])
-            except FileNotFoundError:
-                Path("data/pdf_papers").mkdir(exist_ok = True)
+                input_json = {"output" : urlopen(req).read()}
+                success_counter += 1
+
+                # Save pdf
                 with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
                     output.write(input_json["output"])
 
-        except HTTPError as e:
-            collect_errors.append([pdf_key, e.code, e.msg])
+            except HTTPError as e:
+                collect_errors.append([pdf_key, e.code, e.msg])
 
     # TODO: notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
     print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
@@ -132,7 +139,6 @@ if __name__ == "__main__":
         config = yaml.safe_load(stream)
 
     # Load pmid file
-    # with open(f'output/{config["output_pmids"]}_{config["experiment_name"]}.txt', 'r') as input:
     pmids = pd.read_csv(
         f'data/pmids/{config["output_pmids"]}_{config["experiment_name"]}.csv',
     ).loc[:,"pmid"].to_list()
@@ -145,5 +151,5 @@ if __name__ == "__main__":
     errors = get_pdf_papers_from_url(pdf_urls)
 
     # TODO: report `errors`
-    
+
     print("End of pmid2pdf.py")

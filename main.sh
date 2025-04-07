@@ -19,15 +19,14 @@ config_file="config.yaml"
 
 # Get PMIDs from querying TenWise database (find the search settings in the configuration file)
 ~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file &> logs/test.log
-~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file &>> logs/test.log
 
 # Get PDFs by searching pdf_urls in OpenAlex on PMIDs
+~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file &>> logs/test.log
+
+# Get XMLs from PDFs using GROBID
+~/venv/graduation/bin/python scripts/pdf@xml.py -c $config_file &>> logs/test.log
+
+
 
 # # Run Snakemake application
 # snakemake -s main.smk --cores 3 &> logs/snakemake_run.log
-
-
-
-# # TODO: the following code will remain running constantly.. we need to think how to run it parrallel untill end of parrallel script.
-# # Start grobid server
-# docker run --rm --init --ulimit core=0 -p 8670:8070 lfoppiano/grobid:0.8.1
