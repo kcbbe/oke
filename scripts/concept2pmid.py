@@ -173,14 +173,18 @@ if __name__ == "__main__":
         print("Error in search_mode. Please change in 'config.yaml' variable 'search_mode' to either 'free' or 'concepts'.")
         sys.exit()
 
-    # NOTE: capped for now! (This will return 3 pdf_urls)
-    pmid_hits = pmid_hits[:12]
+    # NOTE: capped while in testing phase (atm this will return 3 pdf_urls for 12 "paper_cap")
+    if isinstance(config["paper_cap_during_testing"], int):
+        pmid_hits = pmid_hits[:config["paper_cap_during_testing"]]
 
+    # Save pmids to file
     try:
-        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.csv", "w") as output:
+        with open(f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv", "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
     except FileNotFoundError:
-        Path("output").mkdir(exist_ok = True)
-        with open(f"output/{config['output_pmids']}_{config['experiment_name']}.csv", "w") as output:
+        Path("data/pmids").mkdir(exist_ok = True)
+        with open(f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv", "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
+
+    # TODO: notify user where file is saved.
     print("End of concept2pmid.py")

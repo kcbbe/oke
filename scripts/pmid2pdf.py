@@ -44,8 +44,6 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
         print(f'ERROR in `get_pdf_urls_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
         sys.exit()
 
-    # TODO: this needs a different filtering now.. (like best_open_version:acceptedOrPublished)
-    print(f'Proportion of PMIDs that returned an open access paper: {round(response["meta"]["count"] / len(pmids) * 100, 2)}%')
 
     # start collecting pdf urls
     pdf_collector = dict()
@@ -54,21 +52,63 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
     for r in response["results"]:
         pmid = r["ids"]["pmid"].split("/")[-1]
 
-        if r["best_oa_location"]["pdf_url"] is not None:
-            pdf_collector[pmid] = r["best_oa_location"]["pdf_url"]
+        if r["best_oa_location"] is not None:
+            if r["best_oa_location"]["pdf_url"] is not None:
+                pdf_collector[pmid] = r["best_oa_location"]["pdf_url"]
 
-        # TODO: Troubleshoot when `pdf_url` is None, how to extract a pdf in an alternative way:
-        # if pdf_url is empty, try to retrieve pdf by trying tricks on landing_page_url
-        elif r["best_oa_location"]["pdf_url"] is None:
-            if r["best_oa_location"]["landing_page_url"].split("/")[-1][:3] == "PMC":
-                landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf' # TODO: Check if this can be added to pdf_collector instead?
-            else:
-                landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
-
-    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / response["meta"]["count"] * 100, 2)}%')
-
+            # TODO: Troubleshoot when `pdf_url` is None, how to extract a pdf in an alternative way:
+            # if pdf_url is empty, try to retrieve pdf by trying tricks on landing_page_url
+            elif r["best_oa_location"]["pdf_url"] is None:
+                if r["best_oa_location"]["landing_page_url"].split("/")[-1][:3] == "PMC":
+                    landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf' # TODO: Check if this can be added to pdf_collector instead?
+                else:
+                    landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
 
 
+    # TODO: this needs a different filtering now.. (like best_open_version:acceptedOrPublished)
+    n_total_from_query = response["meta"]["count"]
+    # n_pdf = len(pdf_collector)
+    # n_landing = len(landing_collector)
+    print(f'Proportion of PMIDs that returned an open access paper: {round(sum([len(pdf_collector), len(landing_collector)]) / n_total_from_query * 100, 2)}%')
+    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / sum([len(pdf_collector), len(landing_collector)]) * 100, 2)}%')
+
+    return pdf_collector, landing_collector
+
+# TODO: this can be multiprocessed..
+def get_pdf_papers_from_url(pdf_urls: dict):
+    """
+    """
+    collect_errors = []
+    success_counter = 0
+
+    for pdf_key in pdf_urls:
+
+        # This should help to by pass bot checks:
+        req = Request(
+            url = pdf_urls[pdf_key],
+            headers = {"User-Agent": "Mozilla/6.0"}
+        )
+        try:
+            input_json = {"output" : urlopen(req).read()}
+            success_counter+=1
+
+            # Save pdf
+            try:
+                with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
+                    output.write(input_json["output"])
+            except FileNotFoundError:
+                Path("data/pdf_papers").mkdir(exist_ok = True)
+                with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
+                    output.write(input_json["output"])
+
+        except HTTPError as e:
+            collect_errors.append([pdf_key, e.code, e.msg])
+
+    # TODO: notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
+    print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
+    
+    # return error log
+    return collect_errors
 
 # MAIN
 if __name__ == "__main__":
@@ -94,27 +134,16 @@ if __name__ == "__main__":
     # Load pmid file
     # with open(f'output/{config["output_pmids"]}_{config["experiment_name"]}.txt', 'r') as input:
     pmids = pd.read_csv(
-        f'output/{config["output_pmids"]}_{config["experiment_name"]}.csv',
+        f'data/pmids/{config["output_pmids"]}_{config["experiment_name"]}.csv',
     ).loc[:,"pmid"].to_list()
-
-# TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:TODO:
-# No more messages
-# pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])
-# Successfull query: response time 42ms
-# Proportion of PMIDs that returned an open access paper: 100.0%
-# Traceback (most recent call last):
-#   File "<string>", line 1, in <module>
-#   File "/homes/jbeenen/git-repo/master_graduation_project/scripts/pmid2pdf.py", line 59, in get_pdf_urls_from_pmids
-#     if r["best_oa_location"]["pdf_url"] is not None:
-#        ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^
-# TypeError: 'NoneType' object is not subscriptable
-
 
     # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
     pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])
     # TODO: further data exploration of the papers???????????? ??????????? ?
 
-    # Try to have the following processes multiprocessed.
-    # TODO: Add a 'safepoint': pickle all input_json, `filename` = `pmid`
-    # (is there a better way? I don't think a mysql is necessary since its just contains two columns (pmid, content)
-    # (So that the documents remain accessible if it is ever removed from online)
+    # TODO: Try to have the following processes multiprocessed.
+    errors = get_pdf_papers_from_url(pdf_urls)
+
+    # TODO: report `errors`
+    
+    print("End of pmid2pdf.py")

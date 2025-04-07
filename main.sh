@@ -18,7 +18,8 @@
 config_file="config.yaml"
 
 # Get PMIDs from querying TenWise database (find the search settings in the configuration file)
-~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file
+~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file &> logs/test.log
+~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file &>> logs/test.log
 
 # Get PDFs by searching pdf_urls in OpenAlex on PMIDs
 
