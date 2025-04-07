@@ -69,8 +69,8 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
     n_total_from_query = response["meta"]["count"]
     # n_pdf = len(pdf_collector)
     # n_landing = len(landing_collector)
-    print(f'Proportion of PMIDs that returned an open access paper: {round(sum([len(pdf_collector), len(landing_collector)]) / n_total_from_query * 100, 2)}%')
-    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / sum([len(pdf_collector), len(landing_collector)]) * 100, 2)}%')
+    print(f'Proportion of PMIDs that returned an open access paper: {round(sum([len(pdf_collector), len(landing_collector)]) / n_total_from_query * 100, 2)}% ({sum([len(pdf_collector), len(landing_collector)])}/{n_total_from_query})')
+    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / sum([len(pdf_collector), len(landing_collector)]) * 100, 2)}% ({len(pdf_collector)}/{sum([len(pdf_collector), len(landing_collector)])})')
 
     return pdf_collector, landing_collector
 
@@ -142,6 +142,17 @@ if __name__ == "__main__":
     pmids = pd.read_csv(
         f'data/pmids/{config["output_pmids"]}_{config["experiment_name"]}.csv',
     ).loc[:,"pmid"].to_list()
+
+    # convert pmids `int` to `str`
+    pmids = [str(i) for i in pmids]
+
+    # Exclude pmids of which the pdfs are already downloaded. TODO: this needs to be communicated with user!
+    try:
+        local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
+        pmids = list(set(pmids).difference(local_pdfs))
+    except FileNotFoundError:
+        print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
+        pass
 
     # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
     pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])

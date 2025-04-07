@@ -15,16 +15,20 @@
 
 
 # credentials
+log_file="test_250704_2"
 config_file="config.yaml"
 
+# Make `logs/` directory (if it does not already exists)
+mkdir -p logs/
+
 # Get PMIDs from querying TenWise database (find the search settings in the configuration file)
-~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file &> logs/test.log
+~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file &> logs/$log_file.log
 
 # Get PDFs by searching pdf_urls in OpenAlex on PMIDs
-~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file &>> logs/test.log
+~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file &>> logs/$log_file.log
 
 # Get XMLs from PDFs using GROBID
-~/venv/graduation/bin/python scripts/pdf@xml.py -c $config_file &>> logs/test.log
+~/venv/graduation/bin/python scripts/pdf2xml.py -c $config_file &>> logs/$log_file.log
 
 
 
