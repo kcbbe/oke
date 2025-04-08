@@ -119,6 +119,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
 
 # MAIN
 if __name__ == "__main__":
+    print("Start of pmid2pdf.py")
 
     # Collect arguments
     parser = argparse.ArgumentParser(

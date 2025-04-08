@@ -47,6 +47,7 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
 
 # MAIN
 if __name__ == "__main__":
+    print("Start of pdf2xml.py")
 
     # Collect arguments
     parser = argparse.ArgumentParser(

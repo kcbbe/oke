@@ -1,5 +1,18 @@
 """
+concept2pmid.py
 
+Find PMIDs based on given concepts.
+
+Output:
+    An output file is generated in
+
+    Example:
+    ```
+    pmid,
+    34429776,
+    6905769,
+    ...,
+    ```
 """
 # IMPORTS
 import sys
@@ -37,7 +50,7 @@ def start_tenwise_session(login_credentials: dict):
         login_credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
 
     Returns:
-        session (requests): API session. Provides cookie persistence, connection-pooling, and configuration.
+        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration.
         payload (dict): A payload template for building queries.
     """
     
@@ -52,37 +65,70 @@ def start_tenwise_session(login_credentials: dict):
     return session, payload
 
 # Search method 1: Search on PubMed concepts
-def search_free(session, payload, credentials, free_terms):
-    # TODO: docstring
+def search_free(session: requests.Session, payload: dict, credentials: dict, free_terms: str, retmax: int):
+    """
+    Return PMIDs for from a free text search on the TenWise MEDLINE library.
+    See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#refset-free-search
+    
+    Args:
+        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration. Created using `start_tenwise_session` function.
+        payload (dict): A payload template for building queries. Created using `start_tenwise_session` function.
+        credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
+        free_terms (str): A search query like used in the PubMed search bar.
+        retmax (int): Maximum number of PMIDs to return.
 
-    ### PUBMED USING FREE SEARCH (TODO: 'define free_search')
+    Returns:
+        hits_on_free_search (list): A list with PMIDs as strings. In example: ['32943485', '...']
+    """
     payload['terms'] = free_terms
+    payload['retmax'] = str(retmax)
     results = session.post(
         credentials["ADDRESS"] + "refset/free_search",
         payload
     )
 
     js = results.json()
-    hits_on_free_search = js['result']['pmids']
-
-    # This will become the header of column:
-    hits_on_free_search.insert(0, "pmid")
-
     # js['result'] =
     # >  parkinson"  , 'hitnr': 126, 'pmids': ['32943485', '...']
-    # >  parkinson's", 'hitnr': 866, 'pmids': ['37354828',
-    # NOTE: I expected 'parkinson' to have more hits, since it would include "parkinson's"?
+    # >  parkinson's", 'hitnr': 866, 'pmids': ['37354828', '...']
+    # NOTE: I expected 'parkinson' to have more hits, since it would include "parkinson's" but "parkinsonism" as well?
+    
+    # Get list with PMIDs
+    hits_on_free_search = js['result']['pmids']
+    
+    # Add "pmid" at the beginning of list. ("pmid" will become the header of a column)
+    hits_on_free_search.insert(0, "pmid")
+
+    # Report number of hits
+    print(f"Query '{js['result']['query']}' generated {js['result']['hitnr']} PMID hits.")
 
     return hits_on_free_search
 
 # Search method 2: Search on pre-defined alias of TenWise
-def search_concepts(session, payload, credentials, path_to_pesticide_ids):
-    # TODO: docstring
+# TODO: this function should be split into two functions. 
+# 1) Finds the concept_ids of `search_terms` and appends it to a file (where the user can already have put concept_ids in)
+# 2) Read in `concept_id_file` and query TenWise for PMIDs.
+def search_concepts(session: requests.Session, payload: dict, credentials: dict, path_to_pesticide_ids: str, retmax: int):
+    """
+    Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
+    This includes 'parkinson' and concept_ids provided in path_to_pesticide_ids.
+
+    See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
+
+    Args:
+        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration. Created using `start_tenwise_session` function.
+        payload (dict): A payload template for building queries. Created using `start_tenwise_session` function.
+        credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
+        path_to_pesticide_ids (str): Path to predefined concept_ids.
+        retmax (int): Maximum number of PMIDs to return.
+
+    Returns:
+        hits_on_concept_ids (list): A list with PMIDs as strings. In example: ['32943485', '...']
+    """
     
     ### PUBMED USING KMAP
     # Get all Parkinsons Disease concept_ids
     payload['terms'] = "parkinson"
-    # payload['terms'] = "parkinson's" # NOTE: this returns an error: "You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near \'s\')\' at line 1"
     payload['wildcard'] = 'true'
 
     results = session.post(
@@ -92,9 +138,11 @@ def search_concepts(session, payload, credentials, path_to_pesticide_ids):
     payload['wildcard'] = 'false' # <- Turn off wildcard (cleaning after myself)
 
     js = results.json()
-    hits = list(js['result']['hits'].keys())
+
+    # Get the one concept_id for "parkinson's disease"
+    park_hit = [k for k, v in js['result']['hits'].items() if v[0].lower() == "parkinson's disease"]
     # NOTE: Disease concepts start with "TWDIS", therefore hits are filtered on "TWDIS": https://apimlqv2.tenwiseservice.nl/html/all_help.html#vocabularies
-    park_hits = [h for h in hits if h[:5] == 'TWDIS'] # ['TWDIS_03314', 'TWDIS_03315', ...]
+    # park_hits = [h for h in hits if h[:5] == 'TWDIS'] # ['TWDIS_03314', 'TWDIS_03315', ...]
     
 
     # Get all pesticide concept_ids
@@ -106,24 +154,32 @@ def search_concepts(session, payload, credentials, path_to_pesticide_ids):
         ).iloc[:,0].to_list()
 
     # Combine both concept_ids
-    # payload['concept_ids'] = 'TWDIS_17683'
-    payload['concept_ids'] = ",".join([*park_hits, *pest_hits])
+    payload['concept_ids'] = ",".join([*park_hit, *pest_hits])
+    payload['retmax'] = str(retmax)
     results = session.post(
         credentials["ADDRESS"] + "conceptset/evidence/",
         # creds["ADDRESS"] + "conceptset/hits/",
         payload
     )
     js = results.json()
-    hits_on_concept_ids = [str(d["pmid"]) for d in js['result']['evidence']]
-    # > ['3262231', ...] pmids
+    concept_ids = [str(d["pmid"]) for d in js['result']['evidence']]
+    metrics_hitnr = [str(d["hitnr"]) for d in js['result']['evidence']]
+    metrics_score = [str(d["score"]) for d in js['result']['evidence']]
 
     # This will become the header of column:
-    hits_on_concept_ids.insert(0, "pmid")
+    concept_ids.insert(0, "pmid")
+    metrics_hitnr.insert(0, "hitnr")
+    metrics_score.insert(0, "score")
+
+    # hits_on_concept_ids = [[concept_ids[i], metrics_hitnr[i], metrics_score[i]] for i in range(len(concept_ids))]
+
+    hits_on_concept_ids = [str([concept_ids[i], metrics_hitnr[i], metrics_score[i]]).strip("[]'").replace("'", "") for i in range(len(concept_ids))]
 
     return hits_on_concept_ids
 
 # MAIN
 if __name__ == "__main__":
+    print("Start of concept2pmid.py")
 
     # Collect arguments
     parser = argparse.ArgumentParser(
@@ -156,35 +212,36 @@ if __name__ == "__main__":
             session,
             payload,
             creds,
-            config["free_search_terms"]
+            config["free_search_terms"],
+            retmax = config["bruto_nr_pmids"]
         )
 
     # Option 2) Get pmid ids on concept_ids from TenWise vocabularies
     # TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
-    elif config["search_mode"].lower().strip() == "concepts":
+    elif config["search_mode"].lower().strip() == "concept":
         pmid_hits = search_concepts(
             session,
             payload,
             creds,
-            path_to_pesticide_ids = config["path_to_pesticide_ids"]
+            path_to_pesticide_ids = config["path_to_pesticide_ids"],
+            retmax = config["bruto_nr_pmids"]
         )
 
     else:
-        print("Error in search_mode. Please change in 'config.yaml' variable 'search_mode' to either 'free' or 'concepts'.")
+        print("Error in search_mode. Please change in 'config.yaml' variable 'search_mode' to either 'free' or 'concept'.")
         sys.exit()
 
-    # NOTE: capped while in testing phase (atm this will return 3 pdf_urls for 12 "paper_cap")
-    if isinstance(config["paper_cap_during_testing"], int):
-        pmid_hits = pmid_hits[:config["paper_cap_during_testing"]]
-
     # Save pmids to file
+    output_file_name = f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv"
     try:
-        with open(f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv", "w", encoding="utf-8") as output:
+        with open(output_file_name, "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
+        print(f"PMIDs were successfully written to '{output_file_name}'")
+
     except FileNotFoundError:
         Path("data/pmids").mkdir(exist_ok = True)
-        with open(f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv", "w", encoding="utf-8") as output:
+        with open(output_file_name, "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
+        print(f"PMIDs were successfully written to '{output_file_name}'")
 
-    # TODO: notify user where file is saved.
     print("End of concept2pmid.py")

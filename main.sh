@@ -14,8 +14,8 @@
 # ??Reference to OpenAlex??
 
 
-# credentials
-log_file="test_250704_2"
+# Settings
+log_file="test_250705_1"
 config_file="config.yaml"
 
 # Make `logs/` directory (if it does not already exists)
