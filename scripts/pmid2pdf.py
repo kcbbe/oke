@@ -65,10 +65,9 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
                     landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
 
 
-    # TODO: this needs a different filtering now.. (like best_open_version:acceptedOrPublished)
+    # Report metrics
     n_total_from_query = response["meta"]["count"]
-    # n_pdf = len(pdf_collector)
-    # n_landing = len(landing_collector)
+    print(f'{len(pmids)} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
     print(f'Proportion of PMIDs that returned an open access paper: {round(sum([len(pdf_collector), len(landing_collector)]) / n_total_from_query * 100, 2)}% ({sum([len(pdf_collector), len(landing_collector)])}/{n_total_from_query})')
     print(f'Proportion of Open Access PMIDs with PDF URLs: {round(len(pdf_collector) / sum([len(pdf_collector), len(landing_collector)]) * 100, 2)}% ({len(pdf_collector)}/{sum([len(pdf_collector), len(landing_collector)])})')
 
@@ -77,10 +76,17 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
 # TODO: this can be multiprocessed..
 def get_pdf_papers_from_url(pdf_urls: dict):
     """
+    Download pdf papers from pdf_urls.
+
+    Args:
+        pdf_urls (dict): PMID is key and pdf_url is value. For example: {'25461413': 'https://www.sciencedirect.com/... , ... }
+
+    Returns:
+        collect_errors (list): For example: [['pmid', 'error_code', 'error_message'], ['22420260', 403, 'Forbidden'], ...]
     """
 
     # Collect results
-    collect_errors = []
+    collect_errors = [['pmid', 'error_code', 'error_message']]
     success_counter = 0
 
     # Create `pdf_papers` directory, if it does not yet exists.
@@ -105,6 +111,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
                 success_counter += 1
 
                 # Save pdf
+                
                 with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
                     output.write(input_json["output"])
 
@@ -113,7 +120,8 @@ def get_pdf_papers_from_url(pdf_urls: dict):
 
     # TODO: notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
     print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
-    
+    print("Please find the downloaded pdf's in 'data/pdf_papers/'")
+    print("Please review the error report in 'TODO:'")
     # return error log
     return collect_errors
 
@@ -150,7 +158,9 @@ if __name__ == "__main__":
     # Exclude pmids of which the pdfs are already downloaded. TODO: this needs to be communicated with user!
     try:
         local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
+        old_pmids = pmids
         pmids = list(set(pmids).difference(local_pdfs))
+        print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
     except FileNotFoundError:
         print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
         pass

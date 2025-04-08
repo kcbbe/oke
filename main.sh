@@ -21,6 +21,11 @@ config_file="config.yaml"
 # Make `logs/` directory (if it does not already exists)
 mkdir -p logs/
 
+# TODO: start by appending log with datetime
+
+# Get concept_ids from TenWise database
+# ~/venv/graduation/bin/python scripts/term2concept.py -c $config_file &>> logs/$log_file.log
+
 # Get PMIDs from querying TenWise database (find the search settings in the configuration file)
 ~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file &> logs/$log_file.log
 

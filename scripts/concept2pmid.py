@@ -1,7 +1,7 @@
 """
 concept2pmid.py
 
-Find PMIDs based on given concepts.
+Find PMIDs based on given concepts/terms.
 
 Output:
     An output file is generated in
@@ -105,13 +105,13 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
     return hits_on_free_search
 
 # Search method 2: Search on pre-defined alias of TenWise
-# TODO: this function should be split into two functions. 
+# Optional TODO: this function should be split into two functions:
 # 1) Finds the concept_ids of `search_terms` and appends it to a file (where the user can already have put concept_ids in)
 # 2) Read in `concept_id_file` and query TenWise for PMIDs.
-def search_concepts(session: requests.Session, payload: dict, credentials: dict, path_to_pesticide_ids: str, retmax: int):
+def search_concepts(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, retmax: int):
     """
     Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
-    This includes 'parkinson' and concept_ids provided in path_to_pesticide_ids.
+    This includes 'parkinson' and concept_ids provided in path_to_concept_ids.
 
     See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
 
@@ -119,14 +119,12 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
         session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration. Created using `start_tenwise_session` function.
         payload (dict): A payload template for building queries. Created using `start_tenwise_session` function.
         credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
-        path_to_pesticide_ids (str): Path to predefined concept_ids.
+        path_to_concept_ids (str): Path to predefined concept_ids.
         retmax (int): Maximum number of PMIDs to return.
 
     Returns:
         hits_on_concept_ids (list): A list with PMIDs as strings. In example: ['32943485', '...']
     """
-    
-    ### PUBMED USING KMAP
     # Get all Parkinsons Disease concept_ids
     payload['terms'] = "parkinson"
     payload['wildcard'] = 'true'
@@ -141,14 +139,12 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
 
     # Get the one concept_id for "parkinson's disease"
     park_hit = [k for k, v in js['result']['hits'].items() if v[0].lower() == "parkinson's disease"]
-    # NOTE: Disease concepts start with "TWDIS", therefore hits are filtered on "TWDIS": https://apimlqv2.tenwiseservice.nl/html/all_help.html#vocabularies
-    # park_hits = [h for h in hits if h[:5] == 'TWDIS'] # ['TWDIS_03314', 'TWDIS_03315', ...]
-    
+
 
     # Get all pesticide concept_ids
     # Current format is tab-delimited: `TWPHI_XXXXX \t name_pesticide`
     pest_hits = pd.read_csv(
-        path_to_pesticide_ids,
+        path_to_concept_ids,
         header = None,
         sep = "\t"
         ).iloc[:,0].to_list()
@@ -162,6 +158,8 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
         payload
     )
     js = results.json()
+
+    # Collect concept_ids and metrics
     concept_ids = [str(d["pmid"]) for d in js['result']['evidence']]
     metrics_hitnr = [str(d["hitnr"]) for d in js['result']['evidence']]
     metrics_score = [str(d["score"]) for d in js['result']['evidence']]
@@ -171,8 +169,7 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
     metrics_hitnr.insert(0, "hitnr")
     metrics_score.insert(0, "score")
 
-    # hits_on_concept_ids = [[concept_ids[i], metrics_hitnr[i], metrics_score[i]] for i in range(len(concept_ids))]
-
+    # Combine concept_ids with metrics into one list
     hits_on_concept_ids = [str([concept_ids[i], metrics_hitnr[i], metrics_score[i]]).strip("[]'").replace("'", "") for i in range(len(concept_ids))]
 
     return hits_on_concept_ids
@@ -205,8 +202,9 @@ if __name__ == "__main__":
     # Start session
     session, payload = start_tenwise_session(creds)
 
-    # SEARCH TODO: This part needs to change so that it is modulair.
+    # SEARCH 
     # Option 1) Get pmid ids on keywords "pesticides" and "Parkinson's disease"
+    # Optional TODO: This part needs to change so that it is modulair.
     if config["search_mode"].lower().strip() == "free":
         pmid_hits = search_free(
             session,
@@ -217,13 +215,13 @@ if __name__ == "__main__":
         )
 
     # Option 2) Get pmid ids on concept_ids from TenWise vocabularies
-    # TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
+    # Optional TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
     elif config["search_mode"].lower().strip() == "concept":
         pmid_hits = search_concepts(
             session,
             payload,
             creds,
-            path_to_pesticide_ids = config["path_to_pesticide_ids"],
+            path_to_concept_ids = config["path_to_concept_ids"],
             retmax = config["bruto_nr_pmids"]
         )
 

@@ -7,13 +7,17 @@ import yaml
 import pandas as pd
 
 def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
-            
+    # TODO: docstring
+    """
+    Transforms a single pdf into a single xml
+    """
     collect_errors = []
 
-
+    # Read pdf
     with open(f"data/pdf_papers/{id}.pdf", "rb") as input:
         input_json = {"input": input.read()}
 
+    # Let GROBID process pdf into xml
     response = requests.post(
         f'http://{servername}:{portnumber}/api/processFulltextDocument',
         files = input_json,
@@ -41,6 +45,7 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
         print("No errors occurred!")
     else:
         print(f"Error(s) occurred: {collect_errors}")
+        print("Please review the error report in 'TODO:'")
 
     # return error log
     return collect_errors
@@ -75,6 +80,15 @@ if __name__ == "__main__":
     # Create `xml_papers` directory, if it does not yet exists.
     Path("data/xml_papers/").mkdir(exist_ok = True)
 
+
+# TODO: Check if GROBID is running
+# if http://assemblix:8670/api/isalive == 'true':
+# else:
+# try: to start up GROBID via bash/sys`docker run --rm --init --ulimit core=0 -p 8670:8070 lfoppiano/grobid:0.8.1`
+# except: error, sys.exit()
+
+
+    # For each pmid (TODO: MULTIPROCESSING)
     for id in pmids:
         if Path(f"data/xml_papers/{id}.xml").exists():
             # xml paper version for this `id` is already available on local drive.
@@ -90,5 +104,10 @@ if __name__ == "__main__":
             # No paper was obtained for this `id`.
             pass
 
+    # TODO: Report how many pdfs were transformed to xml, and error thing
+
     # TODO: report `errors`
     print("End of pdf2xml.py")
+
+# How to parse TEI:
+# For next https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
