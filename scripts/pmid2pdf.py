@@ -1,13 +1,14 @@
 
 # IMPORTS
 import sys
+import time
 import argparse
 from pathlib import Path
 import yaml
 import requests
 import pandas as pd
 from urllib.request import Request, urlopen
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
 def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
@@ -24,14 +25,13 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
         pdf_collector, landing_collector (both dict):
     """
 
-    # flow control: pmids needs to contain strings, not numerical values.
-    try:
-        url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={email}"
-    except TypeError as e:
-        # print(f"ERROR in `get_pdf_urls_from_pmids`: Likely the `pmids` list contains numeric representation. Please convert them to a string as mentioned in the docstring of this function.\n{e}")
-        # sys.exit()
-        pmids = [str(i) for i in pmids]
-        url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={email}"
+    # try:
+    url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={pmids}"
+    # except TypeError as e:
+    #     # print(f"ERROR in `get_pdf_urls_from_pmids`: Likely the `pmids` list contains numeric representation. Please convert them to a string as mentioned in the docstring of this function.\n{e}")
+    #     # sys.exit()
+    #     pmids = [str(i) for i in pmids]
+    #     url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={pmids}"
 
     # get response from OpenAlex
     with requests.Session() as session:
@@ -118,6 +118,9 @@ def get_pdf_papers_from_url(pdf_urls: dict):
             except HTTPError as e:
                 collect_errors.append([pdf_key, e.code, e.msg])
 
+            except URLError as e:
+                collect_errors.append([pdf_key, '404', e.reason.strerror])
+
     # TODO: notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
     print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
     print("Please find the downloaded pdf's in 'data/pdf_papers/'")
@@ -165,12 +168,36 @@ if __name__ == "__main__":
         print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
         pass
 
+    # TODO: Try to have the following processes multiprocessed.
+    # Collect pdf_urls and landing_urls
+    pdf_urls = dict()
+    landing_urls = dict()
+    errors = list()
+
     # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
-    pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])
+    # if pmids longer than 100 items
+    if len(pmids) > 100:
+        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)]
+
+        for i, chunk in enumerate(pmids_chunks):
+            # Wait 10 seconds to avoid penalties from OpenAlex
+            if i != 0:
+                time.sleep(10)
+
+            pdfs, landings = get_pdf_urls_from_pmids(chunk, config["email_address"])
+            pdf_urls.update(pdfs)
+            landing_urls.update(landings)
+
+
+    else:
+        pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])
+
+    # Download PDFs
+    errors = get_pdf_papers_from_url(pdf_urls)
+
+
     # TODO: further data exploration of the papers???????????? ??????????? ?
 
-    # TODO: Try to have the following processes multiprocessed.
-    errors = get_pdf_papers_from_url(pdf_urls)
 
     # TODO: report `errors`
 
