@@ -124,7 +124,6 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     # TODO: notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
     print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
     print("Please find the downloaded pdf's in 'data/pdf_papers/'")
-    print("Please review the error report in 'TODO:'")
     # return error log
     return collect_errors
 
@@ -183,11 +182,11 @@ if __name__ == "__main__":
             # Wait 10 seconds to avoid penalties from OpenAlex
             if i != 0:
                 time.sleep(10)
+                print("Sleeping for 10 seconds to avoid penalties for OpenAlex")
 
             pdfs, landings = get_pdf_urls_from_pmids(chunk, config["email_address"])
             pdf_urls.update(pdfs)
             landing_urls.update(landings)
-
 
     else:
         pdf_urls, landing_urls = get_pdf_urls_from_pmids(pmids, config["email_address"])
@@ -195,10 +194,20 @@ if __name__ == "__main__":
     # Download PDFs
     errors = get_pdf_papers_from_url(pdf_urls)
 
+    # Save error report to file
+    output_file_name = f"logs/errors_pmid2pdf_{config['output_pmids']}_{config['experiment_name']}.csv"
+    try:
+        with open(output_file_name, "w", encoding="utf-8") as output:
+            output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
+        print(f"Error log is successfully written to '{output_file_name}'")
+
+    except FileNotFoundError:
+        Path("logs").mkdir(exist_ok = True)
+        with open(output_file_name, "w", encoding="utf-8") as output:
+            output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
+        print(f"Error log is successfully written to '{output_file_name}'")
+
 
     # TODO: further data exploration of the papers???????????? ??????????? ?
-
-
-    # TODO: report `errors`
 
     print("End of pmid2pdf.py")
