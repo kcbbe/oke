@@ -59,10 +59,7 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
             # TODO: Troubleshoot when `pdf_url` is None, how to extract a pdf in an alternative way:
             # if pdf_url is empty, try to retrieve pdf by trying tricks on landing_page_url
             elif r["best_oa_location"]["pdf_url"] is None:
-                if r["best_oa_location"]["landing_page_url"].split("/")[-1][:3] == "PMC":
-                    landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf' # TODO: Check if this can be added to pdf_collector instead?
-                else:
-                    landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
+                landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
 
 
     # Report metrics
@@ -194,11 +191,7 @@ if __name__ == "__main__":
             landing_urls.update(landings)
             for i in range(len(metrics)):
                 total_metrics[1][i] += metrics[i]
-# ##########################
-# # Klad
-# for i in pmids_chunks:
-#     print(len(i))
-# ##########################
+
     else:
         pdf_urls, landing_urls, metrics = get_pdf_urls_from_pmids(pmids, config["email_address"])
         for i in range(len(metrics)):
@@ -233,6 +226,22 @@ if __name__ == "__main__":
             output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
         print(f"Url log is successfully written to '{output_file_name}'")
 
+    # Attempt to retrieve pdf_url from landing_url:
+    print("Trying to retrieve pdf_url from landing_url")
+    # extend a PMC url with '/pdf':
+    extra_pdf_urls = {k: landing_urls[k] + "/pdf" for k in landing_urls if landing_urls[k].split("/")[-1][:3] == "PMC"}
+
+    # # add all landing_urls:
+    # extra_pdf_urls = {k: landing_urls[k] for k in landing_urls}
+    pdf_urls.update(extra_pdf_urls)
+    print(f"{len(extra_pdf_urls)} urls that potentially link to a pdf were added to pdf_urls list")
+
+    # elif r["best_oa_location"]["pdf_url"] is None:
+    #     if r["best_oa_location"]["landing_page_url"].split("/")[-1][:3] == "PMC":
+    #         landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf' # TODO: Check if this can be added to pdf_collector instead?
+    #     else:
+    #         landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
+            
     # Download PDFs
     print("Trying to download listed PDFs")
     errors = get_pdf_papers_from_url(pdf_urls)
