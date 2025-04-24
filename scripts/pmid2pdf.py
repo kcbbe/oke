@@ -128,11 +128,10 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     # return error log
     return collect_errors
 
-# MAIN
-if __name__ == "__main__":
-    print("Start of pmid2pdf.py")
-
-    # Collect arguments
+def collect_arguments():
+    """
+    Collects arguments from the command line.
+    """
     parser = argparse.ArgumentParser(
         description = __doc__,
         # formatter_class = argparse.RawDescriptionHelpFormatter
@@ -144,7 +143,47 @@ if __name__ == "__main__":
         help = "Provide path to the configuration file (default: 'config.yaml')",
         default = "config.yaml"
     )
+
+    parser.add_argument(
+        "-n",
+        dest = "nr_pmids",
+        required = False,
+        help = "Provide the number of PMIDs to be returned (default: 1000)",
+        default = 1000,
+        type = int
+    )
+
+    parser.add_argument(
+        "-m",
+        dest = "search_mode",
+        required = True,
+        help = "Provide the search mode: 'free' or 'concept'.",
+    )
+
+    parser.add_argument(
+        "-o",
+        dest = "output_file",
+        required = True,
+        help = "Provide the name of the file, incl. its suffix.",
+    )
+
+    parser.add_argument(
+        "-i",
+        dest = "input_file",
+        required = True,
+        help = "Provide the name of the input file.",
+    )
+
     args = parser.parse_args()
+
+    return args
+
+# MAIN
+if __name__ == "__main__":
+    print("Start of pmid2pdf.py")
+
+    # Collect arguments
+    args = collect_arguments()
 
     # Load configuration file
     with open(args.config_file, 'r', encoding="utf-8") as stream:
@@ -152,7 +191,7 @@ if __name__ == "__main__":
 
     # Load pmid file
     pmids = pd.read_csv(
-        f'data/pmids/{config["output_pmids"]}_{config["experiment_name"]}.csv',
+        f'data/pmids/{args.input_file}',
     ).loc[:,"pmid"].to_list()
 
     # convert pmids `int` to `str`
@@ -214,7 +253,7 @@ if __name__ == "__main__":
         all_urls.extend([[k, 'landing_url', landing_urls[k]] for k in landing_urls])
 
     print("Saving found urls")
-    output_file_name = f"logs/urls_pmid2pdf_{config['output_pmids']}_{config['experiment_name']}.csv"
+    output_file_name = f"logs/urls_pmid2pdf_{args.output_file}"
     try:
         with open(output_file_name, "w", encoding="utf-8") as output:
             output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
@@ -235,20 +274,14 @@ if __name__ == "__main__":
     # extra_pdf_urls = {k: landing_urls[k] for k in landing_urls}
     pdf_urls.update(extra_pdf_urls)
     print(f"{len(extra_pdf_urls)} urls that potentially link to a pdf were added to pdf_urls list")
-
-    # elif r["best_oa_location"]["pdf_url"] is None:
-    #     if r["best_oa_location"]["landing_page_url"].split("/")[-1][:3] == "PMC":
-    #         landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}/pdf' # TODO: Check if this can be added to pdf_collector instead?
-    #     else:
-    #         landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
-            
+          
     # Download PDFs
     print("Trying to download listed PDFs")
     errors = get_pdf_papers_from_url(pdf_urls)
 
     # Save error report to file
     if len(errors) > 1:
-        output_file_name = f"logs/errors_pmid2pdf_{config['output_pmids']}_{config['experiment_name']}.csv"
+        output_file_name = f"logs/errors_pmid2pdf_{args.output_file}"
         try:
             with open(output_file_name, "w", encoding="utf-8") as output:
                 output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))

@@ -1,7 +1,3 @@
-# experiment name (this will be post-fixed to all generated files, preventing files to be overwritten)
-"experiment_name": "test"
-"bruto_nr_pmids": 200 # Fill a integer in for activating the cap. Fill in `False` or `None` to remove cap.
-
 # credentials
 "path_to_credentials": "path/to/credentials"
 "email_address": "user@domain.com"
@@ -9,9 +5,5 @@
 "grobid_portnumber" : "portnumber"
 
 # search settings
-"search_mode": "concepts" # "free" or "concepts" (TODO: Maybe change this to a TRUE or FALSE?)
 "free_search_terms": "(pesticide OR pesticides) AND parkinson's"
 "path_to_pesticide_ids": "path/to/all_pesticide_concept_ids.tsv"
-
-# names of output files
-"output_pmids": "pmid_file"

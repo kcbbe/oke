@@ -174,11 +174,10 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
 
     return hits_on_concept_ids
 
-# MAIN
-if __name__ == "__main__":
-    print("Start of concept2pmid.py")
-
-    # Collect arguments
+def collect_arguments():
+    """
+    Collects arguments from the command line.
+    """
     parser = argparse.ArgumentParser(
         description = __doc__,
         # formatter_class = argparse.RawDescriptionHelpFormatter
@@ -190,7 +189,40 @@ if __name__ == "__main__":
         help = "Provide path to the configuration file (default: 'config.yaml')",
         default = "config.yaml"
     )
+
+    parser.add_argument(
+        "-n",
+        dest = "nr_pmids",
+        required = False,
+        help = "Provide the number of PMIDs to be returned (default: 1000)",
+        default = 1000,
+        type = int
+    )
+
+    parser.add_argument(
+        "-m",
+        dest = "search_mode",
+        required = True,
+        help = "Provide the search mode: 'free' or 'concept'.",
+    )
+
+    parser.add_argument(
+        "-o",
+        dest = "output_file",
+        required = True,
+        help = "Provide the name of the file, incl. its suffix.",
+    )
     args = parser.parse_args()
+
+    return args
+
+# MAIN
+if __name__ == "__main__":
+    print("Start of concept2pmid.py")
+
+    # Collect arguments
+    args = collect_arguments()
+    print(f"Arguments: {args}")
 
     # Load configuration file
     with open(args.config_file, 'r', encoding="utf-8") as stream:
@@ -205,24 +237,24 @@ if __name__ == "__main__":
     # SEARCH 
     # Option 1) Get pmid ids on keywords "pesticides" and "Parkinson's disease"
     # Optional TODO: This part needs to change so that it is modulair.
-    if config["search_mode"].lower().strip() == "free":
+    if args.search_mode.lower().strip() == "free":
         pmid_hits = search_free(
             session,
             payload,
             creds,
             config["free_search_terms"],
-            retmax = config["bruto_nr_pmids"]
+            retmax = args.nr_pmids
         )
 
     # Option 2) Get pmid ids on concept_ids from TenWise vocabularies
     # Optional TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
-    elif config["search_mode"].lower().strip() == "concept":
+    elif args.search_mode.lower().strip() == "concept":
         pmid_hits = search_concepts(
             session,
             payload,
             creds,
             path_to_concept_ids = config["path_to_concept_ids"],
-            retmax = config["bruto_nr_pmids"]
+            retmax = args.nr_pmids
         )
 
     else:
@@ -230,7 +262,7 @@ if __name__ == "__main__":
         sys.exit()
 
     # Save pmids to file
-    output_file_name = f"data/pmids/{config['output_pmids']}_{config['experiment_name']}.csv"
+    output_file_name = f"data/pmids/{args.output_file}"
     try:
         with open(output_file_name, "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
