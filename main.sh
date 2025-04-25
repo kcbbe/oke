@@ -14,9 +14,9 @@
 
 
 # Settings
-experiment_name="250424_with_args_pmid2pdf"
+experiment_name="250425_testing_grobid_lite"
 search_mode="concept"  # "free" or "concept" (TODO: Maybe change this to a TRUE or FALSE?)
-nr_pmids=10
+nr_pmids=3600
 
 config_file="config.yaml"
 
@@ -38,7 +38,7 @@ date &> $log_file
 
 # Get PDFs by searching pdf_urls in OpenAlex on PMIDs
 date &>> $log_file
-~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file -n $nr_pmids -m $search_mode -i "pmid_$full_exp_name.csv" -o "$full_exp_name.csv" &>> $log_file
+~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file -i "pmid_$full_exp_name.csv" -o "$full_exp_name.csv" &>> $log_file
 
 # # Get XMLs from PDFs using GROBID
 # ~/venv/graduation/bin/python scripts/pdf2xml.py -c $config_file &>> $log_file
