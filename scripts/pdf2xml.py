@@ -4,9 +4,6 @@ Checks if the corresponding pdf files are available in the `data/pdf_papers/` di
 If the pdf files are available, it checks if the corresponding xml files are already available in the `data/xml_papers/` directory.
 If the xml files are not available, it process the pdf files into xml files using the GROBID server.
 """
-# work on error reporting
-
-
 # IMPORTS
 import argparse
 from pathlib import Path
@@ -15,9 +12,12 @@ import yaml
 import pandas as pd
 
 def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
-    # TODO: docstring
     """
-    Transforms a single pdf into a single xml
+    Transforms a single pdf into a single xml using the GROBID server.
+    The function reads the pdf file, with pmid (e.g. 12345678.pdf) from the `data/pdf_papers/` directory,
+    sends it to the GROBID server, and saves the xml file in the `data/xml_papers/` directory.
+    If the transformation is successful, the xml file is saved in the `data/xml_papers/` directory.
+    If the transformation is not successful, the error code and message are returned.
 
     Args:
         servername (str): The name of the server where GROBID is running.
@@ -27,7 +27,6 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
     Returns:
         collect_errors (list): A list of errors that occurred during the transformation.
     """
-    
 
     # Read pdf
     with open(f"data/pdf_papers/{id}.pdf", "rb") as input:
@@ -99,20 +98,6 @@ if __name__ == "__main__":
     # Collect arguments
     args = collect_arguments()
 
-    # # Collect arguments
-    # parser = argparse.ArgumentParser(
-    #     description = __doc__,
-    #     # formatter_class = argparse.RawDescriptionHelpFormatter
-    # )
-    # parser.add_argument(
-    #     "-c",
-    #     dest = "config_file",
-    #     required = True,
-    #     help = "Provide path to the configuration file (default: 'config.yaml')",
-    #     default = "config.yaml"
-    # )
-    # args = parser.parse_args()
-
     # Load configuration file
     with open(args.config_file, 'r', encoding="utf-8") as stream:
         config = yaml.safe_load(stream)
@@ -124,14 +109,6 @@ if __name__ == "__main__":
 
     # Create `xml_papers` directory, if it does not yet exists.
     Path("data/xml_papers/").mkdir(exist_ok = True)
-
-
-# TODO: Check if GROBID is running
-# if http://assemblix:8670/api/isalive == 'true':
-# else:
-# try: to start up GROBID via bash/sys`docker run --rm --init --ulimit core=0 -p 8670:8070 lfoppiano/grobid:0.8.1`
-# except: error, sys.exit()
-
 
     # For each pmid (TODO: MULTIPROCESSING)
     total_metrics = [["xml_count", "pdf_count", "none_count"], [0, 0, 0]]
@@ -165,16 +142,13 @@ if __name__ == "__main__":
     # Report total_metrics
     print("Total overview:")
     print(f"Ideally, {len(pmids)} pmids should be processed")
-    print(f"Proportion of pmids missing an xml file and pdf files: {round(total_metrics[1][2] / len(pmids) * 100, 2)}% ({total_metrics[1][2]}/{len(pmids)})")
+    print(f"Proportion of pmids missing both an xml file and pdf files: {round(total_metrics[1][2] / len(pmids) * 100, 2)}% ({total_metrics[1][2]}/{len(pmids)})")
     print(f"Proportion of already existing xml files: {round(total_metrics[1][0] / len(pmids) * 100, 2)}% ({total_metrics[1][0]}/{len(pmids)})")
     print(f"Proportion of pdf files attempted to be transformed into xml files: {round(total_metrics[1][1] / len(pmids) * 100, 2)}% ({total_metrics[1][1]}/{len(pmids)})")
-    # print(f"Total metrics: {total_metrics[1][0]} xml files, {total_metrics[1][1]} pdf files, {total_metrics[1][2]} none files")
 
     # Report errors
     if len(errors) > 1:
         print(f"Proportion of successful transformations: {round((total_metrics[1][1] - (len(errors) - 1))/ total_metrics[1][1] * 100, 2)}% ({total_metrics[1][1] - (len(errors) - 1)}/{total_metrics[1][1]})")
-        # print(f"Number of errors during 'pdf to xml' transformation: {len(errors) - 1}")
-        # print(f"Number of successful transformations: {total_metrics[1][1] - (len(errors) - 1)}")
 
         # Save error report to file
         output_file_name = f"logs/errors_pdf2xml_{args.input_file}"
