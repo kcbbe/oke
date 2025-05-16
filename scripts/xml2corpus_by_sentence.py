@@ -52,7 +52,7 @@ def get_body(xml) -> list:
     
     # Get title and create a list to collect all headers and paragraphs
     title = soup.find('title')
-    list_heads_and_paragraphs = [[title.name, title.next]]
+    list_heads_and_paragraphs = [[title.name, [title.next]]]
 
     # Get all headers and paragraphs
     heads = soup.find_all('head')
@@ -80,40 +80,22 @@ def clean_paragraphs(body: list) -> list:
 
     # Iterate over the header list
     for i_body, element in enumerate(body):
-        # Ignore the first element of the header, which is the title (and is already clean as a string)
-        if isinstance(element[1], bs4.element.NavigableString):
-            element[1] = element[1].text
-        # If the element is a bs4.element.Tag, it is a header
-        elif isinstance(element[1], list):
-            # Iterate over the paragraphs in the header
-            for i_el, el in enumerate(element[1]):
-                if isinstance(el, bs4.element.Tag):
-                    # Remove all references from the paragraph body
-                    # https://stackoverflow.com/questions/39885359/beautifulsoup-decompose
-                    for ref in el('ref'):
-                        ref.decompose()
 
-                # Update the paragraph in the body list
-                body[i_body][1][i_el] = el.text
+        # Iterate over the paragraphs in the header
+        for i_el, el in enumerate(element[1]):
+            # If the element is a bs4.element.Tag, it is a header
+            if isinstance(el, bs4.element.Tag):
+                # Remove all references from the paragraph body
+                # https://stackoverflow.com/questions/39885359/beautifulsoup-decompose
+                for ref in el('ref'):
+                    ref.decompose()
+            
+            # Ignore the first element of the header, which is the title (and is already clean as a string)
+            elif isinstance(element[1], bs4.element.NavigableString):
+                pass
 
-                # else:
-                #     # If the element is not a bs4.element.Tag, it is already a string
-                #     continue
-    # Iterate over the body list and clean each paragraph
-
-
-    # for i in range(len(body)):
-    #     # Ignore the first element of the body, which is the title (and is already clean as a string)
-    #     if isinstance(body[i][1], bs4.element.NavigableString):
-    #         body[i][1] = body[i][1].text
-
-    #     # elif isinstance(body[i][1], bs4.element.Tag):
-    #     elif isinstance(body[i][1], list):
-    #         for el in body[i][1]:
-    #             if isinstance(el[i][1], bs4.element.Tag):
-    #                 for ref in el[i][1]('ref'):
-    #                     ref.decompose()
-    #                 el[i][1] = el[i][1].text
+            # Update the paragraph in the body list
+            body[i_body][1][i_el] = el.text
 
     return body
 
@@ -156,56 +138,56 @@ if __name__ == "__main__":
         
             # Load xml file
             with open(f"data/xml_papers/{id}.xml", 'r', encoding="utf-8") as file:
-
                 # Get the body of the xml file
                 body = get_body(file)
                 
-                # # Remove all references from the paragraph body and turn bs4.element.Tag into a string.
-                # # https://stackoverflow.com/questions/39885359/beautifulsoup-decompose
-                body = clean_paragraphs(body)
+            # Remove all references from the paragraph body and turn bs4.element.Tag into a string.
+            # https://stackoverflow.com/questions/39885359/beautifulsoup-decompose
+            body = clean_paragraphs(body)
 
-                # Transform the body (list) into a dataframe
-                df_body = pd.DataFrame(body, columns=['head_name', 'paragraphs'])
+            # Transform the body (list) into a dataframe
+            df_body = pd.DataFrame(body, columns=['head_name', 'paragraph'])
 
-    #             # Add the head_id to the dataframe (TODO: Maybe groupby not needed)
-    #             df_body['head_id'] = df_body.groupby(['head_name']).cumcount()
+            # Remove rows with no paragraphs
+            df_body.loc[df_body['paragraph'].map(len) < 1, 'paragraph'] = None
+            df_body = df_body.dropna(subset=['paragraph'])
 
-    #             # Explode the paragraphs into separate rows and add the paragraph_id to the dataframe
-    #             df_body = df_body.explode(['paragraphs'])
-    #             df_body['paragraph_id'] = df_body.groupby(['head_name']).cumcount()
+            # Reset index and add the head_id to the dataframe (TODO: Maybe groupby not needed)
+            df_body = df_body.reset_index(drop=True)
+            df_body = df_body.reset_index(names='head_id')
 
-    #             # Split the paragraph into sentences
-    #             # https://stackoverflow.com/questions/12680754/split-explode-pandas-dataframe-string-entry-to-separate-rows
-    #             # TODO: current regex is generated by copilot. It appears to be OK, but check it to be sure!
-    #             df_body['sentence'] = df_body['paragraph'].str.split(r"(?<=[.!?]) +")
-    #             df_body = df_body.explode(['sentence'])
+            # Explode the paragraphs into separate rows and add the paragraph_id to the dataframe
+            df_body = df_body.explode(['paragraph'])
+            df_body['paragraph_id'] = df_body.groupby(['head_name']).cumcount()
 
-    #             # test.iloc[1,1]
+            # Split the paragraph into sentences, explode them into separate rows and add the sentence_id to the dataframe
+            # https://stackoverflow.com/questions/12680754/split-explode-pandas-dataframe-string-entry-to-separate-rows
+            # TODO: current regex is generated by copilot. It appears to be OK, but check it to be sure!
+            df_body['sentence_text'] = df_body['paragraph'].str.split(r"(?<=[.!?]) +")
+            df_body = df_body.explode(['sentence_text'])
+            df_body['sentence_id'] = df_body.groupby(['paragraph']).cumcount()
 
-    #             print(body)
+            # Drop the paragraph column
+            df_body = df_body.drop(columns=['paragraph'])
+            # Add the paper_name to the dataframe
+            df_body['paper_name'] = id
 
-    #             # for i in range(len(body)):
-    #             #     for ref in body[i][1]('ref'):
-    #             #         try:
-    #             #             ref.decompose()
-    #             #         except TypeError:
-    #             #             # The first element of the body is not a bs4.element.Tag but a string, thus it cannot be decomposed, thus it will throw this error
-    #             #             continue
+            print(df_body)
 
+        # TODO: Append the dataframe to the corpus dataframe
 
+                # TODO: Check out what this code was about:
+                # header_names = [header.next.lower() for header in headers if 'bs4.element.NavigableString' in str(type(header.next))]
+                # ids = [id] * len(header_names)
+                # # Create dataframe
+                # df = pd.DataFrame({"id": ids, "header_name": header_names})
+                # # Append to the dataframe
+                # collect_header_names = pd.concat([collect_header_names, df], ignore_index=True)
 
-    #             # TODO: Check out what this code was about:
-    #             # header_names = [header.next.lower() for header in headers if 'bs4.element.NavigableString' in str(type(header.next))]
-    #             # ids = [id] * len(header_names)
-    #             # # Create dataframe
-    #             # df = pd.DataFrame({"id": ids, "header_name": header_names})
-    #             # # Append to the dataframe
-    #             # collect_header_names = pd.concat([collect_header_names, df], ignore_index=True)
+    # Save to csv
+    collect_header_names.to_csv(f"logs/headers_xml2corpus_by_sentence_{args.input_file}", index=False)
 
-    # # Save to csv
-    # collect_header_names.to_csv(f"logs/headers_xml2corpus_by_sentence_{args.input_file}", index=False)
+                # 
 
-    #             # 
-
-    #             # # Collect header names of the xml file and plot their frequency
-    #             # for header in headers:
+                # # Collect header names of the xml file and plot their frequency
+                # for header in headers:
