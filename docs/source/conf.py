@@ -37,7 +37,8 @@ extensions = [
     'sphinx_rtd_theme',
     'sphinx.ext.autodoc',
     'sphinx.ext.duration',
-    'sphinxemoji.sphinxemoji',
+    'sphinxemoji.sphinxemoji', # https://sphinxemojicodes.readthedocs.io/en/stable/
+    'sphinx_mdinclude',
 
     'sphinx.ext.duration',
     'sphinx.ext.doctest',
