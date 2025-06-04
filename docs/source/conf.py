@@ -9,21 +9,19 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 
-import os
 import sys
-
-sys.path.insert(0, os.path.abspath('./scripts'))
-
+from pathlib import Path
+from time import strftime, localtime
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]) + "/scripts")
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
-project = 'Open knowledge explorer'
-# TODO: make date variable?
-copyright = '2025, Research Centre BioBased Economy (Hanze University of Applied Sciences)'
+project = 'Open Knowledge Explorer'
+copyright = f'{int(strftime("%Y", localtime())) +1}, Research Centre BioBased Economy (Hanze University of Applied Sciences)'
 author = 'Jennefer Beenen, Wynand Alkema'
-
-version = 'May 2025' # TODO: make date variable?
+release = '0.1'
+version = strftime("%B %Y", localtime()).title()
 
 
 # -- General configuration ---------------------------------------------------
@@ -33,8 +31,21 @@ version = 'May 2025' # TODO: make date variable?
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-extensions = ['sphinx.ext.viewcode','sphinx_copybutton','sphinx_rtd_theme','sphinx.ext.autodoc']
+extensions = [
+    'sphinx.ext.viewcode',
+    'sphinx_copybutton',
+    'sphinx_rtd_theme',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.duration',
+    'sphinxemoji.sphinxemoji',
 
+    'sphinx.ext.duration',
+    'sphinx.ext.doctest',
+    'sphinx.ext.autosummary'
+]
+
+# If you want a consistent emoji style instead of using the browser's default, you can set it in your conf.py file:
+sphinxemoji_style = 'twemoji'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -50,9 +61,15 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
-#
-#html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
+# TODO: Consider one of the following themes:
+# 1) Git book theme (https://sphinx-themes.org/sample-sites/sphinx-book-theme/)
+# pip install sphinx-book-theme
+# html_theme = 'sphinx_book_theme'
+# 2) Awesome theme (https://sphinx-themes.org/sample-sites/sphinxawesome-theme/)
+# pip install sphinxawesome-theme
+# html_permalinks_icon = '<span>#</span>'
+# html_theme = 'sphinxawesome_theme'
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
@@ -71,6 +88,6 @@ autodoc_default_options = {
 source_suffix = {
     '.rst': 'restructuredtext',
     #'.txt': 'restructuredtext',
-    '.sh': 'restructuredtext'
-    #'.md': 'markdown',
+    '.sh': 'restructuredtext',
+    '.md': 'markdown',
 }
