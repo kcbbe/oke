@@ -1,3 +1,7 @@
+"""
+Search and download full scientific papers in PDF.
+"""
+
 
 # IMPORTS
 import sys
@@ -9,6 +13,37 @@ import requests
 import pandas as pd
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+
+# FUNCTIONS
+def collect_arguments() -> argparse.Namespace:
+    """Collect arguments from the command line."""
+    parser = argparse.ArgumentParser(
+        description = __doc__,
+    )
+    
+    parser.add_argument(
+        "-c",
+        dest = "config_file",
+        required = True,
+        help = "Provide path to the configuration file (default: 'config.yaml')",
+        default = "config.yaml"
+    )
+
+    parser.add_argument(
+        "-o",
+        dest = "output_file",
+        required = True,
+        help = "Provide the name of the file, incl. its suffix.",
+    )
+
+    parser.add_argument(
+        "-i",
+        dest = "input_file",
+        required = True,
+        help = "Provide the name of the input file.",
+    )
+
+    return parser.parse_args()
 
 # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
 def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
@@ -116,39 +151,6 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     # return error log
     return collect_errors
 
-def collect_arguments():
-    """
-    Collects arguments from the command line.
-    """
-    parser = argparse.ArgumentParser(
-        description = __doc__,
-        # formatter_class = argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "-c",
-        dest = "config_file",
-        required = True,
-        help = "Provide path to the configuration file (default: 'config.yaml')",
-        default = "config.yaml"
-    )
-
-    parser.add_argument(
-        "-o",
-        dest = "output_file",
-        required = True,
-        help = "Provide the name of the file, incl. its suffix.",
-    )
-
-    parser.add_argument(
-        "-i",
-        dest = "input_file",
-        required = True,
-        help = "Provide the name of the input file.",
-    )
-
-    args = parser.parse_args()
-
-    return args
 
 # MAIN
 if __name__ == "__main__":

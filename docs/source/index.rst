@@ -4,9 +4,9 @@
    contain the root `toctree` directive.
 
 Open Knowledge Explorer documentation |:bookmark_tabs:|
-=============================================
+=======================================================
 
-Documentation version: |version|
+Last updated: |version|
 
 Overview
 --------

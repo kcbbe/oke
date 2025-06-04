@@ -1,15 +1,17 @@
 
 """
+Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.
+
 This script processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
 
 Arguments:
-    -c: Path to the configuration file (default: 'config.yaml').
     -i: Name of the input file containing PMIDs.
 
 The resulting corpus is saved as a CSV file to the 'data/corpus/' directory.
 
 The following script from the JRC repository is used as inspiration:
 https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
+
 """
 
 # IMPORTS
@@ -17,23 +19,13 @@ import argparse
 import re
 from pathlib import Path
 import bs4
-import yaml
 import pandas as pd
 
-def collect_arguments():
-    """
-    Collects arguments from the command line.
-    """
+# FUNCTIONS
+def collect_arguments() -> argparse.Namespace:
+    """Collect arguments from the command line."""
     parser = argparse.ArgumentParser(
         description = __doc__,
-        # formatter_class = argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "-c",
-        dest = "config_file",
-        required = True,
-        help = "Provide path to the configuration file (default: 'config.yaml')",
-        default = "config.yaml"
     )
 
     parser.add_argument(
@@ -43,9 +35,7 @@ def collect_arguments():
         help = "Provide the name of the input file.",
     )
 
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
 
 def get_body(xml) -> list:
     """
@@ -57,7 +47,7 @@ def get_body(xml) -> list:
     """
     # Load the xml file into BeautifulSoup
     soup = bs4.BeautifulSoup(xml, 'lxml-xml')
-    
+
     # Get title and create a list to collect all headers and paragraphs
     title = soup.find('title')
     list_heads_and_paragraphs = [[title.name, [title.next]]]
@@ -95,7 +85,7 @@ def clean_paragraphs(body: list) -> list:
                 # https://stackoverflow.com/questions/39885359/beautifulsoup-decompose
                 for ref in el('ref'):
                     ref.decompose()
-            
+
             # Ignore the first element of the header, which is the title (and is already clean as a string)
             elif isinstance(element[1], bs4.element.NavigableString):
                 pass
@@ -220,7 +210,8 @@ def flatten_body(body: list, id: int, name: str) -> pd.DataFrame:
     df_body['paper_name'] = name
     # Add the paper_id to the dataframe
     df_body['paper_id'] = id
-
+    # Remove rows with empty sentences (these contain '')
+    df_body = df_body.loc[df_body['sentence_text'] != '']
     # Return the dataframe
     return df_body
 
@@ -230,10 +221,6 @@ if __name__ == "__main__":
 
     # Collect arguments
     args = collect_arguments()
-
-    # Load configuration file
-    with open(args.config_file, 'r', encoding="utf-8") as stream:
-        config = yaml.safe_load(stream)
 
     # Load pmid file
     pmids = pd.read_csv(
@@ -256,12 +243,12 @@ if __name__ == "__main__":
     # For each id in selected_xml_papers (TODO: MULTIPROCESSING, and in a separate function)
     for id, name in enumerate(selected_xml_papers):
         if Path(f"data/xml_papers/{name}.xml").exists():
-        
+
             # Load xml file
             with open(f"data/xml_papers/{name}.xml", 'r', encoding="utf-8") as file:
                 # Get the body of the xml file
                 body = get_body(file)
-                
+
             # Clean the paragraphs
             body = clean_paragraphs(body)
 

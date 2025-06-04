@@ -32,17 +32,16 @@ version = strftime("%B %Y", localtime()).title()
 # ones.
 
 extensions = [
-    'sphinx.ext.viewcode',
-    'sphinx_copybutton',
-    'sphinx_rtd_theme',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.duration',
-    'sphinxemoji.sphinxemoji', # https://sphinxemojicodes.readthedocs.io/en/stable/
-    'sphinx_mdinclude',
-
-    'sphinx.ext.duration',
-    'sphinx.ext.doctest',
-    'sphinx.ext.autosummary'
+    # 'sphinx.ext.viewcode', # Add an 'source' button next to functions and redirects to a page where the code can be viewed.
+    'sphinx_copybutton', # Add a button to copy code.
+    'sphinx_rtd_theme', # Add esthetics to the HTML.
+    'sphinx.ext.autodoc', # Include documentation from docstrings
+    'sphinx.ext.duration', # Measure durations of Sphinx processing
+    'sphinxemoji.sphinxemoji', # Makes it possible to add emoji's: https://sphinxemojicodes.readthedocs.io/en/stable/
+    'sphinx_mdinclude', # Parse Markdown files to a RST file.
+    'sphinx.ext.napoleon', # Parse docstrings in Google style.
+    'sphinx.ext.doctest', # Test snippets in the documentation.
+    'sphinx.ext.autosummary' # Generate autodoc summaries.
 ]
 
 # If you want a consistent emoji style instead of using the browser's default, you can set it in your conf.py file:
@@ -63,12 +62,14 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 html_theme = "sphinx_rtd_theme"
-# TODO: Consider one of the following themes:
+
+# Consider one of the following themes:
 # 1) Git book theme (https://sphinx-themes.org/sample-sites/sphinx-book-theme/)
-# pip install sphinx-book-theme
+# `pip install sphinx-book-theme`
 # html_theme = 'sphinx_book_theme'
+
 # 2) Awesome theme (https://sphinx-themes.org/sample-sites/sphinxawesome-theme/)
-# pip install sphinxawesome-theme
+# `pip install sphinxawesome-theme`
 # html_permalinks_icon = '<span>#</span>'
 # html_theme = 'sphinxawesome_theme'
 

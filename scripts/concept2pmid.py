@@ -1,7 +1,29 @@
 """
-concept2pmid.py
+Find PubMed Identifiers (PMIDs) based on given free terms or fixed concepts.
 
-Find PMIDs based on given concepts/terms.
+The TenWise Knowledge Map API is used to find PMIDs:
+1) Search on free text (e.g. "pesticides" and "Parkinson's disease")
+2) Search on pre-defined concept_ids (e.g. "pesticides" and "Parkinson's disease")
+The results are saved in a file.
+
+Usage:
+    python concept2pmid.py -c config.yaml -n 1000 -m free -o pmids.csv
+
+Arguments:
+    -c, --config_file
+        Path to the configuration file (default: 'config.yaml')
+    -n, --nr_pmids
+        Number of PMIDs to be returned (default: 1000)
+    -m, --search_mode
+        Search mode: 'free' or 'concept'.
+    -o, --output_file
+        Name of the output file, incl. its suffix.
+
+Input:
+    Please find search terms and concept_ids in the configuration file (config.yaml).
+    A configuration file (config.yaml) is required. It contains the following keys:
+        - path_to_concept_ids: Path to a file with concept_ids (tab-delimited)
+        - free_search_terms: Search terms for free text search
 
 Output:
     An output file is generated in
@@ -24,6 +46,45 @@ import pandas as pd
 
 
 # FUNCTIONS
+def collect_arguments() -> argparse.Namespace:
+    """Collect arguments from the command line."""
+    parser = argparse.ArgumentParser(
+        description = __doc__,
+    )
+
+    parser.add_argument(
+        "-c",
+        dest = "config_file",
+        required = True,
+        help = "Provide path to the configuration file (default: 'config.yaml')",
+        default = "config.yaml"
+    )
+
+    parser.add_argument(
+        "-n",
+        dest = "nr_pmids",
+        required = False,
+        help = "Provide the number of PMIDs to be returned (default: 1000)",
+        default = 1000,
+        type = int
+    )
+
+    parser.add_argument(
+        "-m",
+        dest = "search_mode",
+        required = True,
+        help = "Provide the search mode: 'free' or 'concept'.",
+    )
+
+    parser.add_argument(
+        "-o",
+        dest = "output_file",
+        required = True,
+        help = "Provide the name of the file, incl. its suffix.",
+    )
+
+    return parser.parse_args()
+
 # Get credentials
 def get_credentials(path_to_text: str) -> dict:
     """
@@ -105,6 +166,7 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
     return hits_on_free_search
 
 # Search method 2: Search on pre-defined alias of TenWise
+# BIG TODO: MOVE CONCEPT_ID OF "PARKINSON'S DISEASE" TO data/concepts/concept_ids.txt so that all concept_ids are in one place. (and parkinson's disease is not hardcoded in the function)
 # Optional TODO: this function should be split into two functions:
 # 1) Finds the concept_ids of `search_terms` and appends it to a file (where the user can already have put concept_ids in)
 # 2) Read in `concept_id_file` and query TenWise for PMIDs.
@@ -174,52 +236,12 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
 
     return hits_on_concept_ids
 
-def collect_arguments():
+def main():
     """
-    Collects arguments from the command line.
+    Needs an docstring
     """
-    parser = argparse.ArgumentParser(
-        description = __doc__,
-        # formatter_class = argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "-c",
-        dest = "config_file",
-        required = True,
-        help = "Provide path to the configuration file (default: 'config.yaml')",
-        default = "config.yaml"
-    )
-
-    parser.add_argument(
-        "-n",
-        dest = "nr_pmids",
-        required = False,
-        help = "Provide the number of PMIDs to be returned (default: 1000)",
-        default = 1000,
-        type = int
-    )
-
-    parser.add_argument(
-        "-m",
-        dest = "search_mode",
-        required = True,
-        help = "Provide the search mode: 'free' or 'concept'.",
-    )
-
-    parser.add_argument(
-        "-o",
-        dest = "output_file",
-        required = True,
-        help = "Provide the name of the file, incl. its suffix.",
-    )
-    args = parser.parse_args()
-
-    return args
-
-# MAIN
-if __name__ == "__main__":
     print("Start of concept2pmid.py")
-
+    
     # Collect arguments
     args = collect_arguments()
     print(f"Arguments: {args}")
@@ -273,5 +295,10 @@ if __name__ == "__main__":
         with open(output_file_name, "w", encoding="utf-8") as output:
             output.write(',\n'.join(pmid_hits))
         print(f"PMIDs were successfully written to '{output_file_name}'")
-
+    
     print("End of concept2pmid.py")
+
+
+# MAIN
+if __name__ == "__main__":
+    main()

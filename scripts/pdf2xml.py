@@ -1,8 +1,13 @@
 """
-Reads pmids from the 'experiment' csv file,
+Parse PDFs to TEI XML format.
+
+Read PMIDs from the 'experiment' csv file,
 Checks if the corresponding pdf files are available in the `data/pdf_papers/` directory,
 If the pdf files are available, it checks if the corresponding xml files are already available in the `data/xml_papers/` directory.
 If the xml files are not available, it process the pdf files into xml files using the GROBID server.
+
+Code inspired by:
+https://github.com/TenWise-Dev/jrc-public/blob/main/lib/PDF2Tei.py
 """
 # IMPORTS
 import argparse
@@ -10,6 +15,30 @@ from pathlib import Path
 import requests
 import yaml
 import pandas as pd
+
+# FUNCTIONS
+def collect_arguments() -> argparse.Namespace:
+    """Collect arguments from the command line."""
+    parser = argparse.ArgumentParser(
+        description = __doc__,
+    )
+
+    parser.add_argument(
+        "-c",
+        dest = "config_file",
+        required = True,
+        help = "Provide path to the configuration file (default: 'config.yaml')",
+        default = "config.yaml"
+    )
+
+    parser.add_argument(
+        "-i",
+        dest = "input_file",
+        required = True,
+        help = "Provide the name of the input file.",
+    )
+
+    return parser.parse_args()
 
 def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
     """
@@ -64,32 +93,6 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
         # return error log
         return collect_errors
 
-def collect_arguments():
-    """
-    Collects arguments from the command line.
-    """
-    parser = argparse.ArgumentParser(
-        description = __doc__,
-        # formatter_class = argparse.RawDescriptionHelpFormatter
-    )
-    parser.add_argument(
-        "-c",
-        dest = "config_file",
-        required = True,
-        help = "Provide path to the configuration file (default: 'config.yaml')",
-        default = "config.yaml"
-    )
-
-    parser.add_argument(
-        "-i",
-        dest = "input_file",
-        required = True,
-        help = "Provide the name of the input file.",
-    )
-
-    args = parser.parse_args()
-
-    return args
 
 # MAIN
 if __name__ == "__main__":
@@ -110,7 +113,7 @@ if __name__ == "__main__":
     # Create `xml_papers` directory, if it does not yet exists.
     Path("data/xml_papers/").mkdir(exist_ok = True)
 
-    # For each pmid (TODO: MULTIPROCESSING)
+    # For each pmid (TODO: MULTIPROCESSING, and in a separate function)
     total_metrics = [["xml_count", "pdf_count", "none_count"], [0, 0, 0]]
     errors = [["pmid", "error_code", "error_text", "error_message"]]
 
