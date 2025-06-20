@@ -1,16 +1,31 @@
 
-"""
-Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.
+"""Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.
 
-This script processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+This module processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+The resulting corpus is saved as a CSV file to the 'data/corpus/' directory.
+
+Code inspired by:
+https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
+
+Usage:
+    python xml2corpus_by_sentence.py -i pmids_in.csv
 
 Arguments:
     -i: Name of the input file containing PMIDs.
 
-The resulting corpus is saved as a CSV file to the 'data/corpus/' directory.
+Input:
+    A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
 
-The following script from the JRC repository is used as inspiration:
-https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
+Output:
+    An comma separated values output file is generated.
+
+    Example:
+
+    ```
+    paper_id,paper_name,head_id,head_name,paragraph_id,sentence_id,sentence_text\n
+    0,17900545,0,title,0,0,EPIGALLOCATECHIN GALLATE (EGCG) POTENTIATES...\n
+    ...,\n
+    ```
 
 """
 
@@ -215,8 +230,10 @@ def flatten_body(body: list, id: int, name: str) -> pd.DataFrame:
     # Return the dataframe
     return df_body
 
-# MAIN
-if __name__ == "__main__":
+def main():
+    """
+    Needs an docstring
+    """
     print("Start of xml2corpus_by_sentence.py")
 
     # Collect arguments
@@ -263,3 +280,7 @@ if __name__ == "__main__":
     print(f"Corpus dataframe saved to data/corpus/df_xml2corpus_by_sentence_{args.input_file}")
 
     print("End of xml2corpus_by_sentence.py")
+
+# MAIN
+if __name__ == "__main__":
+    main()

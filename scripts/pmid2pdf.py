@@ -1,7 +1,34 @@
-"""
-Search and download full scientific papers in PDF.
-"""
+"""Search and download full scientific papers in PDF.
 
+This module searches and downloads full scientific papers as PDF by searching the OpenAlex (https://openalex.org/) database for PMIDs. 
+Before downloading, it reports were URLs are found for the PMIDs, and if it is a PDF download page or a general landing page.
+After downloading, it reports which errors it encountered when failing to retrieve a PDF.
+An email address in the config file is required to get access to the polite pool.
+
+Usage:
+    python pmid2pdf.py -c config.yaml -i pmids_in.csv -o pmids_out.csv
+
+Arguments:
+    -c, --config_file
+        Path to the configuration file (default: 'config.yaml')
+    -i, --input_file
+        Name of the input file, incl. its suffix.
+    -o, --output_file
+        Name of the output file, incl. its suffix.
+
+Input:
+    A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
+    A configuration file (config.yaml) is required. Please make sure the correct email address is in the configuration file (config.yaml).
+
+Output:
+    PDFs are downloaded to './data/pdf_papers/'.
+    It reports which URLs were found for the PMIDs, and if it is a PDF download page or a general landing page.
+    It reports which errors it encountered when failing to retrieve a PDF.
+
+.. note::
+
+    It is possible that the PDF file actually contains a different type of file. This will be reported as an error when parsing the PDFs with GROBID (see the next pipe pdf2xml.py).
+"""
 
 # IMPORTS
 import sys
@@ -20,7 +47,7 @@ def collect_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description = __doc__,
     )
-    
+
     parser.add_argument(
         "-c",
         dest = "config_file",
@@ -47,17 +74,20 @@ def collect_arguments() -> argparse.Namespace:
 
 # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
 def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
-    """
-    Retrieve URLs where PDF files are hosted of provided PubMed ids.
-    This is done by sending a 'get' request to the OpenAlex API:
-    https://docs.openalex.org/ (also see https://openalex.org/)
+    """Retrieve URLs where PDF of scientific open access papers are hosted of provided PMIDs.
+    
+    Provide a list with PMIDs (as strings) and an email address to get into the polite pool.
+    Metadata is retrieved from OpenAlex (https://openalex.org/) and filtered on PDF and landing URLs.
+    Metrics on how many PMIDs are open access are recorded and returned.
     
     Args:
-        email (str): email address of user.
-        pmids (list): list with PubMed ids of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
+        pmids (list): A list with PMIDs of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
+        email (str): An email address of the user.
 
-    Returns:
-        pdf_collector, landing_collector (both dict):
+    Returns: TODO:
+        pdf_collector (dict):
+        landing_collector (dict):
+        metrics (list):
     """
 
     # build query url for OpenAlex
@@ -100,8 +130,11 @@ def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
 
 # TODO: this can be multiprocessed..
 def get_pdf_papers_from_url(pdf_urls: dict):
-    """
-    Download pdf papers from pdf_urls.
+    """Download pdf papers from pdf_urls.
+
+    Take a dictionary of PMIDs and their corresponding PDF URLs as input,
+    attempt to download the PDFs (if it does not already exists), and save them to './data/pdf_papers'.
+    Collect error information of failed downloads.
 
     Args:
         pdf_urls (dict): PMID is key and pdf_url is value. For example: {'25461413': 'https://www.sciencedirect.com/... , ... }
@@ -114,9 +147,6 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     collect_errors = [['pmid', 'error_code', 'error_message']]
     success_counter = 0
 
-    # Create `pdf_papers` directory, if it does not yet exists.
-    Path("data/pdf_papers/").mkdir(exist_ok = True)
-
     # Iterate
     for pdf_key in pdf_urls:
 
@@ -128,7 +158,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
         else:
             # This should help to by pass bot checks
             req = Request(
-                url = pdf_urls[pdf_key],
+                url = pdf_urls[pdf_key].replace(' ', '%20'), # Replace ' ' with '%20' in the URL if applicable.
                 headers = {"User-Agent": "Mozilla/6.0"}
             )
             try:
@@ -151,9 +181,14 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     # return error log
     return collect_errors
 
+def main():
+    """Search and download full scientific papers in PDF.
 
-# MAIN
-if __name__ == "__main__":
+    This function is the main entry point of the pmid2pdf.py script.
+    Collect arguments, load the configuration file, retrieve PMIDs from the input file,
+    exclude already downloaded PMIDs, retrieve PDF URLs from OpenAlex, and download the PDFs.
+    It also reports metrics and saves URLs and errors to log files.
+    """
     print("Start of pmid2pdf.py")
 
     # Collect arguments
@@ -183,6 +218,8 @@ if __name__ == "__main__":
 
     except FileNotFoundError:
         print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
+        # Create `pdf_papers` directory, if it does not yet exists.
+        Path("data/pdf_papers/").mkdir(exist_ok = True)
         pass
 
     # TODO: Try to have the following processes multiprocessed.
@@ -216,6 +253,7 @@ if __name__ == "__main__":
             # for i in range(len(metrics)):
             #     total_metrics[1][i] += metrics[i]
 
+    # if pmids is shorter than 100 items:
     else:
         # Get pdf urls from OpenAlex
         pdf_urls, landing_urls, metrics = get_pdf_urls_from_pmids(pmids, config["email_address"])
@@ -292,3 +330,8 @@ if __name__ == "__main__":
     # TODO: further data exploration of the papers????????????
 
     print("End of pmid2pdf.py")
+
+
+# MAIN
+if __name__ == "__main__":
+    main()

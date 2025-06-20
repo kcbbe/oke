@@ -1,5 +1,6 @@
-"""
-Transforms corpus into a vector that is saved as a pickle.
+"""Transforms corpus into a vector that is saved as a pickle.
+
+
 """
 
 
@@ -33,6 +34,11 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
+def main():
+    """
+    Needs an docstring
+    """
 
 # MAIN
 if __name__ == "__main__":

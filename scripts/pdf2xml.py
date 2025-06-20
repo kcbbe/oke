@@ -1,5 +1,10 @@
-"""
-Parse PDFs to TEI XML format.
+"""Parse PDFs to TEI XML format.
+
+This module collects arguments, loads the configuration file, reads the pmids from the input file,
+checks if the corresponding pdf files are available, and processes the pdf files into xml files using the GROBID server.
+It saves the xml files in the `data/xml_papers/` directory and logs errors in the `logs/` directory.
+It reports the total number of processed pmids, the proportion of missing xml and pdf files, and any errors encountered during the transformation.
+
 
 Read PMIDs from the 'experiment' csv file,
 Checks if the corresponding pdf files are available in the `data/pdf_papers/` directory,
@@ -8,6 +13,24 @@ If the xml files are not available, it process the pdf files into xml files usin
 
 Code inspired by:
 https://github.com/TenWise-Dev/jrc-public/blob/main/lib/PDF2Tei.py
+
+
+Usage:
+    python pdf2xml.py -c config.yaml -i pmids_in.csv
+
+Arguments:
+    -c, --config_file
+        Path to the configuration file (default: 'config.yaml')
+    -i, --input_file
+        Name of the input file, incl. its suffix.
+
+Input:
+    A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
+    A configuration file (config.yaml) is required. Please make sure the correct GROBID servername and portnumber is in the configuration file (config.yaml).
+
+Output:
+    XMLs are saved to './data/xml_papers/'.
+    It reports which errors it encountered when failing to convert a PDF to an XML.
 """
 # IMPORTS
 import argparse
@@ -41,8 +64,8 @@ def collect_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
-    """
-    Transforms a single pdf into a single xml using the GROBID server.
+    """Transforms a single pdf into a single xml using the GROBID server.
+    
     The function reads the pdf file, with pmid (e.g. 12345678.pdf) from the `data/pdf_papers/` directory,
     sends it to the GROBID server, and saves the xml file in the `data/xml_papers/` directory.
     If the transformation is successful, the xml file is saved in the `data/xml_papers/` directory.
@@ -58,19 +81,19 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
     """
 
     # Read pdf
-    with open(f"data/pdf_papers/{id}.pdf", "rb") as input:
+    with open(f"data/pdf_papers/{pmid}.pdf", "rb") as input:
         input_json = {"input": input.read()}
 
     # Let GROBID process pdf into xml
     response = requests.post(
         f'http://{servername}:{portnumber}/api/processFulltextDocument',
         files = input_json,
-        timeout = 30
+        timeout = 60
     )
 
     # Check if the response is successful and save the xml file
     if response.status_code == 200:
-        with open(f"data/xml_papers/{id}.xml", "w") as output:
+        with open(f"data/xml_papers/{pmid}.xml", "w") as output:
             output.write(response.text)
 
     # if the response is not successful return the error code
@@ -93,9 +116,14 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
         # return error log
         return collect_errors
 
+def main():
+    """Parse PDFs to TEI XML format.
 
-# MAIN
-if __name__ == "__main__":
+    This function collects arguments, loads the configuration file, reads the pmids from the input file,
+    checks if the corresponding pdf files are available, and processes the pdf files into xml files using the GROBID server.
+    It saves the xml files in the `data/xml_papers/` directory and logs errors in the `logs/` directory.
+    It reports the total number of processed pmids, the proportion of missing xml and pdf files, and any errors encountered during the transformation.
+    """
     print("Start of pdf2xml.py")
 
     # Collect arguments
@@ -117,18 +145,18 @@ if __name__ == "__main__":
     total_metrics = [["xml_count", "pdf_count", "none_count"], [0, 0, 0]]
     errors = [["pmid", "error_code", "error_text", "error_message"]]
 
-    for id in pmids:
-        if Path(f"data/xml_papers/{id}.xml").exists():
-            # xml paper version for this `id` is already available on local drive.
+    for i in pmids:
+        if Path(f"data/xml_papers/{i}.xml").exists():
+            # xml paper version for this `i` is already available on local drive.
             total_metrics[1][0] += 1
             pass
 
-        elif Path(f"data/pdf_papers/{id}.pdf").exists():
+        elif Path(f"data/pdf_papers/{i}.pdf").exists():
             # pdf needs to be transformed to xml.
             err = get_xml_from_pdf_papers(
                 servername = config["grobid_servername"],
                 portnumber = config["grobid_portnumber"],
-                pmid = id
+                pmid = i
             )
 
             # append the list of errors
@@ -138,7 +166,7 @@ if __name__ == "__main__":
             total_metrics[1][1] += 1
 
         else:
-            # No paper was obtained for this `id`.
+            # No paper was obtained for this `i`.
             total_metrics[1][2] += 1
             pass
 
@@ -172,3 +200,7 @@ if __name__ == "__main__":
 
 # How to parse TEI:
 # For next https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
+
+# MAIN
+if __name__ == "__main__":
+    main()

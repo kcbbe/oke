@@ -1,10 +1,15 @@
-"""
-Find PubMed Identifiers (PMIDs) based on given free terms or fixed concepts.
+"""Find PubMed Identifiers (PMIDs) based on provided free terms or fixed concepts.
 
-The TenWise Knowledge Map API is used to find PMIDs:
+This module finds relevant PMIDs on provided free terms or fixed concepts.
+Start a session with the TenWise Knowledge Map API to find PMIDs:
 1) Search on free text (e.g. "pesticides" and "Parkinson's disease")
 2) Search on pre-defined concept_ids (e.g. "pesticides" and "Parkinson's disease")
-The results are saved in a file.
+Results are saved in a CSV file.
+
+If search_mode is `free`, then a list only containing PMIDs is returned.
+If search_mode is `concept`, then results include the following: pmid, hitnr, score.
+Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested.
+See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
 
 Usage:
     python concept2pmid.py -c config.yaml -n 1000 -m free -o pmids.csv
@@ -22,18 +27,19 @@ Arguments:
 Input:
     Please find search terms and concept_ids in the configuration file (config.yaml).
     A configuration file (config.yaml) is required. It contains the following keys:
-        - path_to_concept_ids: Path to a file with concept_ids (tab-delimited)
-        - free_search_terms: Search terms for free text search
+    - path_to_concept_ids: Path to a file with concept_ids (tab-delimited)
+    - free_search_terms: Search terms for free text search
 
 Output:
-    An output file is generated in
+    An comma separated values output file is generated.
 
     Example:
+    
     ```
-    pmid,
-    34429776,
-    6905769,
-    ...,
+    pmid,\n
+    34429776,\n
+    6905769,\n
+    ...,\n
     ```
 """
 # IMPORTS
@@ -87,10 +93,7 @@ def collect_arguments() -> argparse.Namespace:
 
 # Get credentials
 def get_credentials(path_to_text: str) -> dict:
-    """
-    Loads a file (path_to_text) with tab separated values and creates/returns a dictionary. 
-    The first column will be the key, second column will be the value.
-    """
+    """Load a file with tab separated values from path_to_text and creates/returns a dictionary where the first column will be the key and the second column will be the value."""
     try:
         with open(path_to_text) as file:
             lines = file.readlines()
@@ -104,20 +107,21 @@ def get_credentials(path_to_text: str) -> dict:
 
 # Start session and get a payload
 def start_tenwise_session(login_credentials: dict):
-    """
-    Start a session with requests.Sessions() using the provided login_credentials, returns the session and a template payload.
+    """Initialise a session by using the provided login_credentials and returns the started session and payload.
     
     Args:
-        login_credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
+        login_credentials (dict): Must contain following keys: 'APIKEY' and 'ADDRESS'.
 
     Returns:
-        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration.
+        session (requests.Session): An API session. Provides cookie persistence, connection-pooling, and configuration.
+
+    Returns:
         payload (dict): A payload template for building queries.
     """
-    
     session = requests.Session()
     session.headers['referer'] = login_credentials["ADDRESS"].removesuffix("api/mlquery/") # NOTE: 'referer' is not a typo. Please ignore cSpell.
     session.get(login_credentials["ADDRESS"] + "start/")
+
     payload = {
         'apikey': login_credentials["APIKEY"],
         'csrfmiddlewaretoken': session.cookies.get_dict()['csrftoken']
@@ -127,19 +131,22 @@ def start_tenwise_session(login_credentials: dict):
 
 # Search method 1: Search on PubMed concepts
 def search_free(session: requests.Session, payload: dict, credentials: dict, free_terms: str, retmax: int):
-    """
-    Return PMIDs for from a free text search on the TenWise MEDLINE library.
+    """Return PMIDs for from a free text search on the TenWise MEDLINE library.
+
+    Search PMIDs in the TenWise MEDLINE library on provided free_terms.
+    The search query (free_terms) can follow the same syntax as for a PubMed search.
+    Numbers of PMIDs being returned is controlled by `retmax`.
     See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#refset-free-search
     
     Args:
-        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration. Created using `start_tenwise_session` function.
-        payload (dict): A payload template for building queries. Created using `start_tenwise_session` function.
-        credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
-        free_terms (str): A search query like used in the PubMed search bar.
-        retmax (int): Maximum number of PMIDs to return.
+        session (requests.Session): An API session. Provide cookie persistence, connection-pooling, and configuration. (Created using `start_tenwise_session` function.)
+        payload (dict): A payload for building queries. (Created using `start_tenwise_session` function.)
+        credentials (dict): Must contain following keys: 'APIKEY' and 'ADDRESS'.
+        free_terms (str): A query.
+        retmax (int): Maximum number of PMIDs to return. (default: 50)
 
     Returns:
-        hits_on_free_search (list): A list with PMIDs as strings. In example: ['32943485', '...']
+        hits_on_free_search (list): A list with PMIDs as strings. Example: ['32943485', '...']
     """
     payload['terms'] = free_terms
     payload['retmax'] = str(retmax)
@@ -171,21 +178,27 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
 # 1) Finds the concept_ids of `search_terms` and appends it to a file (where the user can already have put concept_ids in)
 # 2) Read in `concept_id_file` and query TenWise for PMIDs.
 def search_concepts(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, retmax: int):
-    """
-    Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
+    """Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
+
+    TODO:
     This includes 'parkinson' and concept_ids provided in path_to_concept_ids.
 
+    Search PMIDs in the TenWise Knowledge Map by searching on provided concept_ids found in a file.
+    This is a TXT file that is Tab-delimited where each line starts with the concept_id like so: `TWPHI_XXXXX \t name_pesticide`
+    Numbers of PMIDs being returned is controlled by `retmax`.
+    Results include the following: pmid, hitnr, score.
+    Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested.
     See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
 
     Args:
-        session (requests.Session): API session. Provides cookie persistence, connection-pooling, and configuration. Created using `start_tenwise_session` function.
-        payload (dict): A payload template for building queries. Created using `start_tenwise_session` function.
-        credentials (dict): Must contain following keys: 'APIKEY', 'ADDRESS'.
+        session (requests.Session): An API session. Provide cookie persistence, connection-pooling, and configuration. (Created using `start_tenwise_session` function.)
+        payload (dict): A payload for building queries. (Created using `start_tenwise_session` function.)
+        credentials (dict): Must contain following keys: 'APIKEY' and 'ADDRESS'.
         path_to_concept_ids (str): Path to predefined concept_ids.
-        retmax (int): Maximum number of PMIDs to return.
+        retmax (int): Maximum number of PMIDs to return. (default: 50)
 
     Returns:
-        hits_on_concept_ids (list): A list with PMIDs as strings. In example: ['32943485', '...']
+        hits_on_concept_ids (list): TODO: dit klopt niet: A list with PMIDs as strings. In example: ['32943485', '...']
     """
     # Get all Parkinsons Disease concept_ids
     payload['terms'] = "parkinson"
@@ -237,11 +250,23 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
     return hits_on_concept_ids
 
 def main():
-    """
-    Needs an docstring
-    """
+    """Find PubMed Identifiers (PMIDs) based on given free terms (`free`) or fixed concepts (`concept`).
+
+    This function is the main entry point of the concept2pmid.py script.
+    Start a session with the TenWise Knowledge Map API to find PMIDs:
+    1) Search on free text (e.g. "pesticides" and "Parkinson's disease")
+    2) Search on pre-defined concept_ids (e.g. "pesticides" and "Parkinson's disease")
+    Results are saved in a CSV file.
+
+    If search_mode is `free`, then a list only containing PMIDs is returned.
+    If search_mode is `concept`, then results include the following: pmid, hitnr, score.
+    Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested.
+    See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
+
+    Results are saved in a CSV file.
+        """
     print("Start of concept2pmid.py")
-    
+
     # Collect arguments
     args = collect_arguments()
     print(f"Arguments: {args}")
@@ -297,7 +322,6 @@ def main():
         print(f"PMIDs were successfully written to '{output_file_name}'")
     
     print("End of concept2pmid.py")
-
 
 # MAIN
 if __name__ == "__main__":
