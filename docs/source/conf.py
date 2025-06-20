@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]) + "/scripts")
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'Open Knowledge Explorer'
-copyright = f'{int(strftime("%Y", localtime())) +1}, Research Centre BioBased Economy (Hanze University of Applied Sciences)'
+copyright = f'{int(strftime("%Y", localtime()))}, Research Centre BioBased Economy (Hanze University of Applied Sciences)'
 author = 'Jennefer Beenen, Wynand Alkema'
 release = '0.1'
 version = strftime("%B %Y", localtime()).title()
