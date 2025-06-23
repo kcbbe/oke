@@ -212,7 +212,7 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
 
     js = results.json()
 
-    # Get the one concept_id for "parkinson's disease"
+    # Get the one concept_id for ("parkinson's disease" = 'TWDIS_06685')
     park_hit = [k for k, v in js['result']['hits'].items() if v[0].lower() == "parkinson's disease"]
 
 
@@ -225,11 +225,11 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
         ).iloc[:,0].to_list()
 
     # Combine both concept_ids
-    payload['concept_ids'] = ",".join([*park_hit, *pest_hits])
+    payload['concept_ids'] = ",".join(pest_hits)
+    payload['anchor'] = ",".join(park_hit)
     payload['retmax'] = str(retmax)
     results = session.post(
         credentials["ADDRESS"] + "conceptset/evidence/",
-        # creds["ADDRESS"] + "conceptset/hits/",
         payload
     )
     js = results.json()
