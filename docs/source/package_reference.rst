@@ -1,6 +1,6 @@
 
-Scripts
-=======
+Package Reference
+=================
 
 The pipeline consist out of multiple python scripts. Below is a brief description of the different scripts.
 
