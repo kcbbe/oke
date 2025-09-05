@@ -14,9 +14,14 @@
 
 
 # Settings
-experiment_name="250425_testing_grobid_lite"
-search_mode="concept"  # "free" or "concept" (TODO: Maybe change this to a TRUE or FALSE?)
+experiment_name="250606"
+search_mode="free"  # "free" or "concept"
 nr_pmids=3600
+
+# # Settings
+# experiment_name="250425_testing_grobid_lite"
+# search_mode="concept"  # "free" or "concept"
+
 
 config_file="config.yaml"
 
@@ -36,13 +41,24 @@ mkdir -p logs/
 date &> $log_file
 ~/venv/graduation/bin/python scripts/concept2pmid.py -c $config_file -n $nr_pmids -m $search_mode -o "pmid_$full_exp_name.csv" &>> $log_file
 
-# Get PDFs by searching pdf_urls in OpenAlex on PMIDs
+# # Get PDFs by searching pdf_urls in OpenAlex on PMIDs
 date &>> $log_file
 ~/venv/graduation/bin/python scripts/pmid2pdf.py -c $config_file -i "pmid_$full_exp_name.csv" -o "$full_exp_name.csv" &>> $log_file
 
 # # Get XMLs from PDFs using GROBID
-# ~/venv/graduation/bin/python scripts/pdf2xml.py -c $config_file &>> $log_file
+date &>> $log_file
+~/venv/graduation/bin/python scripts/pdf2xml.py -c $config_file -i "pmid_$full_exp_name.csv" &>> $log_file
+
+# # Get corpus dataframe from XMLs
+date &>> $log_file
+~/venv/graduation/bin/python scripts/xml2corpus_by_sentence.py -i "pmid_$full_exp_name.csv" &>> $log_file
+
+# # Get corpus vectors from corpus dataframe
+# NOTE: This part runs on assemblix25
+# see 'corpus2vector.sh'
+
 
 # End
 date &>> $log_file
 echo "Experiment $full_exp_name finished."
+echo "NOTE: Run 'corpus2vectors.sh' to get the embedding and similarity scores."

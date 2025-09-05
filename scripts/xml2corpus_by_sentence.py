@@ -276,8 +276,8 @@ def main():
             df_corpus = pd.concat([df_corpus, df_body], ignore_index=True)
 
     # Save to csv
-    df_corpus.to_csv(f"data/corpus/df_xml2corpus_by_sentence_{args.input_file}", index=False)
-    print(f"Corpus dataframe saved to data/corpus/df_xml2corpus_by_sentence_{args.input_file}")
+    df_corpus.to_csv(f"data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}", index=False)
+    print(f"Corpus dataframe saved to data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}")
 
     print("End of xml2corpus_by_sentence.py")
 
