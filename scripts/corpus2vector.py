@@ -64,10 +64,10 @@ def preprocess_corpus_for_embedder(serie: pd.Series, replace_abbr : dict = None)
     # Replace abbreviated words (TODO: is this necessary though?)
     if isinstance(replace_abbr, dict):
         for k in replace_abbr.keys():
-            # Replace `key` (e.g. "PD") with `value` (e.g. "parkinson disease").
+            # Replace `key` (e.g. "PD") with `value` (e.g. "parkinson's disease").
             serie = serie.str.replace(k, replace_abbr[k], case= True)
 
-    # Make all sentence_text lower case & remove puntuations & turn `serie` (pd.Series) into a list
+    # Make all sentence_text lower case & remove punctuations & turn `serie` (pd.Series) into a list
     list_sentences = serie.str.lower().str.strip('\[.*?\]').values
 
     # # TODO: decide what to do with this:
@@ -107,7 +107,7 @@ if __name__ == "__main__":
     # Get input data into correct shape for the embedder
     list_sentences = preprocess_corpus_for_embedder(
         df['sentence_text'],
-        replace_abbr= {"PD": "parkinson's disease"} # TODO: make this variable for the user to input?
+        replace_abbr= {"PD": "parkinson's disease"} # TODO: make this variable for the user to input? # NOTE: if PD is part of a longer abbreviation, like COPD, then this method has a problem..
     )
     # list_sentences = df['sentence_text'].values
 
