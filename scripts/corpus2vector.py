@@ -95,6 +95,6 @@ if __name__ == "__main__":
 
     # Save the similarity scores
     with open(f"data/vectors/similarity_{args.input_file.split('.')[0]}.pickle", "wb") as handle:
-        pickle.dump(embeddings, handle)
+        pickle.dump(similarities, handle)
 
     print("End of corpus2vector.py")
