@@ -186,13 +186,13 @@ def main():
         try:
             with open(output_file_name, "w", encoding="utf-8") as output:
                 output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Error log is successfully written to '{output_file_name}'")
+            print(f"XML parser error log is successfully written to '{output_file_name}'")
 
         except FileNotFoundError:
             Path("logs").mkdir(exist_ok = True)
             with open(output_file_name, "w", encoding="utf-8") as output:
                 output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Error log is successfully written to '{output_file_name}'")
+            print(f"XML parser error log is successfully written to '{output_file_name}'")
     else:
         print("All pdf files were successfully transformed into xml files. No errors occurred.")
 

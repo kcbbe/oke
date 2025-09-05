@@ -161,6 +161,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
                 url = pdf_urls[pdf_key].replace(' ', '%20'), # Replace ' ' with '%20' in the URL if applicable.
                 headers = {"User-Agent": "Mozilla/6.0"}
             )
+            # TODO: try different User Agents? (Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36)
             try:
                 input_json = {"output" : urlopen(req).read()}
                 success_counter += 1
@@ -317,13 +318,13 @@ def main():
         try:
             with open(output_file_name, "w", encoding="utf-8") as output:
                 output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Error log is successfully written to '{output_file_name}'")
+            print(f"Download error log is successfully written to '{output_file_name}'")
 
         except FileNotFoundError:
             Path("logs").mkdir(exist_ok = True)
             with open(output_file_name, "w", encoding="utf-8") as output:
                 output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Error log is successfully written to '{output_file_name}'")
+            print(f"Download error log is successfully written to '{output_file_name}'")
     else:
         print("No error occurred")
 
