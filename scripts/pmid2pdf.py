@@ -82,6 +82,27 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
+
+def exclude_already_downloaded_pmids(pmids):
+    """Exclude pmids of which the pdfs are already downloaded."""
+    try:
+        # Compare local pdfs with obtained pmids
+        local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
+        old_pmids = pmids
+        # Exclude pmids that are already in the local pdf_directory
+        pmids = list(set(pmids).difference(local_pdfs))
+        # Report how many pmids are already in the local pdf_directory
+        print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
+
+    except FileNotFoundError:
+        print("WARNING: Did not find 'data/pdf_paper/' directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.")
+        # Create `pdf_papers` directory, if it does not yet exists.
+        Path("data/pdf_papers/").mkdir(exist_ok = True)
+        pass
+
+    return pmids
+
+
 # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
 def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
     """Retrieve URLs where PDF of scientific open access papers are hosted of provided PMIDs.
@@ -218,22 +239,9 @@ def main():
     pmids = [str(i) for i in pmids]
 
     # TODO:TODO:TODO:
+    # Exclude pmids of which the pdfs are already downloaded.
     if args.query_mode == 'efficient':
-        # Exclude pmids of which the pdfs are already downloaded.
-        try:
-            # Compare local pdfs with obtained pmids
-            local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
-            old_pmids = pmids
-            # Exclude pmids that are already in the local pdf_directory
-            pmids = list(set(pmids).difference(local_pdfs))
-            # Report how many pmids are already in the local pdf_directory
-            print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
-
-        except FileNotFoundError:
-            print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
-            # Create `pdf_papers` directory, if it does not yet exists.
-            Path("data/pdf_papers/").mkdir(exist_ok = True)
-            pass
+        pmids = exclude_already_downloaded_pmids(pmids)
 
     # TODO: Try to have the following processes multiprocessed.
     # Collect pdf_urls and landing_urls
