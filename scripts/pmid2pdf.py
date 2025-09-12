@@ -15,6 +15,8 @@ Arguments:
         Name of the input file, incl. its suffix.
     -o, --output_file
         Name of the output file, incl. its suffix.
+    -m  --query_mode
+        Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.
 
 Input:
     A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
@@ -68,6 +70,14 @@ def collect_arguments() -> argparse.Namespace:
         dest = "input_file",
         required = True,
         help = "Provide the name of the input file.",
+    )
+
+    parser.add_argument(
+        "-m",
+        dest = "query_mode",
+        required = True,
+        help = "Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.",
+        default = 'efficient'
     )
 
     return parser.parse_args()
@@ -207,21 +217,23 @@ def main():
     # Convert pmids `int` to `str`
     pmids = [str(i) for i in pmids]
 
-    # Exclude pmids of which the pdfs are already downloaded.
-    try:
-        # Compare local pdfs with obtained pmids
-        local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
-        old_pmids = pmids
-        # Exclude pmids that are already in the local pdf_directory
-        pmids = list(set(pmids).difference(local_pdfs))
-        # Report how many pmids are already in the local pdf_directory
-        print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
+    # TODO:TODO:TODO:
+    if args.query_mode == 'efficient':
+        # Exclude pmids of which the pdfs are already downloaded.
+        try:
+            # Compare local pdfs with obtained pmids
+            local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
+            old_pmids = pmids
+            # Exclude pmids that are already in the local pdf_directory
+            pmids = list(set(pmids).difference(local_pdfs))
+            # Report how many pmids are already in the local pdf_directory
+            print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
 
-    except FileNotFoundError:
-        print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
-        # Create `pdf_papers` directory, if it does not yet exists.
-        Path("data/pdf_papers/").mkdir(exist_ok = True)
-        pass
+        except FileNotFoundError:
+            print("WARNING: Did not find 'data/pdf_paper/ directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.'")
+            # Create `pdf_papers` directory, if it does not yet exists.
+            Path("data/pdf_papers/").mkdir(exist_ok = True)
+            pass
 
     # TODO: Try to have the following processes multiprocessed.
     # Collect pdf_urls and landing_urls
@@ -262,8 +274,6 @@ def main():
         # Update metrics
         for i, met in enumerate(metrics):
             total_metrics[1][i] += met
-        # for i in range(len(metrics)):
-        #         total_metrics[1][i] += metrics[i]
 
     # Report metrics
     n_total_from_query = total_metrics[1][0]
