@@ -67,14 +67,6 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
-
-# def exclude_already_meta_searched_pmids(pmids, df_existing_meta):
-#     """Exclude pmids of which the pmid meta data are already retrieved."""
-
-
-#     return pmids
-
-
 # Get PDF URLs from list of PMIDs
 def get_meta_for_pmids(pmids: list, email: str) -> dict:
     """Retrieve meta data of scientific papers of provided PMIDs.
@@ -92,7 +84,7 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
     """
 
     # build query url for OpenAlex
-    url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={email}"
+    url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&per-page=200&mailto={email}"
 
     # get response from OpenAlex
     with requests.Session() as session:
@@ -163,7 +155,7 @@ def print_metrics(df: pd.DataFrame):
     n_total_from_query = df.shape[0]
     n_open_access = df['is_oa'].value_counts()[True]
     n_pdf_url = df['pdf_url'].isna().value_counts()[False]
-    print("Total overview:")
+    print("---Total overview:")
     print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
     print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
     print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
@@ -196,7 +188,6 @@ def main():
     pmids = [str(i) for i in pmids]
 
     # Exclude pmids of which the pdfs are already downloaded.
-    # TODO:
     if args.query_mode == 'efficient':
         # Read old meta file
         expected_output_filename = f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}"
@@ -213,8 +204,6 @@ def main():
         except FileNotFoundError:
             print(f"WARNING: Did not find '{expected_output_filename}'. Possibly did not make 'data/meta/' directory? Application will continue in 'full' `query_mode`.")
             args.query_mode = 'full'
-            # # Create `pdf_papers` directory, if it does not yet exists.
-            # Path("data/meta/").mkdir(exist_ok = True)
             pass
 
     # TODO: Try to have the following processes multiprocessed.
@@ -239,8 +228,7 @@ def main():
 
     # if pmids longer than 100 items
     if len(pmids) > 100:
-        #  (TODO: remove cap of [:3])
-        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)][:3]
+        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)]
 
         # for chunk in pmids_chunks list
         for i, chunk in enumerate(pmids_chunks):
@@ -273,7 +261,7 @@ def main():
     Path("data/meta").mkdir(exist_ok = True)
     output_filename = f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}"
     df_total_meta.to_csv(output_filename)
-    print(f"Meta data is successfully written to {output_filename}")
+    print(f"Meta data is successfully written to '{output_filename}'")
 
     print("End of pmid2meta.py")
 
