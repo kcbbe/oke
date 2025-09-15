@@ -5,7 +5,7 @@ It reports were URLs are found for the PMIDs, and if it is a PDF download page o
 An email address in the config file is required to get access to the polite pool.
 
 Usage:
-    TODO: python pmid2meta.py -c config.yaml -i pmids_in.csv -o pmids_out.csv
+    python pmid2meta.py -c config.yaml -i pmids_in.csv -m efficient
 
 Arguments:
     -c, --config_file
@@ -13,7 +13,7 @@ Arguments:
     -i, --input_file
         Name of the input file, incl. its suffix.
     -m  --query_mode
-        Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.
+        Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present yet in the meta data file, 'full' search will query all PMIDs provided in input file.
 
 Input:
     A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
@@ -33,8 +33,6 @@ from pathlib import Path
 import yaml
 import requests
 import pandas as pd
-from urllib.request import Request, urlopen
-from urllib.error import HTTPError, URLError
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -62,31 +60,19 @@ def collect_arguments() -> argparse.Namespace:
         "-m",
         dest = "query_mode",
         required = True,
-        help = "Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.",
+        help = "Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present yet in the meta data file, 'full' search will query all PMIDs provided in input file.",
+        choices = ['efficient', 'full'],
         default = 'efficient'
     )
 
     return parser.parse_args()
 
 
-def exclude_already_meta_searched_pmids(pmids):
-    #TODO: """Exclude pmids of which the pmid meta data are already retrieved."""
-    try:
-        # Compare local pdfs with obtained pmids
-        local_pdfs = {f.stem for f in Path("data/pdf_papers").iterdir() if f.suffixes[0] == ".pdf"}
-        old_pmids = pmids
-        # Exclude pmids that are already in the local pdf_directory
-        pmids = list(set(pmids).difference(local_pdfs))
-        # Report how many pmids are already in the local pdf_directory
-        print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
+# def exclude_already_meta_searched_pmids(pmids, df_existing_meta):
+#     """Exclude pmids of which the pmid meta data are already retrieved."""
 
-    except FileNotFoundError:
-        print("WARNING: Did not find 'data/pdf_paper/' directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.")
-        # Create `pdf_papers` directory, if it does not yet exists.
-        Path("data/pdf_papers/").mkdir(exist_ok = True)
-        pass
 
-    return pmids
+#     return pmids
 
 
 # Get PDF URLs from list of PMIDs
@@ -101,10 +87,8 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
         pmids (list): A list with PMIDs of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
         email (str): An email address of the user.
 
-    Returns: TODO:
-        pdf_collector (dict):
-        landing_collector (dict):
-        metrics (list):
+    Returns:
+        df_chunk_meta (pd.DataFrame): Data frame containing the following meta data: ["pmid", "doi", "pub_year", "is_oa", "landing_url", "pdf_url", "is_accepted", "is_published", "is_retracted", "cited_by_count", "referenced_count"]
     """
 
     # build query url for OpenAlex
@@ -143,24 +127,11 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
     # iterate over found pmids
     for r in response["results"]:
 
-        # # meta control:
-        # pmid = r["ids"]["pmid"].split("/")[-1]
+        # meta control:
         try:
             doi = "/".join(r["doi"].split("/")[-2:])
         except AttributeError:
             doi = None
-        # doi = "/".join(r["doi"].split("/")[-2:])
-        # pub_year = r["publication_year"]
-
-        # is_oa = r["primary_location"]['is_oa']
-        # landing_url = r["primary_location"]['landing_page_url']
-        # pdf_url = r["primary_location"]['pdf_url']
-        # is_accepted = r["primary_location"]['is_accepted']
-        # is_published = r["primary_location"]['is_published']
-        # is_retracted = r['is_retracted']
-
-        # cited_by_count = r["cited_by_count"]
-        # referenced_count = r["referenced_works_count"]
 
         # place in a data frame
         df_part = pd.DataFrame(
@@ -182,25 +153,20 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
             columns= column_names,
         )
 
+        # concatenate df_chunk_meta with new information
         df_chunk_meta = pd.concat([df_chunk_meta, df_part], ignore_index= True)
 
+    return df_chunk_meta
 
-        # # if pmid contains "beste_oa_location", try to collect pdf_url, else collect its landing_page_url
-        # if r["best_oa_location"] is not None:
-        #     if r["best_oa_location"]["pdf_url"] is not None:
-        #         pdf_collector[pmid] = r["best_oa_location"]["pdf_url"]
-
-        #     elif r["best_oa_location"]["pdf_url"] is None:
-        #         landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
-
-    # # Report metrics
-    # n_total_from_query = response["meta"]["count"]
-    # proportion_open_access = sum([len(pdf_collector), len(landing_collector)])
-    # proportion_pdf_url = len(pdf_collector)
-
-    # metrics = [n_total_from_query, proportion_open_access, proportion_pdf_url]
-
-    return df_chunk_meta #, metrics
+def print_metrics(df: pd.DataFrame):
+    """Print general metrics of pd.DataFrame that has columns 'is_oa' and 'pdf_url'."""
+    n_total_from_query = df.shape[0]
+    n_open_access = df['is_oa'].value_counts()[True]
+    n_pdf_url = df['pdf_url'].isna().value_counts()[False]
+    print("Total overview:")
+    print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
+    print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
+    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
 
 
 
@@ -232,20 +198,28 @@ def main():
     # Exclude pmids of which the pdfs are already downloaded.
     # TODO:
     if args.query_mode == 'efficient':
-        pmids = exclude_already_meta_searched_pmids(pmids)
+        # Read old meta file
+        expected_output_filename = f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}"
+        try:
+            df_old_meta = pd.read_csv(expected_output_filename, index_col=0)
+            # Get `pmid` values
+            existing_pmids = df_old_meta['pmid'].values
+            old_pmids = pmids
+            # Exclude pmids that are already in meta_*.csv
+            pmids = list(set(pmids).difference(existing_pmids.astype(str)))
+            # Report how many pmids are already in the local pdf_directory
+            print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} PMIDs are already found in '{expected_output_filename}'.")
+        
+        except FileNotFoundError:
+            print(f"WARNING: Did not find '{expected_output_filename}'. Possibly did not make 'data/meta/' directory? Application will continue in 'full' `query_mode`.")
+            args.query_mode = 'full'
+            # # Create `pdf_papers` directory, if it does not yet exists.
+            # Path("data/meta/").mkdir(exist_ok = True)
+            pass
 
     # TODO: Try to have the following processes multiprocessed.
-    # Collect pdf_urls and landing_urls
-    total_metrics = [["total", "prop_open_access", "prop_pdf_url"], [0, 0, 0]]
-    pdf_urls = dict()
-    landing_urls = dict()
-    meta = dict()
-    errors = list()
-
-    # TODO:TODO:TODO: `meta`
-
-    # Get meta data from OpenAlex API (https://docs.openalex.org/)
-    # data frame for collection
+    # Collect meta data from OpenAlex API (https://docs.openalex.org/)
+    # Data frame for collecting:
     column_names = [
         "pmid",
         "doi",
@@ -265,8 +239,10 @@ def main():
 
     # if pmids longer than 100 items
     if len(pmids) > 100:
-        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)]
+        #  (TODO: remove cap of [:3])
+        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)][:3]
 
+        # for chunk in pmids_chunks list
         for i, chunk in enumerate(pmids_chunks):
             # Wait 10 seconds to avoid penalties from OpenAlex
             if i != 0:
@@ -275,70 +251,29 @@ def main():
             # Get meta data from OpenAlex
             print(f"Processing chunk {i+1}/{len(pmids_chunks)}")
             df_chunk_meta = get_meta_for_pmids(chunk, config["email_address"])
-            
+            # Concatenate df_total_meta with new information
             df_total_meta = pd.concat([df_total_meta, df_chunk_meta], ignore_index= True)
-
-
-            # # Collect pdf urls and landing urls
-            # pdf_urls.update(pdfs)
-            # landing_urls.update(landings)
-
-            # # Update metrics
-            # for i, met in enumerate(metrics):
-            #     total_metrics[1][i] += met
-            # for i in range(len(metrics)):
-            #     total_metrics[1][i] += metrics[i]
-
-
 
     # if pmids is shorter than 100 items:
     else:
         # Get pdf urls from OpenAlex
         df_total_meta = get_meta_for_pmids(pmids, config["email_address"])
-        
-        # # Update metrics
-        # for i, met in enumerate(metrics):
-        #     total_metrics[1][i] += met
 
-    # # Report metrics
-    # n_total_from_query = total_metrics[1][0]
-    # n_open_access = total_metrics[1][1]
-    # n_pdf_url = total_metrics[1][2]
-    # print("Total overview:")
-    # print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
-    # print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
-    # print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
+    # Print metrics
+    print_metrics(df_total_meta)
+
+    # If 'efficient', then append existing file
+    if args.query_mode == 'efficient':
+        df_total_meta = pd.concat([df_old_meta, df_total_meta], ignore_index= True)
 
     # Save meta data
     # NOTE: I choose to make separate 'meta files' for each experiment, so that it is logged which meta data was relevant at the time of the experiment
     # (in case the data ever changes on OpenAlex).
+    print("Saving meta data")
     Path("data/meta").mkdir(exist_ok = True)
-    df_total_meta.to_csv(f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}")
-
-
-    # ## Prepare a list of urls for saving
-    # all_urls = [['pmid', 'type', 'url']]
-    # if len(pdf_urls) != 0:
-    #     all_urls.extend([[k, 'pdf_url', pdf_urls[k]] for k in pdf_urls])
-    # if len(landing_urls) != 0:
-    #     all_urls.extend([[k, 'landing_url', landing_urls[k]] for k in landing_urls])
-
-    # ## Save urls to file
-    # print("Saving found urls")
-    # output_file_name = f"logs/urls_pmid2pdf_{args.output_file}"
-    # try:
-    #     with open(output_file_name, "w", encoding="utf-8") as output:
-    #         output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
-    #     print(f"Url log is successfully written to '{output_file_name}'")
-
-    # except FileNotFoundError:
-    #     Path("logs").mkdir(exist_ok = True)
-    #     with open(output_file_name, "w", encoding="utf-8") as output:
-    #         output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
-    #     print(f"Url log is successfully written to '{output_file_name}'")
-
-
-    # TODO: further data exploration of the papers????????????
+    output_filename = f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}"
+    df_total_meta.to_csv(output_filename)
+    print(f"Meta data is successfully written to {output_filename}")
 
     print("End of pmid2meta.py")
 
