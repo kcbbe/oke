@@ -4,7 +4,7 @@ This module downloads full scientific papers as PDF by using the URLs provided i
 After downloading, it reports which errors it encountered when failing to retrieve a PDF.
 
 Usage:
-   TODO: python meta2pdf.py -c config.yaml -i pmids_in.csv -o pmids_out.csv
+   TODO: python meta2pdf.py -i pmids_in.csv -m efficient
 
 Arguments:
     -i, --input_file
@@ -26,12 +26,12 @@ Output:
 """
 
 # IMPORTS
-import sys
+# import sys
 import time
 import argparse
 from pathlib import Path
-import yaml
-import requests
+# import yaml
+# import requests
 import pandas as pd
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
@@ -55,6 +55,7 @@ def collect_arguments() -> argparse.Namespace:
         dest = "query_mode",
         required = True,
         help = "Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.",
+        choices = ['efficient', 'full'],
         default = 'efficient'
     )
 
@@ -81,61 +82,61 @@ def exclude_already_downloaded_pmids(pmids):
     return pmids
 
 
-# Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
-def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
-    """Retrieve URLs where PDF of scientific open access papers are hosted of provided PMIDs.
+# # Get PDF URLs from list of PMIDs TODO: Refactor: separate OpenAlex query from PDF retrieval (that would be a nicer design pattern)
+# def get_pdf_urls_from_pmids(pmids: list, email: str) -> dict:
+#     """Retrieve URLs where PDF of scientific open access papers are hosted of provided PMIDs.
     
-    Provide a list with PMIDs (as strings) and an email address to get into the polite pool.
-    Metadata is retrieved from OpenAlex (https://openalex.org/) and filtered on PDF and landing URLs.
-    Metrics on how many PMIDs are open access are recorded and returned.
+#     Provide a list with PMIDs (as strings) and an email address to get into the polite pool.
+#     Metadata is retrieved from OpenAlex (https://openalex.org/) and filtered on PDF and landing URLs.
+#     Metrics on how many PMIDs are open access are recorded and returned.
     
-    Args:
-        pmids (list): A list with PMIDs of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
-        email (str): An email address of the user.
+#     Args:
+#         pmids (list): A list with PMIDs of interest. `pmids` must not contain numerical values. If it does, use the following code to turn them into strings: `[str(i) for i in pmids]`
+#         email (str): An email address of the user.
 
-    Returns: TODO:
-        pdf_collector (dict):
-        landing_collector (dict):
-        metrics (list):
-    """
+#     Returns: TODO:
+#         pdf_collector (dict):
+#         landing_collector (dict):
+#         metrics (list):
+#     """
 
-    # build query url for OpenAlex
-    url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={email}"
+#     # build query url for OpenAlex
+#     url = f"https://api.openalex.org/works?filter=pmid:{'|'.join(pmids)}&mailto={email}"
 
-    # get response from OpenAlex
-    with requests.Session() as session:
-        response = session.get(url).json()
+#     # get response from OpenAlex
+#     with requests.Session() as session:
+#         response = session.get(url).json()
 
-    # flow control: if an error occurred in the `get` statement.
-    try:
-        print(f'Successful query: response time {response["meta"]["db_response_time_ms"]}ms')
-    except KeyError:
-        print(f'ERROR in `get_pdf_urls_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
-        sys.exit()
+#     # flow control: if an error occurred in the `get` statement.
+#     try:
+#         print(f'Successful query: response time {response["meta"]["db_response_time_ms"]}ms')
+#     except KeyError:
+#         print(f'ERROR in `get_pdf_urls_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
+#         sys.exit()
 
-    # start collecting pdf urls
-    pdf_collector = dict()
-    landing_collector = dict()
+#     # start collecting pdf urls
+#     pdf_collector = dict()
+#     landing_collector = dict()
 
-    # iterate over found pmids
-    for r in response["results"]:
-        pmid = r["ids"]["pmid"].split("/")[-1]
-        # if pmid contains "beste_oa_location", try to collect pdf_url, else collect its landing_page_url
-        if r["best_oa_location"] is not None:
-            if r["best_oa_location"]["pdf_url"] is not None:
-                pdf_collector[pmid] = r["best_oa_location"]["pdf_url"]
+#     # iterate over found pmids
+#     for r in response["results"]:
+#         pmid = r["ids"]["pmid"].split("/")[-1]
+#         # if pmid contains "beste_oa_location", try to collect pdf_url, else collect its landing_page_url
+#         if r["best_oa_location"] is not None:
+#             if r["best_oa_location"]["pdf_url"] is not None:
+#                 pdf_collector[pmid] = r["best_oa_location"]["pdf_url"]
 
-            elif r["best_oa_location"]["pdf_url"] is None:
-                landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
+#             elif r["best_oa_location"]["pdf_url"] is None:
+#                 landing_collector[pmid] = f'{r["best_oa_location"]["landing_page_url"]}'
 
-    # Report metrics
-    n_total_from_query = response["meta"]["count"]
-    proportion_open_access = sum([len(pdf_collector), len(landing_collector)])
-    proportion_pdf_url = len(pdf_collector)
+#     # Report metrics
+#     n_total_from_query = response["meta"]["count"]
+#     proportion_open_access = sum([len(pdf_collector), len(landing_collector)])
+#     proportion_pdf_url = len(pdf_collector)
 
-    metrics = [n_total_from_query, proportion_open_access, proportion_pdf_url]
+#     metrics = [n_total_from_query, proportion_open_access, proportion_pdf_url]
 
-    return pdf_collector, landing_collector, metrics
+#     return pdf_collector, landing_collector, metrics
 
 # TODO: this can be multiprocessed..
 def get_pdf_papers_from_url(pdf_urls: dict):
@@ -195,18 +196,19 @@ def main():
     """Download full scientific papers in PDF.
 
     This function is the main entry point of the meta2pdf.py script.
-    Collect arguments, load the configuration file, retrieve PMIDs from the input file,
+    Collect arguments, retrieve PMIDs from the input file,
     exclude already downloaded PMIDs, retrieve PDF URLs from the meta data file, and download the PDFs.
-    It also reports metrics and saves URLs and errors to log files.
+    It also reports metrics and errors to log files.
     """
     print("Start of meta2pdf.py")
 
     # Collect arguments
     args = collect_arguments()
 
-    # Load configuration file
-    with open(args.config_file, 'r', encoding="utf-8") as stream:
-        config = yaml.safe_load(stream)
+    # # Load configuration file
+    # with open(args.config_file, 'r', encoding="utf-8") as stream:
+    #     config = yaml.safe_load(stream)
+
 
     # Load pmid file
     pmids = pd.read_csv(
@@ -214,85 +216,87 @@ def main():
     ).loc[:,"pmid"].to_list()
 
     # Convert pmids `int` to `str`
-    pmids = [str(i) for i in pmids]
+    # TODO: REMOVE CAP [:25]
+    pmids = [str(i) for i in pmids][-25:]
 
     # Exclude pmids of which the pdfs are already downloaded.
     if args.query_mode == 'efficient':
         pmids = exclude_already_downloaded_pmids(pmids)
 
-    # TODO: Try to have the following processes multiprocessed.
-    # Collect pdf_urls and landing_urls
-    total_metrics = [["total", "prop_open_access", "prop_pdf_url"], [0, 0, 0]]
-    pdf_urls = dict()
-    landing_urls = dict()
-    meta = dict()
+    # # TODO: Try to have the following processes multiprocessed.
+    # # Collect pdf_urls and landing_urls
+    # total_metrics = [["total", "prop_open_access", "prop_pdf_url"], [0, 0, 0]]
+    # pdf_urls = dict()
+    # landing_urls = dict()
+    # meta = dict()
+
+    # Collect errors
     errors = list()
 
-    # TODO:TODO:TODO: `meta`
 
-    # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
-    # if pmids longer than 100 items
-    if len(pmids) > 100:
-        pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)]
+    # # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
+    # # if pmids longer than 100 items
+    # if len(pmids) > 100:
+    #     pmids_chunks = [pmids[i:i + 100] for i in range(0, len(pmids), 100)]
 
-        for i, chunk in enumerate(pmids_chunks):
-            # Wait 10 seconds to avoid penalties from OpenAlex
-            if i != 0:
-                print("Sleeping for 10 seconds to avoid penalties from OpenAlex")
-                time.sleep(10)
-            # Get pdf urls from OpenAlex
-            print(f"Processing chunk {i+1}/{len(pmids_chunks)}")
-            pdfs, landings, metrics = get_pdf_urls_from_pmids(chunk, config["email_address"])
+    #     for i, chunk in enumerate(pmids_chunks):
+    #         # Wait 10 seconds to avoid penalties from OpenAlex
+    #         if i != 0:
+    #             print("Sleeping for 10 seconds to avoid penalties from OpenAlex")
+    #             time.sleep(10)
+    #         # Get pdf urls from OpenAlex
+    #         print(f"Processing chunk {i+1}/{len(pmids_chunks)}")
+    #         pdfs, landings, metrics = get_pdf_urls_from_pmids(chunk, config["email_address"])
             
-            # Collect pdf urls and landing urls
-            pdf_urls.update(pdfs)
-            landing_urls.update(landings)
+    #         # Collect pdf urls and landing urls
+    #         pdf_urls.update(pdfs)
+    #         landing_urls.update(landings)
 
-            # Update metrics
-            for i, met in enumerate(metrics):
-                total_metrics[1][i] += met
-            # for i in range(len(metrics)):
-            #     total_metrics[1][i] += metrics[i]
+    #         # Update metrics
+    #         for i, met in enumerate(metrics):
+    #             total_metrics[1][i] += met
+    #         # for i in range(len(metrics)):
+    #         #     total_metrics[1][i] += metrics[i]
 
-    # if pmids is shorter than 100 items:
-    else:
-        # Get pdf urls from OpenAlex
-        pdf_urls, landing_urls, metrics = get_pdf_urls_from_pmids(pmids, config["email_address"])
+    # # if pmids is shorter than 100 items:
+    # else:
+    #     # Get pdf urls from OpenAlex
+    #     pdf_urls, landing_urls, metrics = get_pdf_urls_from_pmids(pmids, config["email_address"])
         
-        # Update metrics
-        for i, met in enumerate(metrics):
-            total_metrics[1][i] += met
+    #     # Update metrics
+    #     for i, met in enumerate(metrics):
+    #         total_metrics[1][i] += met
 
-    # Report metrics
-    n_total_from_query = total_metrics[1][0]
-    n_open_access = total_metrics[1][1]
-    n_pdf_url = total_metrics[1][2]
-    print("Total overview:")
-    print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
-    print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
-    print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
+    # # Report metrics
+    # n_total_from_query = total_metrics[1][0]
+    # n_open_access = total_metrics[1][1]
+    # n_pdf_url = total_metrics[1][2]
+    # print("Total overview:")
+    # print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
+    # print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
+    # print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
 
     # Save urls to a separate file
-    ## Prepare a list of urls for saving
-    all_urls = [['pmid', 'type', 'url']]
-    if len(pdf_urls) != 0:
-        all_urls.extend([[k, 'pdf_url', pdf_urls[k]] for k in pdf_urls])
-    if len(landing_urls) != 0:
-        all_urls.extend([[k, 'landing_url', landing_urls[k]] for k in landing_urls])
+    # ## Prepare a list of urls for saving
+    # all_urls = [['pmid', 'type', 'url']]
+    # if len(pdf_urls) != 0:
+    #     all_urls.extend([[k, 'pdf_url', pdf_urls[k]] for k in pdf_urls])
+    # if len(landing_urls) != 0:
+    #     all_urls.extend([[k, 'landing_url', landing_urls[k]] for k in landing_urls])
 
-    ## Save urls to file
-    print("Saving found urls")
-    output_file_name = f"logs/urls_pmid2pdf_{args.output_file}"
-    try:
-        with open(output_file_name, "w", encoding="utf-8") as output:
-            output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
-        print(f"Url log is successfully written to '{output_file_name}'")
+    # ## Save urls to file
+    # print("Saving found urls")
+    # output_file_name = f"logs/urls_pmid2pdf_{args.output_file}"
+    # try:
+    #     with open(output_file_name, "w", encoding="utf-8") as output:
+    #         output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
+    #     print(f"Url log is successfully written to '{output_file_name}'")
 
-    except FileNotFoundError:
-        Path("logs").mkdir(exist_ok = True)
-        with open(output_file_name, "w", encoding="utf-8") as output:
-            output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
-        print(f"Url log is successfully written to '{output_file_name}'")
+    # except FileNotFoundError:
+    #     Path("logs").mkdir(exist_ok = True)
+    #     with open(output_file_name, "w", encoding="utf-8") as output:
+    #         output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in all_urls]))
+    #     print(f"Url log is successfully written to '{output_file_name}'")
 
     #####################################################
     # # Attempt to retrieve pdf_url from landing_url:
@@ -306,27 +310,45 @@ def main():
     # print(f"{len(extra_pdf_urls)} urls that potentially link to a pdf were added to pdf_urls list")
     #####################################################
           
+    # TODO:TODO:TODO: download
+    # Load meta data
+    df_meta = pd.read_csv(
+        f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}", 
+        index_col=0
+    )
+
+    # Create dict where pmid is key and pdf_url is value
+
+    # Select pmid and pdf_url
+    # Filter NaN
+    # pmid to index
+
+    # to_dict
+    pdf_urls = df_meta.loc[
+        ~df_meta['pdf_url'].isna(),
+        ['pmid','pdf_url']
+    ].set_index('pmid').to_dict()['pdf_url']
+
     # Download PDFs
-    print("Trying to download listed PDFs")
+    print("Trying to download listed PDF_URLs")
     errors = get_pdf_papers_from_url(pdf_urls)
 
+    # error list to a pandas data frame
+    df_errors = pd.DataFrame(errors[1:], columns= errors[0])
+
     # Save error report to file
-    if len(errors) > 1:
-        output_file_name = f"logs/errors_pmid2pdf_{args.output_file}"
-        try:
-            with open(output_file_name, "w", encoding="utf-8") as output:
-                output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Download error log is successfully written to '{output_file_name}'")
+    if df_errors.shape[0] > 1:
+        Path("logs").mkdir(exist_ok = True)
+        output_filename = f"logs/errors_meta2pdf_{'_'.join(args.input_file.split('_')[1:])}"
+        df_errors.to_csv(output_filename)
+        print(f"Download error log is successfully written to '{output_filename}'")
 
-        except FileNotFoundError:
-            Path("logs").mkdir(exist_ok = True)
-            with open(output_file_name, "w", encoding="utf-8") as output:
-                output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
-            print(f"Download error log is successfully written to '{output_file_name}'")
+
+        # with open(output_file_name, "w", encoding="utf-8") as output:
+        #     output.write(',\n'.join([str(line).strip("[]'").replace("'", "") for line in errors]))
+
     else:
-        print("No error occurred")
-
-    # TODO: further data exploration of the papers????????????
+        print("No error occurred when attempting to download PDFs.")
 
     print("End of meta2pdf.py")
 
