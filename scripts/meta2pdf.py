@@ -67,7 +67,7 @@ def exclude_already_downloaded_pmids(pmids):
         # Exclude pmids that are already in the local pdf_directory
         pmids = list(set(pmids).difference(local_pdfs))
         # Report how many pmids are already in the local pdf_directory
-        print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} papers are already found in the local pdf_directory.")
+        print(f"{round((len(old_pmids) - len(pmids)) / len(old_pmids) * 100, 2)}% ({len(old_pmids) - len(pmids)}/{len(old_pmids)}) papers are already found in the local pdf_directory.")
 
     except FileNotFoundError:
         print("WARNING: Did not find 'data/pdf_paper/' directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.")
@@ -95,6 +95,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
     # Collect results
     collect_errors = [['pmid', 'error_code', 'error_message']]
     success_counter = 0
+    success_session_counter = 0
 
     # Iterate
     for pdf_key in pdf_urls:
@@ -120,8 +121,9 @@ def get_pdf_papers_from_url(pdf_urls: dict):
             )
             # TODO: try different User Agents? (Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36)
             try:
-                input_json = {"output" : urlopen(req).read()}
+                input_json = {"output" : urlopen(req).read()} # TODO: Check if response (=`input_json['output']`) is PDF or HTML
                 success_counter += 1
+                success_session_counter += 1
 
                 # Save pdf
                 with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
@@ -134,7 +136,8 @@ def get_pdf_papers_from_url(pdf_urls: dict):
                 collect_errors.append([pdf_key, '404', e.reason.strerror])
 
     # Notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
-    print(f"Proportion of successful downloads: {round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)})")
+    print(f"{round(success_session_counter / len(pdf_urls) * 100, 2)}% ({success_session_counter}/{len(pdf_urls)}) papers are successful downloaded within this session.")
+    print(f"{round(success_counter / len(pdf_urls) * 100, 2)}% ({success_counter}/{len(pdf_urls)}) papers were successful downloaded in total.")
     print("Please find the downloaded pdf's in 'data/pdf_papers/'")
     # return error log
     return collect_errors
@@ -160,8 +163,7 @@ def main():
     ).loc[:,"pmid"].to_list()
 
     # Convert pmids `int` to `str`
-    # TODO: REMOVE CAP [:25]
-    pmids = [str(i) for i in pmids][-25:]
+    pmids = [str(i) for i in pmids]
 
     # Exclude pmids of which the pdfs are already downloaded.
     if args.query_mode == 'efficient':
@@ -174,6 +176,10 @@ def main():
         f"data/meta/meta_{'_'.join(args.input_file.split('_')[1:])}", 
         index_col=0
     )
+
+    # Print metrics of open acces (is_oa)
+    print(f"{round(df_meta['is_oa'].value_counts()[True] / df_meta.shape[0] * 100, 2)}% ({df_meta['is_oa'].value_counts()[True]}/{df_meta.shape[0]}) are Open Access papers. (NOTE: the total here is from the 'meta_*.csv'. If this differs from the previous total, then these PMIDs were not found in the OpenAlex database.)")
+    print(f"{round(df_meta['pdf_url'].isna().value_counts()[False] / df_meta['is_oa'].value_counts()[True] * 100, 2)}% ({df_meta['pdf_url'].isna().value_counts()[False]}/{df_meta['is_oa'].value_counts()[True]}) PDF URLs are known.")
 
     # Create dict where pmid is key and pdf_url is value
     pdf_urls = df_meta.loc[
@@ -200,17 +206,6 @@ def main():
 
     print("End of meta2pdf.py")
 
-    #####################################################
-    # # Attempt to retrieve pdf_url from landing_url:
-    # print("Trying to retrieve pdf_url from landing_url")
-    # # extend a PMC url with '/pdf':
-    # extra_pdf_urls = {k: landing_urls[k] + "/pdf" for k in landing_urls if landing_urls[k].split("/")[-1][:3] == "PMC"}
-
-    # # # add all landing_urls:
-    # # # extra_pdf_urls = {k: landing_urls[k] for k in landing_urls}
-    # pdf_urls.update(extra_pdf_urls)
-    # print(f"{len(extra_pdf_urls)} urls that potentially link to a pdf were added to pdf_urls list")
-    #####################################################
 
 # MAIN
 if __name__ == "__main__":
