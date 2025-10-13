@@ -9,7 +9,7 @@
 #SBATCH --nodelist=assemblix2025
 #SBATCH --time 15:00
 #SBATCH --cpus-per-task 90
-#SBATCH --mem=30G
+#SBATCH --mem=50G
 #SBATCH --ntasks 1
 #SBATCH --gres shard:32
 
@@ -28,8 +28,15 @@ full_exp_name="${search_mode}_${nr_pmids}_${experiment_name}"
 echo "Busy with experiment: $full_exp_name"
 echo "See log file for progress: $log_file"
 
+# # Get sentence embedding matrix and cosine similarity score matrix from corpus
+# date &> $log_file
+# srun ~/venv/graduation/bin/python scripts/corpus2vector.py -i "corpus_$full_exp_name.csv" -m sbert &>> $log_file
+
+# Get a networkx graph from cosine similarity score matrix
 date &> $log_file
-srun ~/venv/graduation/bin/python scripts/corpus2vector.py -i "corpus_$full_exp_name.csv" -m sbert &>> $log_file
+# date &>> $log_file
+~/venv/graduation/bin/python scripts/cos_sim2graph.py -i "similarity_$full_exp_name.pickle" -t 0 &>> $log_file
+
 
 # End
 date &>> $log_file
