@@ -238,17 +238,19 @@ def main():
     # Convert pmids `int` to `str`
     pmids = [str(i) for i in pmids]
 
-    # TODO:TODO:TODO:
     # Exclude pmids of which the pdfs are already downloaded.
     if args.query_mode == 'efficient':
         pmids = exclude_already_downloaded_pmids(pmids)
 
     # TODO: Try to have the following processes multiprocessed.
     # Collect pdf_urls and landing_urls
+    total_metrics = [["total", "prop_open_access", "prop_pdf_url"], [0, 0, 0]]
     pdf_urls = dict()
     landing_urls = dict()
-    total_metrics = [["total", "prop_open_access", "prop_pdf_url"], [0, 0, 0]]
+    meta = dict()
     errors = list()
+
+    # TODO:TODO:TODO: `meta`
 
     # Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
     # if pmids longer than 100 items
