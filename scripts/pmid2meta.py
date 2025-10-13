@@ -20,8 +20,7 @@ Input:
     A configuration file (config.yaml) is required. Please make sure the correct email address is in the configuration file (config.yaml).
 
 Output:
-    It saves which URLs were found for the PMIDs, and if it is a PDF download page or a general landing page.
-    It reports which errors it encountered when failing to retrieve a PDF.
+    It saves meta data of the PMIDs to './data/meta/'.
 
 """
 
@@ -102,7 +101,7 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
         "pmid",
         "doi",
         "pub_year",
-        
+
         "is_oa",
         "landing_url",
         "pdf_url",
@@ -121,7 +120,7 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
 
         # meta control:
         try:
-            doi = "/".join(r["doi"].split("/")[-2:])
+            doi = r["doi"].split("doi.org/")[1]
         except AttributeError:
             doi = None
 
@@ -167,8 +166,8 @@ def main():
 
     This function is the main entry point of the pmid2meta.py script.
     Collect arguments, load the configuration file, retrieve PMIDs from the input file,
-    exclude PMIDs that are already in the meta data file, retrieve meta data and PDF URLs from OpenAlex.
-    It also reports metrics and saves URLs and errors to log files.
+    exclude PMIDs that are already in the meta data file, retrieve meta data from OpenAlex.
+    It also reports metrics.
     """
     print("Start of pmid2meta.py")
 
@@ -200,20 +199,18 @@ def main():
             pmids = list(set(pmids).difference(existing_pmids.astype(str)))
             # Report how many pmids are already in the local pdf_directory
             print(f"{len(old_pmids) - len(pmids)}/{len(old_pmids)} PMIDs are already found in '{expected_output_filename}'.")
-        
+
         except FileNotFoundError:
             print(f"WARNING: Did not find '{expected_output_filename}'. Possibly did not make 'data/meta/' directory? Application will continue in 'full' `query_mode`.")
             args.query_mode = 'full'
-            pass
 
-    # TODO: Try to have the following processes multiprocessed.
     # Collect meta data from OpenAlex API (https://docs.openalex.org/)
     # Data frame for collecting:
     column_names = [
         "pmid",
         "doi",
         "pub_year",
-        
+
         "is_oa",
         "landing_url",
         "pdf_url",
