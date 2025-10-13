@@ -1,9 +1,11 @@
-# credentials
+# Tenwise credentials
 "path_to_credentials": "path/to/credentials"
 "email_address": "user@domain.com"
-"grobid_servername" : "server_alias"
-"grobid_portnumber" : "portnumber"
 
 # search settings
 "free_search_terms": "(pesticide OR pesticides) AND parkinson's"
 "path_to_pesticide_ids": "path/to/all_pesticide_concept_ids.tsv"
+
+# GROBID settings
+"grobid_servername" : "server_alias"
+"grobid_portnumber" : "portnumber"
