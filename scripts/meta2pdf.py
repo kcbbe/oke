@@ -28,9 +28,9 @@ Output:
 # IMPORTS
 import argparse
 from pathlib import Path
-import pandas as pd
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
+import pandas as pd
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -73,11 +73,10 @@ def exclude_already_downloaded_pmids(pmids):
         print("WARNING: Did not find 'data/pdf_paper/' directory. If this is the first time running application that there is nothing to worry about. Else, check if set up is correct.")
         # Create `pdf_papers` directory, if it does not yet exists.
         Path("data/pdf_papers/").mkdir(exist_ok = True)
-        pass
 
     return pmids
 
-# TODO: this can be multiprocessed..
+
 def get_pdf_papers_from_url(pdf_urls: dict):
     """Download pdf papers from pdf_urls.
 
@@ -107,7 +106,7 @@ def get_pdf_papers_from_url(pdf_urls: dict):
         # Else, download the file and save as `key`
         else:
             # NOTE: Proof-of-Principle for using 'https://sci-hub.box/' for finding pdf_url proved successfull.
-            #  Tested with `pmid = 19270050` 
+            # Tested with `pmid = 19270050`
             # 1) send a request for 'https://sci-hub.box/{doi}' {'https://sci-hub.box/10.1093/aje/kwp006'}
             # 2) in HTML of response (input_json['output'] in our case) search for 'src=' till '.pdf' {'https://moscow.sci-hub.box/3311/b17f96702a17d5ef66accdfaf05105ac/costello2009.pdf'}
             # 3) next response is the pdf!
@@ -119,21 +118,21 @@ def get_pdf_papers_from_url(pdf_urls: dict):
                 url = pdf_urls[pdf_key].replace(' ', '%20'), # Replace ' ' with '%20' in the URL if applicable.
                 headers = {"User-Agent": "Mozilla/6.0"}
             )
-            # TODO: try different User Agents? (Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36)
             try:
-                input_json = {"output" : urlopen(req).read()} # TODO: Check if response (=`input_json['output']`) is PDF or HTML
-                success_counter += 1
-                success_session_counter += 1
+                input_json = {"output" : urlopen(req).read()}
 
-                # Save pdf
+                # Save as pdf
                 with open(f"data/pdf_papers/{pdf_key}.pdf", "wb") as output:
                     output.write(input_json["output"])
 
-            except HTTPError as e:
-                collect_errors.append([pdf_key, e.code, e.msg])
+                success_counter += 1
+                success_session_counter += 1
 
-            except URLError as e:
-                collect_errors.append([pdf_key, '404', e.reason.strerror])
+            except HTTPError as error:
+                collect_errors.append([pdf_key, error.code, error.msg])
+
+            except URLError as error:
+                collect_errors.append([pdf_key, '404', error.reason.strerror])
 
     # Notify user where file is saved. and how many were saved (success_counter & len(collect_errors))
     print(f"{round(success_session_counter / len(pdf_urls) * 100, 2)}% ({success_session_counter}/{len(pdf_urls)}) papers are successful downloaded within this session.")
@@ -168,8 +167,6 @@ def main():
     # Exclude pmids of which the pdfs are already downloaded.
     if args.query_mode == 'efficient':
         pmids = exclude_already_downloaded_pmids(pmids)
-
-    # # TODO: Try to have the following processes multiprocessed.
 
     # Load meta data
     df_meta = pd.read_csv(
