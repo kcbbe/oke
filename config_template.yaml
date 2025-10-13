@@ -2,9 +2,11 @@
 "path_to_credentials": "path/to/credentials"
 "email_address": "user@domain.com"
 
-# search settings
+# Search settings
+# - concept search
+"path_to_concept_ids": "path/to/all_pesticide_concept_ids.tsv"
+# - free search
 "free_search_terms": "(pesticide OR pesticides) AND parkinson's"
-"path_to_pesticide_ids": "path/to/all_pesticide_concept_ids.tsv"
 
 # GROBID settings
 "grobid_servername" : "server_alias"

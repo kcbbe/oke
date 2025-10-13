@@ -1,9 +1,11 @@
 """Find PubMed Identifiers (PMIDs) based on provided free terms or fixed concepts.
 
 This module finds relevant PMIDs on provided free terms or fixed concepts.
+Note that 'concept' search mode is currently hard-coded to anchor with "Parkinson's Disease". This it is advised to use the 'free' search mode if this is not applicable to your research question.
+
 Start a session with the TenWise Knowledge Map API to find PMIDs:
-1) Search on free text (e.g. "pesticides" and "Parkinson's disease")
-2) Search on pre-defined concept_ids (e.g. "pesticides" and "Parkinson's disease")
+1) Search on free text (example "(pesticide OR pesticides) AND parkinson's")
+2) Search on pre-defined concept_ids (reference to file with concept_ids)
 Results are saved in a CSV file.
 
 If search_mode is `free`, then a list only containing PMIDs is returned.
@@ -12,7 +14,7 @@ Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in pa
 See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
 
 Usage:
-    python concept2pmid.py -c config.yaml -n 1000 -m free -o pmids.csv
+    python concept2pmid.py -c config.yaml -n 1000 -m free -o pmid_{experiment_name}.csv
 
 Arguments:
     -c, --config_file
@@ -25,7 +27,7 @@ Arguments:
         Name of the output file, incl. its suffix.
 
 Input:
-    Please find search terms and concept_ids in the configuration file (config.yaml).
+    Please place search terms and concept_ids in the configuration file (config.yaml).
     A configuration file (config.yaml) is required. It contains the following keys:
     - path_to_concept_ids: Path to a file with concept_ids (tab-delimited)
     - free_search_terms: Search terms for free text search
@@ -160,10 +162,10 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
     # >  parkinson"  , 'hitnr': 126, 'pmids': ['32943485', '...']
     # >  parkinson's", 'hitnr': 866, 'pmids': ['37354828', '...']
     # NOTE: I expected 'parkinson' to have more hits, since it would include "parkinson's" but "parkinsonism" as well?
-    
+
     # Get list with PMIDs
     hits_on_free_search = js['result']['pmids']
-    
+
     # Add "pmid" at the beginning of list. ("pmid" will become the header of a column)
     hits_on_free_search.insert(0, "pmid")
 
@@ -173,18 +175,14 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
     return hits_on_free_search
 
 # Search method 2: Search on pre-defined alias of TenWise
-# BIG TODO: MOVE CONCEPT_ID OF "PARKINSON'S DISEASE" TO data/concepts/concept_ids.txt so that all concept_ids are in one place. (and parkinson's disease is not hardcoded in the function)
-# Optional TODO: this function should be split into two functions:
-# 1) Finds the concept_ids of `search_terms` and appends it to a file (where the user can already have put concept_ids in)
+# Optional TODO: this function (search_concept_pmids) should be split into two functions:
+# 1) Finds the concept_ids of `search_terms`
 # 2) Read in `concept_id_file` and query TenWise for PMIDs.
-def search_concepts(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, retmax: int):
+def search_concept_pmids(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, retmax: int):
     """Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
 
-    TODO:
-    This includes 'parkinson' and concept_ids provided in path_to_concept_ids.
-
-    Search PMIDs in the TenWise Knowledge Map by searching on provided concept_ids found in a file.
-    This is a TXT file that is Tab-delimited where each line starts with the concept_id like so: `TWPHI_XXXXX \t name_pesticide`
+    Search PMIDs in the TenWise Knowledge Map that must include 'parkinson' and at least one concept from concept_ids provided in path_to_concept_ids.
+    path_to_concept_ids is a TXT file that is Tab-delimited where each line starts with the concept_id like so: `TWPHI_XXXXX \t name_pesticide`
     Numbers of PMIDs being returned is controlled by `retmax`.
     Results include the following: pmid, hitnr, score.
     Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested.
@@ -198,7 +196,7 @@ def search_concepts(session: requests.Session, payload: dict, credentials: dict,
         retmax (int): Maximum number of PMIDs to return. (default: 50)
 
     Returns:
-        hits_on_concept_ids (list): TODO: dit klopt niet: A list with PMIDs as strings. In example: ['32943485', '...']
+        hits_on_concept_ids (list): A list with pmid, hitnr, score. Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested. In example: ['pmid, hitnr, score', '32943485, 9, 0.00367', '...']
     """
     # Get all Parkinsons Disease concept_ids
     payload['terms'] = "parkinson"
@@ -282,8 +280,7 @@ def main():
     session, payload = start_tenwise_session(creds)
 
     # SEARCH 
-    # Option 1) Get pmid ids on keywords "pesticides" and "Parkinson's disease"
-    # Optional TODO: This part needs to change so that it is modulair.
+    # Option 1) Get pmid ids on keywords (example: "(pesticide OR pesticides) AND parkinson's")
     if args.search_mode.lower().strip() == "free":
         pmid_hits = search_free(
             session,
@@ -294,9 +291,8 @@ def main():
         )
 
     # Option 2) Get pmid ids on concept_ids from TenWise vocabularies
-    # Optional TODO: This option is not modifiable yet via config.yaml (atm hardcoded in function)
     elif args.search_mode.lower().strip() == "concept":
-        pmid_hits = search_concepts(
+        pmid_hits = search_concept_pmids(
             session,
             payload,
             creds,
