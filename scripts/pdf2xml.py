@@ -63,7 +63,7 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
+def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str) -> list:
     """Transforms a single pdf into a single xml using the GROBID server.
     
     The function reads the pdf file, with pmid (e.g. 12345678.pdf) from the `data/pdf_papers/` directory,
@@ -81,8 +81,8 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
     """
 
     # Read pdf
-    with open(f"data/pdf_papers/{pmid}.pdf", "rb") as input:
-        input_json = {"input": input.read()}
+    with open(f"data/pdf_papers/{pmid}.pdf", "rb") as handle:
+        input_json = {"input": handle.read()}
 
     # Let GROBID process pdf into xml
     response = requests.post(
@@ -93,28 +93,29 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str):
 
     # Check if the response is successful and save the xml file
     if response.status_code == 200:
-        with open(f"data/xml_papers/{pmid}.xml", "w") as output:
+        with open(f"data/xml_papers/{pmid}.xml", "w", encoding="utf-8") as output:
             output.write(response.text)
+        # Escape function, return None
+        return None
 
     # if the response is not successful return the error code
-    else:
-        # See here what the code means: https://grobid.readthedocs.io/en/latest/Grobid-service/#apiprocessfulltextdocument
-        error_code_to_text = {
-            204: "Process was completed, but no content could be extracted and structured",
-            400: "Wrong request, missing parameters, missing header",
-            500: "Indicate an internal service error, further described by a provided message",
-            503: "The service is not available, which usually means that all the threads are currently used"
-        }
+    # See here what the code means: https://grobid.readthedocs.io/en/latest/Grobid-service/#apiprocessfulltextdocument
+    error_code_to_text = {
+        204: "Process was completed, but no content could be extracted and structured",
+        400: "Wrong request, missing parameters, missing header",
+        500: "Indicate an internal service error, further described by a provided message",
+        503: "The service is not available, which usually means that all the threads are currently used"
+    }
 
-        collect_errors = [
-            pmid,
-            response.status_code,
-            error_code_to_text.get(response.status_code, "Error code not included in error_code_to_text dictionary"),
-            response.text
-        ]
+    collect_errors = [
+        pmid,
+        response.status_code,
+        error_code_to_text.get(response.status_code, "Error code not included in error_code_to_text dictionary"),
+        response.text
+    ]
 
-        # return error log
-        return collect_errors
+    # return error log
+    return collect_errors
 
 def main():
     """Parse PDFs to TEI XML format.
@@ -141,7 +142,7 @@ def main():
     # Create `xml_papers` directory, if it does not yet exists.
     Path("data/xml_papers/").mkdir(exist_ok = True)
 
-    # For each pmid (TODO: MULTIPROCESSING, and in a separate function)
+    # For each pmid
     total_metrics = [["xml_count", "pdf_count", "none_count"], [0, 0, 0]]
     errors = [["pmid", "error_code", "error_text", "error_message"]]
 
@@ -149,7 +150,6 @@ def main():
         if Path(f"data/xml_papers/{i}.xml").exists():
             # xml paper version for this `i` is already available on local drive.
             total_metrics[1][0] += 1
-            pass
 
         elif Path(f"data/pdf_papers/{i}.pdf").exists():
             # pdf needs to be transformed to xml.
@@ -168,7 +168,6 @@ def main():
         else:
             # No paper was obtained for this `i`.
             total_metrics[1][2] += 1
-            pass
 
     # Report total_metrics
     print("Total overview:")
