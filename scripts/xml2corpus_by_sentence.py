@@ -10,13 +10,14 @@ Usage:
     python xml2corpus_by_sentence.py -i pmids_in.csv
 
 Arguments:
-    -i: Name of the input file containing PMIDs.
+    -i, input_file
+        Name of the input file containing PMIDs.
 
 Input:
-    A CSV file with at least one column header named 'pmid', were the values corresponds to its PubMed Identifier.
+    A CSV file with a column header named 'pmid', where the values corresponds to its PubMed Identifier.
 
 Output:
-    An comma separated values output file is generated.
+    An CSV output file is generated.
 
     Example:
 
@@ -34,6 +35,7 @@ import re
 from pathlib import Path
 import bs4
 import pandas as pd
+
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -224,8 +226,11 @@ def flatten_body(body: list, paper_id: int, name: str) -> pd.DataFrame:
     return df_body
 
 def main():
-    """
-    Needs an docstring
+    """Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.
+
+    This function is the main entry point of the xml2corpus_by_sentence.py script.
+    It processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+    The resulting corpus is saved as a CSV file to the 'data/corpus/' directory.
     """
     print("Start of xml2corpus_by_sentence.py")
 

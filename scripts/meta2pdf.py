@@ -58,7 +58,7 @@ def collect_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def exclude_already_downloaded_pmids(pmids):
+def exclude_already_downloaded_pmids(pmids: list) -> list:
     """Exclude pmids of which the pdfs are already downloaded."""
     try:
         # Compare local pdfs with obtained pmids
@@ -77,7 +77,7 @@ def exclude_already_downloaded_pmids(pmids):
     return pmids
 
 
-def get_pdf_papers_from_url(pdf_urls: dict):
+def get_pdf_papers_from_url(pdf_urls: dict) -> list:
     """Download pdf papers from pdf_urls.
 
     Take a dictionary of PMIDs and their corresponding PDF URLs as input,

@@ -33,7 +33,7 @@ Input:
     - free_search_terms: Search terms for free text search
 
 Output:
-    An comma separated values output file is generated.
+    An comma separated values (CSV) output file is generated.
 
     Example:
     
@@ -262,7 +262,7 @@ def main():
     See link for more information: https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence
 
     Results are saved in a CSV file.
-        """
+    """
     print("Start of concept2pmid.py")
 
     # Collect arguments
