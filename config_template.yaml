@@ -1,13 +1,16 @@
-# Tenwise credentials
+# Tenwise credentials (concept2pmid, pmid2meta)
 "path_to_credentials": "path/to/credentials"
 "email_address": "user@domain.com"
 
-# Search settings
+# Search settings (concept2pmid)
 # - concept search
 "path_to_concept_ids": "path/to/all_pesticide_concept_ids.tsv"
 # - free search
 "free_search_terms": "(pesticide OR pesticides) AND parkinson's"
 
-# GROBID settings
+# GROBID settings (pdf2xml)
 "grobid_servername" : "server_alias"
 "grobid_portnumber" : "portnumber"
+
+# Abbreviation settings (corpus_by_sentence2vector)
+"path_to_abbr" : "path/to/dict_abbr.csv"
