@@ -21,7 +21,28 @@ project = 'Open Knowledge Explorer'
 copyright = f'{int(strftime("%Y", localtime()))}, Research Centre BioBased Economy (Hanze University of Applied Sciences)'
 author = 'Jennefer Beenen, Wynand Alkema'
 release = '0.1'
-version = strftime("%B %Y", localtime()).title()
+
+
+# Make sure it prints time in English:
+nl_to_en = {
+    'januari' : 'January',
+    'februari' : 'February',
+    'maart' : 'March',
+    'april' : 'April',
+    'mei' : 'May',
+    'juni' : 'June',
+    'juli' : 'July',
+    'augustus' : 'August',
+    'september' : 'September',
+    'oktober' : 'October',
+    'november' : 'November',
+    'december' : 'December',
+}
+
+t = strftime("%d %B %Y", localtime())
+if t.split(' ')[1] in nl_to_en.keys():
+    t = ' '.join([t.split(' ')[0], nl_to_en.get(t.split(' ')[1]), t.split(' ')[2]])
+version = t
 
 
 # -- General configuration ---------------------------------------------------

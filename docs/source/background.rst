@@ -2,14 +2,14 @@
 Background
 ==========
 
-The growth of which scientific papers are being published every year still keeps on growing 1–3. With the rise of generative artificial intelligence (genAI) in the scientific community 4–6, it is expected that the growth in publication will not decrease for the coming years – even though using genAI for writing papers is currently a taboo in the scientific community 7. This growth makes it each year harder for an interested audience to get a grip of what the current state of knowledge is. Therefore our developed pipeline which can capture scientific publications based on keywords and further process full open access papers into a summary where references to sources are maintained, would be of high value. 
-TODO: It can help …. Law makers…
+The growth of which scientific papers are being published every year still keeps on growing 1–3. With the rise of generative artificial intelligence (genAI) in the scientific community 4–6, it is expected that the growth in publication will not decrease for the coming years – even though using genAI for writing papers being a taboo in the scientific community 7. This growth makes it each year harder for an interested audience to get a grip of what the current state of knowledge is. Therefore our developed pipeline called Open Knowledge Explorer (OKE), which can capture scientific publications based on keywords and further process full open access papers into a summary where references to sources are maintained, would be of high value. It can provide insight to general interested public, scholars, and law makers, by helping them to navigate the fast amount of knowledge in an intuitive way (how?).
+OKE expands on the knowledge map from TenWise (KMAP) which is a network database containing its own biological/chemical keywords (i.e. concept identifiers) that are all connected via scientific papers in form of PubMed identifiers (PMID) 8. Searching on concept identifiers in KMAP through an application programming interface (KMINE API) therefore yields PMIDs where concepts were mentioned in the abstract.
 
 FAQ
 ---
 
 **Are all academic papers processed?**
-    Unfortunately no. Only open access papers are processed that are hosted on websites that do not check for bot activity. 
+    Unfortunately, no. Only open access papers are processed that are hosted on websites that do not check for bot activity. 
     Though it is possible for a user to include their pdf papers of interest that they have downloaded themselves, just by placing the paper in `data/pdf_papers`. 
 .. warning:: The pipeline is specialized on academic papers only. It cannot be guaranteed that manually added pdf documents of other media types will be processed correctly.
 
