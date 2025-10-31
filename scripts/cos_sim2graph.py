@@ -1,4 +1,5 @@
 
+
 # import
 import argparse
 from pathlib import Path
@@ -7,7 +8,6 @@ import pickle
 import numpy as np
 import pandas as pd
 
-# import cugraph as cg
 import torch
 import networkx as nx
 
@@ -44,51 +44,51 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def get_duplets_dataframe(similarity_matrix, threshold: float):
-    """Return a similarity dataframe that only contains duplets, where duplets are defined as sentences with a similarity score equal or higher than provided threshold."""
+def get_duplicates_dataframe(similarity_matrix, threshold: float) -> pd.DataFrame:
+    """Return a similarity dataframe that only contains duplicates, where duplicates are defined as sentences with a similarity score equal or higher than provided threshold."""
     # Substract 2 from the cosine similarity score that matched itself, so that it turns the value to -1.
-    df_duplets = pd.DataFrame(
+    df_duplicates = pd.DataFrame(
         np.subtract(
             similarity_matrix, 
             np.identity(similarity_matrix.shape[0]) *2
         )
     )
 
-    # Drop columns and rows without duplets (defined by the threshold)
-    df_duplets = df_duplets[df_duplets >= threshold].dropna(axis=0, how='all')
-    df_duplets = df_duplets[df_duplets >= threshold].dropna(axis=1, how='all')
+    # Drop columns and rows without duplicates (defined by the threshold)
+    df_duplicates = df_duplicates[df_duplicates >= threshold].dropna(axis=0, how='all')
+    df_duplicates = df_duplicates[df_duplicates >= threshold].dropna(axis=1, how='all')
 
-    # if df_duplets is empty (and therefore there are no duplets)
-    if len(df_duplets.index) == 0:
+    # if df_duplicates is empty (and therefore there are no duplicates)
+    if len(df_duplicates.index) == 0:
         # raise an error
-        raise ValueError("No duplets found in provided pd.DataFrame!")
+        raise ValueError("No duplicates found in provided pd.DataFrame!")
 
-    return df_duplets
+    return df_duplicates
 
-def get_duplets_clusters(df_duplets):
-    """Return a dictionary where the kept 'unique sentence index' (=key) references to the duplet index in a list (=values)."""
-    # Create a dict with indexes on sentences with a duplet.
-    potential_duplets = df_duplets.index
-    duplet_dict = dict()
+def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
+    """Return a dictionary where the kept 'unique sentence index' (=key) references to the duplicate index in a list (=values)."""
+    # Create a dict with indexes on sentences with a duplicate.
+    potential_duplicates = df_duplicates.index
+    duplicate_dict = dict()
 
-    # Iterate over potential duplets list
-    # TODO: There should be a nicer way with groupby or something
-    while len(potential_duplets) != 0:
+    # Iterate over potential duplicates list
+    while len(potential_duplicates) != 0:
         
         # Look at first item
-        idx = potential_duplets[0]
+        idx = potential_duplicates[0]
 
         # For idx in list, find other idx that have same sentence.
-        cluster = df_duplets.loc[idx, ~df_duplets.loc[idx].isna()].index
+        cluster = df_duplicates.loc[idx, ~df_duplicates.loc[idx].isna()].index
 
-        # Store 'unique' idx in as key, and store 'duplet' idx as values
-        duplet_dict[idx] = cluster.to_list()
+        # Store 'unique' idx in as key, and store 'duplicate' idx as values
+        duplicate_dict[idx] = cluster.to_list()
 
-        # Remove duplet index and first item from potential_duplets. (This will shorten the loop)
-        potential_duplets = potential_duplets[~potential_duplets.isin(cluster)]
-        potential_duplets = potential_duplets[1:]
+        # Remove duplicate index and first item from potential_duplicates. (This will shorten the loop)
+        potential_duplicates = potential_duplicates[~potential_duplicates.isin(cluster)]
+        potential_duplicates = potential_duplicates[1:]
 
-    return duplet_dict
+    return duplicate_dict
+
 
 def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0):
     """Return a new torch.Tensor with sub-arrays along an axis deleted.
@@ -114,6 +114,33 @@ def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0):
     
     return x
 
+def remove_duplicates( similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
+
+    # Create a list with indexes on sentences with a duplicate.
+    duplicate_to_remove = [item for layer in dupli_dict.values() for item in layer]
+    print(f"Number of indexes to remove: {len(duplicate_to_remove)}")
+
+    # Drop duplicates from `similarity` (both rows and columns)
+    print(f"Similarities shape with duplicates: {similarity_matrix.shape}")
+    similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=0)
+    similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=1)
+    print(f"Similarities shape without duplicates: {similarity_matrix.shape}")
+
+    return similarity_matrix
+
+def save_duplicate_dict(dupli_dict: dict, filename: str):
+    # Save `duplicate_dict` as .csv
+    # (This is important, because if the 'duplicate' is a hit, we need to find it back in the corpus. Also if the hit occurs multiple times in the corpus.)
+    # Create `duplicates` directory, if it does not yet exists.
+    Path("data/vectors/duplicates").mkdir(exist_ok = True)
+
+    df_duplicate_dict = pd.DataFrame(
+        dupli_dict.values(),
+        index= dupli_dict.keys(),
+    )
+    df_duplicate_dict.index.name = "kept"
+    df_duplicate_dict.to_csv(f"data/vectors/duplicates/{filename}.csv")
+
 def get_graph(similarity_scores: pd.DataFrame):
     """This function is computational expensive. It is advised to remove edges that have a lower similarity score than a certain threshold,
     before passing the similarity_scores dataframe to this function.
@@ -122,15 +149,6 @@ def get_graph(similarity_scores: pd.DataFrame):
     similarity_scores = similarity_scores.reset_index()
     similarity_scores = pd.melt(similarity_scores, id_vars= ['index']).dropna(axis=0)
     similarity_scores = similarity_scores.rename(columns={"index": "source", "variable": "target", "value": "weight"})
-    # TODO: remove edges that are the same (A-B and B-A) (ONLY IF IT IMPROVES COMPUTATIONAL TIME)
-
-    # G = cg.from_pandas_edgelist(
-    #     similarity_scores,
-    #     "source",
-    #     "target",
-    #     "weight"
-    # )
-    # print(G)
 
     G = nx.from_pandas_edgelist(
         similarity_scores,
@@ -154,42 +172,29 @@ def main():
     with open(f"data/vectors/{args.input_file}", 'rb') as handle:
         similarities = pickle.load(handle)
 
-
-
-    ### Remove duplets
+    # Remove duplicates from cosine similarity score,
+    # and save a dictionary with removed sentences.
     try:
-        # Get duplet dictionary
-        duplet_dict = get_duplets_clusters(
-            get_duplets_dataframe(
+        duplicate_dict = get_duplicates_clusters(
+            get_duplicates_dataframe(
                 similarities,
                 threshold= args.duplicates_threshold
             )
         )
 
-        # Create a list with indexes on sentences with a duplet.
-        duplet_to_remove = [item for layer in duplet_dict.values() for item in layer]
-        print(f"Number of indexes to remove: {len(duplet_to_remove)}")
-
-        # Drop duplets from `similarity` (both rows and columns)
-        print(f"Similarities shape with duplets: {similarities.shape}")
-        similarities = delete_for_torch_tensor(similarities, duplet_to_remove, axis=0)
-        similarities = delete_for_torch_tensor(similarities, duplet_to_remove, axis=1)
-        print(f"Similarities shape without duplets: {similarities.shape}")
-
-        # Save `duplet_dict` as .csv
-        # (This is important, because if the 'duplet' is a hit, we need to find it back in the corpus. Also if the hit occurs multiple times in the corpus.)
-        # Create `duplicates` directory, if it does not yet exists.
-        Path("data/vectors/duplicates").mkdir(exist_ok = True)
-
-        df_duplet_dict = pd.DataFrame(
-            duplet_dict.values(),
-            index= duplet_dict.keys(),
+        similarities = remove_duplicates(
+            similarities,
+            duplicate_dict,
         )
-        df_duplet_dict.index.name = "kept"
-        df_duplet_dict.to_csv(f"data/vectors/duplicates/dict_{'_'.join(args.input_file.split('_')[1:])}.csv")
-    
+
+        # Save `duplicate_dict` as .csv
+        save_duplicate_dict(
+            duplicate_dict,
+            f"dict_{'_'.join(args.input_file.split('_')[1:]).split('.')[0]}"
+        )
+
     except ValueError:
-        print("WARNING: A ValueError was raised. If the error is: 'No duplets found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
+        print("WARNING: A ValueError was raised. If the error is: 'No duplicates found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
 
 
 
@@ -213,44 +218,21 @@ def main():
     print(f"Edge list compressed to {1-(similarity_weights.isna().sum().sum() / similarity_weights.shape[0] **2):.4f}")
 
 
-
     ### Get graph
-    print('generate graph')
-
+    print('Create graph')
     G = get_graph(similarity_weights)
-    print("created graph")
-
-    # TODO: Try to get graph with gpu networkx
-    # https://developer.nvidia.com/blog/accelerating-networkx-on-nvidia-gpus-for-high-performance-graph-analytics/
-
-    # # Time spend on full data set >5.5 minutes and >40GB RAM
-    # G = nx.from_pandas_edgelist(
-    #     similarity_scores,
-    #     "source",
-    #     "target",
-    #     "weight"
-    # )
-    # print(G)
+    print("Successfully created graph")
 
     ### Save Graph
-
     # Create `graphs` directory, if it does not yet exists.
     Path("data/graphs/").mkdir(exist_ok = True)
 
-    # Save TODO: while building code
+    # Save graph
     print(f'Start saving graph as "data/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle"')
     with open(f"data/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle", "wb") as handle:
         pickle.dump(G, handle)
-    # # TODO: Remove block below and activate block above.
-    # print(f'Start saving graph as "/students/2022-2023/master/spacey/jennefer/master_thesis/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle"')
-    # with open(f'/students/2022-2023/master/spacey/jennefer/master_thesis/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle', "wb") as handle:
-    #     pickle.dump(G, handle)
-
-
 
     print("End of cos_sim2graph.py")
-
-
 
 
 # MAIN
