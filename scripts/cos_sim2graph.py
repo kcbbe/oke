@@ -44,7 +44,7 @@ def collect_arguments() -> argparse.Namespace:
 
     return parser.parse_args()
 
-def get_duplicates_dataframe(similarity_matrix, threshold: float) -> pd.DataFrame:
+def get_duplicates_dataframe(similarity_matrix: torch.Tensor, threshold: float) -> pd.DataFrame:
     """Return a similarity dataframe that only contains duplicates, where duplicates are defined as sentences with a similarity score equal or higher than provided threshold."""
     # Substract 2 from the cosine similarity score that matched itself, so that it turns the value to -1.
     df_duplicates = pd.DataFrame(
@@ -90,7 +90,7 @@ def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
     return duplicate_dict
 
 
-def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0):
+def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torch.Tensor:
     """Return a new torch.Tensor with sub-arrays along an axis deleted.
     
     Parameters:
@@ -112,7 +112,7 @@ def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0):
     if axis == 1:
         x = x[:, indexes_of_interest]
     
-    return x
+    return x 
 
 def remove_duplicates( similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
 
@@ -140,6 +140,29 @@ def save_duplicate_dict(dupli_dict: dict, filename: str):
     )
     df_duplicate_dict.index.name = "kept"
     df_duplicate_dict.to_csv(f"data/vectors/duplicates/{filename}.csv")
+
+def compress_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) -> pd.DataFrame:
+    ### Filter on edges that are equal to or larger than `threshold`
+    # To similarity into a DataFrame 
+    # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
+    df_similarity_pre = pd.DataFrame(matrix - (np.identity(matrix.shape[0]) *2))
+
+    # Get indexes of sentences above `threshold`
+    idx_above_thres = df_similarity_pre[df_similarity_pre.max(axis=0) >= edge_threshold].index
+
+    # Select only nodes that are assigned to a cluster
+    similarity_weights = df_similarity_pre.loc[idx_above_thres, idx_above_thres]
+
+    print(f"Data compressed by {similarity_weights.shape[0] / matrix.shape[0]:.4f}")
+
+    # Remove edge values with weights smaller than `threshold`
+    similarity_weights[similarity_weights < edge_threshold] = np.nan
+
+    # Fraction of NaN in matrix
+    temp = ~similarity_weights.isna()
+    print(f"Edge list ({temp.sum().sum()}) compressed to {temp.sum().sum() / similarity_weights.shape[0] **2:.4f}")
+
+    return similarity_weights
 
 def get_graph(similarity_scores: pd.DataFrame):
     """This function is computational expensive. It is advised to remove edges that have a lower similarity score than a certain threshold,
@@ -174,7 +197,7 @@ def main():
 
     # Remove duplicates from cosine similarity score,
     # and save a dictionary with removed sentences.
-    try:
+    try: # TODO: dtype similarities
         duplicate_dict = get_duplicates_clusters(
             get_duplicates_dataframe(
                 similarities,
@@ -188,7 +211,7 @@ def main():
         )
 
         # Save `duplicate_dict` as .csv
-        save_duplicate_dict(
+        save_duplicate_dict( 
             duplicate_dict,
             f"dict_{'_'.join(args.input_file.split('_')[1:]).split('.')[0]}"
         )
@@ -196,26 +219,31 @@ def main():
     except ValueError:
         print("WARNING: A ValueError was raised. If the error is: 'No duplicates found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
 
-
-
     ### Filter on edges that are equal to or larger than `threshold`
-    # To similarity into a DataFrame 
-    # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
-    df_similarity_pre = pd.DataFrame(similarities - (np.identity(similarities.shape[0]) *2))
+    similarity_weights = compress_similarity_matrix(
+        similarities,
+        args.edge_threshold
+    )
 
-    # Get indexes of sentences above `threshold`
-    idx_above_thres = df_similarity_pre[df_similarity_pre.max(axis=0) >= args.edge_threshold].index
 
-    # Select only nodes that are assigned to a cluster
-    similarity_weights = df_similarity_pre.loc[idx_above_thres, idx_above_thres]
+    # ### Filter on edges that are equal to or larger than `threshold`
+    # # To similarity into a DataFrame 
+    # # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
+    # df_similarity_pre = pd.DataFrame(similarities - (np.identity(similarities.shape[0]) *2))
 
-    print(f"Data compressed by {similarity_weights.shape[0] / similarities.shape[0]:.4f}")
+    # # Get indexes of sentences above `threshold`
+    # idx_above_thres = df_similarity_pre[df_similarity_pre.max(axis=0) >= args.edge_threshold].index
 
-    # Remove edge values with weights smaller than `threshold`
-    similarity_weights[similarity_weights < args.edge_threshold] = np.nan
+    # # Select only nodes that are assigned to a cluster
+    # similarity_weights = df_similarity_pre.loc[idx_above_thres, idx_above_thres]
 
-    # Fraction of NaN in matrix
-    print(f"Edge list compressed to {1-(similarity_weights.isna().sum().sum() / similarity_weights.shape[0] **2):.4f}")
+    # print(f"Data compressed by {similarity_weights.shape[0] / similarities.shape[0]:.4f}")
+
+    # # Remove edge values with weights smaller than `threshold`
+    # similarity_weights[similarity_weights < args.edge_threshold] = np.nan
+
+    # # Fraction of NaN in matrix
+    # print(f"Edge list compressed to {1-(similarity_weights.isna().sum().sum() / similarity_weights.shape[0] **2):.4f}")
 
 
     ### Get graph
