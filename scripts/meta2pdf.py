@@ -49,7 +49,6 @@ def collect_arguments() -> argparse.Namespace:
     parser.add_argument(
         "-m",
         dest = "query_mode",
-        required = True,
         help = "Query mode to use on OpenAlex. (default: 'efficient') Choose between 'efficient' or 'full' search. 'efficient' will only query PMIDs that are not present in destination folder, 'full' search will query all PMIDs provided in input file.",
         choices = ['efficient', 'full'],
         default = 'efficient'
