@@ -275,7 +275,7 @@ def main():
 
     # Save to csv
     df_corpus.to_csv(f"data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}", index=False)
-    print(f"Corpus dataframe saved to data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}")
+    print(f"Corpus dataframe is successfully written to 'data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}'")
 
     print("End of xml2corpus_by_sentence.py")
 

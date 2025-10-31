@@ -197,7 +197,7 @@ def main():
 
     # Remove duplicates from cosine similarity score,
     # and save a dictionary with removed sentences.
-    try: # TODO: dtype similarities
+    try:
         duplicate_dict = get_duplicates_clusters(
             get_duplicates_dataframe(
                 similarities,
@@ -219,47 +219,27 @@ def main():
     except ValueError:
         print("WARNING: A ValueError was raised. If the error is: 'No duplicates found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
 
-    ### Filter on edges that are equal to or larger than `threshold`
+    # Filter on edges that are equal to or larger than `edge_threshold`
     similarity_weights = compress_similarity_matrix(
         similarities,
         args.edge_threshold
     )
 
-
-    # ### Filter on edges that are equal to or larger than `threshold`
-    # # To similarity into a DataFrame 
-    # # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
-    # df_similarity_pre = pd.DataFrame(similarities - (np.identity(similarities.shape[0]) *2))
-
-    # # Get indexes of sentences above `threshold`
-    # idx_above_thres = df_similarity_pre[df_similarity_pre.max(axis=0) >= args.edge_threshold].index
-
-    # # Select only nodes that are assigned to a cluster
-    # similarity_weights = df_similarity_pre.loc[idx_above_thres, idx_above_thres]
-
-    # print(f"Data compressed by {similarity_weights.shape[0] / similarities.shape[0]:.4f}")
-
-    # # Remove edge values with weights smaller than `threshold`
-    # similarity_weights[similarity_weights < args.edge_threshold] = np.nan
-
-    # # Fraction of NaN in matrix
-    # print(f"Edge list compressed to {1-(similarity_weights.isna().sum().sum() / similarity_weights.shape[0] **2):.4f}")
-
-
-    ### Get graph
+    # Get graph
     print('Create graph')
     G = get_graph(similarity_weights)
     print("Successfully created graph")
 
-    ### Save Graph
+    # Save Graph
     # Create `graphs` directory, if it does not yet exists.
     Path("data/graphs/").mkdir(exist_ok = True)
 
     # Save graph
-    print(f'Start saving graph as "data/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle"')
+    print(f"Start saving graph as 'data/graphs/graph_thres_{'_'.join(str(args.edge_threshold).split('.'))}_{'_'.join(args.input_file.split('.')[0].split('_')[1:])}.pickle'")
     with open(f"data/graphs/graph_thres_{"_".join(str(args.edge_threshold).split("."))}_{"_".join(args.input_file.split(".")[0].split("_")[1:])}.pickle", "wb") as handle:
         pickle.dump(G, handle)
 
+    print(f"Graph is successfully written to 'data/graphs/graph_thres_{'_'.join(str(args.edge_threshold).split('.'))}_{'_'.join(args.input_file.split('.')[0].split('_')[1:])}.pickle'")
     print("End of cos_sim2graph.py")
 
 
