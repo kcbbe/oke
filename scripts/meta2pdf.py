@@ -25,12 +25,14 @@ Output:
     It is possible that the PDF file actually contains a different type of file. This will be reported as an error when parsing the PDFs with GROBID (see the next pipe pdf2xml.py).
 """
 
+
 # IMPORTS
 import argparse
 from pathlib import Path
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 import pandas as pd
+
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:

@@ -24,6 +24,7 @@ Output:
 
 """
 
+
 # IMPORTS
 import sys
 import time
@@ -32,6 +33,7 @@ from pathlib import Path
 import yaml
 import requests
 import pandas as pd
+
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -158,8 +160,6 @@ def print_metrics(df: pd.DataFrame):
     print(f'{n_total_from_query} papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)')
     print(f'Proportion of PMIDs that returned an open access paper: {round(n_open_access / n_total_from_query * 100, 2)}% ({n_open_access}/{n_total_from_query})')
     print(f'Proportion of Open Access PMIDs with PDF URLs: {round(n_pdf_url / n_open_access* 100, 2)}% ({n_pdf_url}/{n_open_access})')
-
-
 
 def main():
     """Search meta data of full scientific papers in PDF.

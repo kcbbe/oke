@@ -1,6 +1,31 @@
+"""Create a networkx graph from a provided similarity matrix.
+
+This module loads a pickled similarity matrix file ('similarity_*.pickle'), 
+filters on edges with a similarity score equal or higher than provided edge threshold, 
+removes duplicated sentences based on provided duplicates threshold, 
+creates a networkx graph from the filtered similarity matrix,
+and saves the graph as a pickled file.
+
+Usage:
+    python similarity2graph.py -i similarity_$full_exp_name.pickle -t 0.75 -d 1.0
+
+Arguments:
+    -i, --input_file
+        Name of the input file containing the similarity matrix ('similarity_*.pickle').
+    -t, --edge_threshold
+        Edge threshold. Only sentences with at least one similarity score equal or higher than this threshold is kept, and edges with lower similarity score than threshold are removed.
+    -d, --duplicates_threshold
+        Duplicates threshold. Only one sentence is kept of duplicated sentences in the corpus.
+
+Input:
+    A pickled similarity matrix file ('similarity_*.pickle'). Where for each sentence per row the cosine similarity score is calculated for each sentence in columns.
+
+Output:
+    A pickled networkx graph file ('graph_thres_<edge_threshold>_<full_exp_name>.pickle').
+"""
 
 
-# import
+# IMPORTS
 import argparse
 from pathlib import Path
 
@@ -10,6 +35,7 @@ import pandas as pd
 
 import torch
 import networkx as nx
+
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -46,10 +72,10 @@ def collect_arguments() -> argparse.Namespace:
 
 def get_duplicates_dataframe(similarity_matrix: torch.Tensor, threshold: float) -> pd.DataFrame:
     """Return a similarity dataframe that only contains duplicates, where duplicates are defined as sentences with a similarity score equal or higher than provided threshold."""
-    # Substract 2 from the cosine similarity score that matched itself, so that it turns the value to -1.
+    # Substract 2 from the similarity score that matched itself, so that it turns the value to -1.
     df_duplicates = pd.DataFrame(
         np.subtract(
-            similarity_matrix, 
+            similarity_matrix,
             np.identity(similarity_matrix.shape[0]) *2
         )
     )
@@ -69,11 +95,11 @@ def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
     """Return a dictionary where the kept 'unique sentence index' (=key) references to the duplicate index in a list (=values)."""
     # Create a dict with indexes on sentences with a duplicate.
     potential_duplicates = df_duplicates.index
-    duplicate_dict = dict()
+    duplicate_dict = {}
 
     # Iterate over potential duplicates list
     while len(potential_duplicates) != 0:
-        
+
         # Look at first item
         idx = potential_duplicates[0]
 
@@ -91,7 +117,7 @@ def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
 
 
 def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torch.Tensor:
-    """Return a new torch.Tensor with sub-arrays along an axis deleted.
+    """Return a new torch.Tensor with sub-arrays along a provided axis deleted.
     
     Parameters:
         x (torch.Tensor): Input tensor.
@@ -111,11 +137,11 @@ def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torc
         x = x[indexes_of_interest]
     if axis == 1:
         x = x[:, indexes_of_interest]
-    
-    return x 
+
+    return x
 
 def remove_duplicates( similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
-
+    """Return a similarity matrix (pd.DataFrame) without duplicates based on provided duplicate dictionary."""
     # Create a list with indexes on sentences with a duplicate.
     duplicate_to_remove = [item for layer in dupli_dict.values() for item in layer]
     print(f"Number of indexes to remove: {len(duplicate_to_remove)}")
@@ -129,6 +155,7 @@ def remove_duplicates( similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.
     return similarity_matrix
 
 def save_duplicate_dict(dupli_dict: dict, filename: str):
+    """Save duplicate dictionary as .csv file."""
     # Save `duplicate_dict` as .csv
     # (This is important, because if the 'duplicate' is a hit, we need to find it back in the corpus. Also if the hit occurs multiple times in the corpus.)
     # Create `duplicates` directory, if it does not yet exists.
@@ -141,9 +168,10 @@ def save_duplicate_dict(dupli_dict: dict, filename: str):
     df_duplicate_dict.index.name = "kept"
     df_duplicate_dict.to_csv(f"data/vectors/duplicates/{filename}.csv")
 
-def compress_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) -> pd.DataFrame:
+def filter_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) -> pd.DataFrame:
+    """Return a compressed similarity matrix (pd.DataFrame) where only sentences with at least one similarity score equal or higher than `edge_threshold` is kept, and edges with lower similarity score than `edge_threshold` are removed (set to NaN)."""
     ### Filter on edges that are equal to or larger than `threshold`
-    # To similarity into a DataFrame 
+    # To similarity into a DataFrame
     # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
     df_similarity_pre = pd.DataFrame(matrix - (np.identity(matrix.shape[0]) *2))
 
@@ -153,26 +181,26 @@ def compress_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) ->
     # Select only nodes that are assigned to a cluster
     similarity_weights = df_similarity_pre.loc[idx_above_thres, idx_above_thres]
 
-    print(f"Data compressed by {similarity_weights.shape[0] / matrix.shape[0]:.4f}")
+    print(f"Data filtered to {similarity_weights.shape[0] / matrix.shape[0]:.4f}")
 
     # Remove edge values with weights smaller than `threshold`
     similarity_weights[similarity_weights < edge_threshold] = np.nan
 
     # Fraction of NaN in matrix
     temp = ~similarity_weights.isna()
-    print(f"Edge list ({temp.sum().sum()}) compressed to {temp.sum().sum() / similarity_weights.shape[0] **2:.4f}")
+    print(f"Edge list ({temp.sum().sum()}) filtered to {temp.sum().sum() / similarity_weights.shape[0] **2:.4f}")
 
     return similarity_weights
 
 def get_graph(similarity_scores: pd.DataFrame):
     """This function is computational expensive. It is advised to remove edges that have a lower similarity score than a certain threshold,
-    before passing the similarity_scores dataframe to this function.
-    The smaller the `scaler` the larger the distance between the nodes will be plot."""
+    before passing the similarity_scores dataframe to this function."""
     # Transform wide dataframe to long dataframe to make it compatible with networkx module
     similarity_scores = similarity_scores.reset_index()
     similarity_scores = pd.melt(similarity_scores, id_vars= ['index']).dropna(axis=0)
     similarity_scores = similarity_scores.rename(columns={"index": "source", "variable": "target", "value": "weight"})
 
+    # Create graph (on CPU power)
     G = nx.from_pandas_edgelist(
         similarity_scores,
         "source",
@@ -184,18 +212,25 @@ def get_graph(similarity_scores: pd.DataFrame):
     return G
 
 def main():
-    """_summary_
+    """Create a networkx graph from a provided similarity matrix.
+
+    This function is the main entry point of the similarity2graph.py script.
+    It loads a pickled similarity matrix file ('similarity_*.pickle'), 
+    filters on edges with a similarity score equal or higher than provided edge threshold, 
+    removes duplicated sentences based on provided duplicates threshold, 
+    creates a networkx graph from the filtered similarity matrix,
+    and saves the graph as a pickled file.
     """
-    print("Start of cos_sim2graph.py")
+    print("Start of similarity2graph.py")
 
     # Collect arguments
     args = collect_arguments()
 
-    # Load cosine similarity scores
+    # Load similarity scores
     with open(f"data/vectors/{args.input_file}", 'rb') as handle:
         similarities = pickle.load(handle)
 
-    # Remove duplicates from cosine similarity score,
+    # Remove duplicates from similarity score,
     # and save a dictionary with removed sentences.
     try:
         duplicate_dict = get_duplicates_clusters(
@@ -211,16 +246,16 @@ def main():
         )
 
         # Save `duplicate_dict` as .csv
-        save_duplicate_dict( 
+        save_duplicate_dict(
             duplicate_dict,
-            f"dict_{'_'.join(args.input_file.split('_')[1:]).split('.')[0]}"
+            f"dict_{'_'.join(args.input_file.split('_')[1:]).split('.', maxsplit=1)[0]}"
         )
 
     except ValueError:
         print("WARNING: A ValueError was raised. If the error is: 'No duplicates found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
 
     # Filter on edges that are equal to or larger than `edge_threshold`
-    similarity_weights = compress_similarity_matrix(
+    similarity_weights = filter_similarity_matrix(
         similarities,
         args.edge_threshold
     )
@@ -240,7 +275,7 @@ def main():
         pickle.dump(G, handle)
 
     print(f"Graph is successfully written to 'data/graphs/graph_thres_{'_'.join(str(args.edge_threshold).split('.'))}_{'_'.join(args.input_file.split('.')[0].split('_')[1:])}.pickle'")
-    print("End of cos_sim2graph.py")
+    print("End of similarity2graph.py")
 
 
 # MAIN

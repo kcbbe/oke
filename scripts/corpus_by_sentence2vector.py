@@ -150,6 +150,7 @@ def main():
 
     print("End of corpus_by_sentence2vector.py")
 
+
 # MAIN
 if __name__ == "__main__":
     main()

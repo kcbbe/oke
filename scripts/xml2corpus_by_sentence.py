@@ -29,6 +29,7 @@ Output:
 
 """
 
+
 # IMPORTS
 import argparse
 import re
@@ -278,6 +279,7 @@ def main():
     print(f"Corpus dataframe is successfully written to 'data/corpus/corpus_{'_'.join(args.input_file.split('_')[1:])}'")
 
     print("End of xml2corpus_by_sentence.py")
+
 
 # MAIN
 if __name__ == "__main__":

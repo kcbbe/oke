@@ -44,6 +44,8 @@ Output:
     ...,\n
     ```
 """
+
+
 # IMPORTS
 import sys
 import argparse
@@ -318,6 +320,7 @@ def main():
         print(f"PMIDs were successfully written to '{output_file_name}'")
     
     print("End of concept2pmid.py")
+
 
 # MAIN
 if __name__ == "__main__":

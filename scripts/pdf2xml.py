@@ -32,12 +32,15 @@ Output:
     XMLs are saved to './data/xml_papers/'.
     It reports which errors it encountered when failing to convert a PDF to an XML.
 """
+
+
 # IMPORTS
 import argparse
 from pathlib import Path
 import requests
 import yaml
 import pandas as pd
+
 
 # FUNCTIONS
 def collect_arguments() -> argparse.Namespace:
@@ -197,8 +200,6 @@ def main():
 
     print("End of pdf2xml.py")
 
-# How to parse TEI:
-# For next https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py
 
 # MAIN
 if __name__ == "__main__":
