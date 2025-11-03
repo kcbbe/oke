@@ -60,6 +60,7 @@ extensions = [
     'sphinx.ext.duration', # Measure durations of Sphinx processing
     'sphinxemoji.sphinxemoji', # Makes it possible to add emoji's: https://sphinxemojicodes.readthedocs.io/en/stable/
     'sphinx_mdinclude', # Parse Markdown files to a RST file.
+    "sphinx_design", # Create dropdown windows. I use this in FAQ section in `background.rst`
     'sphinx.ext.napoleon', # Parse docstrings in Google style.
     'sphinx.ext.doctest', # Test snippets in the documentation.
     'sphinx.ext.autosummary' # Generate autodoc summaries.

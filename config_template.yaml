@@ -12,5 +12,5 @@
 "grobid_servername" : "server_alias"
 "grobid_portnumber" : "portnumber"
 
-# Abbreviation settings (corpus_by_sentence2vector)
+# [Optional] Abbreviation settings (corpus_by_sentence2vector)
 "path_to_abbr" : "path/to/dict_abbr.csv"
