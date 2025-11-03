@@ -19,14 +19,10 @@ Input:
 Output:
     An CSV output file is generated.
 
-    Example:
-
-    ```
-    paper_id,paper_name,head_id,head_name,paragraph_id,sentence_id,sentence_text\n
-    0,17900545,0,title,0,0,EPIGALLOCATECHIN GALLATE (EGCG) POTENTIATES...\n
-    ...,\n
-    ```
-
+    Example::
+        paper_id,paper_name,head_id,head_name,paragraph_id,sentence_id,sentence_text\n
+        0,17900545,0,title,0,0,EPIGALLOCATECHIN GALLATE (EGCG) POTENTIATES...\n
+        ...,\n
 """
 
 

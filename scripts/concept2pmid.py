@@ -35,14 +35,11 @@ Input:
 Output:
     An comma separated values (CSV) output file is generated.
 
-    Example:
-    
-    ```
-    pmid,\n
-    34429776,\n
-    6905769,\n
-    ...,\n
-    ```
+    Example::
+        pmid,\n
+        34429776,\n
+        6905769,\n
+        ...,\n
 """
 
 
