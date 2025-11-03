@@ -13,4 +13,4 @@ The pipeline consist out of multiple python scripts. Below is a brief descriptio
     pdf2xml
     xml2corpus_by_sentence
     corpus_by_sentence2vector
-    cos_sim2graph
+    similarity2graph

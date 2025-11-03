@@ -10,11 +10,12 @@ FAQ
 
 **Are all academic papers processed?**
     Unfortunately, no. Only open access papers are processed that are hosted on websites that do not check for bot activity. 
-    Though it is possible for a user to include their pdf papers of interest that they have downloaded themselves, just by placing the paper in `data/pdf_papers`. 
+    Though it is possible for a user to include their pdf papers of interest that they have downloaded themselves, just by placing the paper in `data/pdf_papers` and adding the PubMed id to associated `pmid.csv` in `data/pmids`.
+
 .. warning:: The pipeline is specialized on academic papers only. It cannot be guaranteed that manually added pdf documents of other media types will be processed correctly.
 
 **What part of a paper is being processed?**
-    The total full paper is processed, including the abstracts. This makes it possible to query "material and method" related questions as well.
+    The full paper is processed, including the abstracts. This makes it possible to query "material and method" related questions as well.
 
 **I'm only interested in peer-reviewed papers. Is there an easy way to apply this as an filter?**
-    <in progress..>
+    Yes! Within the exploratory python notebooks it is possible to filter on peer-reviewed paper thanks to the meta data file located in `data/meta`. Whenever we thought is would be applicable, we already added the code for you to do so.
