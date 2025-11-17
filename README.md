@@ -91,7 +91,8 @@ It is recommended to have at least 6.0 GB space available in the storage medium.
 Of all the folders in this pipeline, `data/` will be the largest regarding disk usage, where the similarity matrix (`similarity_*.pickle`) in `data/vectors/` will take most space. As an indication, a corpus with 30483 sentences of 152 papers will generate a similarity matrix of ~3.5 GB.
 
 ## Workflow graph
-TODO: place flowchart
+![alt text](pipeline_clean_version4.png)
+Flowchart of the pipeline. The orange boxes depict the shell scripts containing various Python scripts. The first input, in yellow, is either a concept file or a free search term string. Various files are created by the scripts, were the asterisk represents the given experiment name.
 
 ## Data source
 _TenWise KMAP:_
