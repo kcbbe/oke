@@ -79,7 +79,7 @@ Please use `config.yaml` to modify the configuration. Note that the parenthesis 
 ```
 In `data/` the following new folders will be created; corpus, graphs, meta, pdf_papers, pmids, vectors, and xml_papers. Various log files will be created and are found in `logs/`. In `exploration/` the data in `data/` can be explored/analyzed, as well as creating a Sankey diagram of papers that made it to the corpus by manually entering the numbers found in one of the log files (`pre_vactorization/pmid_dropouts.ipynb`).
 
-## Requirements
+## Software requirements
 - Python: version 3.13.5, see `requirements.txt` for required libraries.
 (Please check out [this gitbook](https://jennefer.gitbook.io/back-to-basic/initialize-project/create-a-new-python-venv) on how to create a virtual environment and quick install required libraries.)
 - Podman: podman version 4.3.1
@@ -90,8 +90,9 @@ In `data/` the following new folders will be created; corpus, graphs, meta, pdf_
 It is recommended to have at least 6.0 GB space available in the storage medium.
 Of all the folders in this pipeline, `data/` will be the largest regarding disk usage, where the similarity matrix (`similarity_*.pickle`) in `data/vectors/` will take most space. As an indication, a corpus with 30483 sentences of 152 papers will generate a similarity matrix of ~3.5 GB.
 
-## Workflow graph
-![alt text](pipeline_clean_version4.png)
+## Flowchart
+<img src="./docs/source/pipeline_flowchart.png" width=500>
+
 Flowchart of the pipeline. The orange boxes depict the shell scripts containing various Python scripts. The first input, in yellow, is either a concept file or a free search term string. Various files are created by the scripts, were the asterisk represents the given experiment name.
 
 ## Data source
