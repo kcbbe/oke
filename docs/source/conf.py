@@ -44,6 +44,12 @@ if t.split(' ')[1] in nl_to_en.keys():
     t = ' '.join([t.split(' ')[0], nl_to_en.get(t.split(' ')[1]), t.split(' ')[2]])
 version = t
 
+# Logo
+html_static_path = ["_static"]
+html_logo = "_static/logo.png"
+html_theme_options = {
+    "logo_only": True,
+}
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
