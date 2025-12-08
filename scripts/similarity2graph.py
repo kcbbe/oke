@@ -116,30 +116,6 @@ def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
 
     return duplicate_dict
 
-def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torch.Tensor:
-    """Return a new torch.Tensor with sub-arrays along a provided axis deleted.
-    
-    Parameters:
-        x (torch.Tensor): Input tensor.
-
-        row_exclude (list) : slice, array-like of ints or bools
-        Indicate indices of sub-arrays to remove along the specified axis.
-
-        axis (int): default = 0
-        The axis along which to delete the subarray defined by row_exclude. 
-    """
-    # get indexes of interest (all indexes - indexes to remove)
-    all_indexes = np.arange(x.shape[axis])
-    indexes_of_interest = np.delete(all_indexes, row_exclude)
-
-    # select rows and columns of interest (thus removing `indexes to remove`)
-    if axis == 0:
-        x = x[indexes_of_interest]
-    if axis == 1:
-        x = x[:, indexes_of_interest]
-
-    return x
-
 def remove_duplicates(similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
     """Return a similarity matrix (pd.DataFrame) without duplicates based on provided duplicate dictionary."""
     # Create a flat list with indexes on sentences with a duplicate.
@@ -173,12 +149,12 @@ def save_duplicate_dict(dupli_dict: dict, filename: str):
     df_duplicate_dict.to_csv(f"data/vectors/duplicates/{filename}.csv")
     print(f"Duplicate dictionary was been saved to '{f'data/vectors/duplicates/{filename}.csv'}'")
 
-def filter_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) -> pd.DataFrame:
+def filter_similarity_matrix(matrix: pd.DataFrame, edge_threshold: float, ) -> pd.DataFrame:
     """Return a compressed similarity matrix (pd.DataFrame) where only sentences with at least one similarity score equal or higher than `edge_threshold` is kept, and edges with lower similarity score than `edge_threshold` are removed (set to NaN)."""
     ### Filter on edges that are equal to or larger than `threshold`
     # To similarity into a DataFrame
     # and substract 2 from its own similarity score so that it is '-1' (=not equal in semantic meaning) instead of '1' (=equal).
-    df_similarity_pre = pd.DataFrame(matrix - (np.identity(matrix.shape[0]) *2))
+    df_similarity_pre = matrix - pd.DataFrame(np.identity(matrix.shape[0]) *2)
 
     # Get indexes of sentences above `threshold`
     idx_above_thres = df_similarity_pre[df_similarity_pre.max(axis=0) >= edge_threshold].index
@@ -235,21 +211,18 @@ def main():
     with open(f"data/vectors/{args.input_file}", 'rb') as handle:
         similarities = pickle.load(handle)
 
+    # Round to 4 decimals to compensate for float point errors.
+    similarities = torch.round(similarities, decimals=4)
+
     # Remove duplicates from similarity score,
     # and save a dictionary with removed sentences.
     try:
         duplicate_dict = get_duplicates_clusters(
             get_duplicates_dataframe(
-                torch.round(similarities, decimals=4), # similarities is round to 4 decimals to compensate float point errors.
+                similarities,
                 threshold= args.duplicates_threshold
             )
         )
-
-        # # similarities as Tensor
-        # similarities = remove_duplicates(
-        #     similarities,
-        #     duplicate_dict,
-        # )
 
         # similarities as pd.DataFrame
         similarities = remove_duplicates(
