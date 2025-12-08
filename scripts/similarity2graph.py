@@ -71,7 +71,8 @@ def collect_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 def get_duplicates_dataframe(similarity_matrix: torch.Tensor, threshold: float) -> pd.DataFrame:
-    """Return a similarity dataframe that only contains duplicates, where duplicates are defined as sentences with a similarity score equal or higher than provided threshold."""
+    """Return a similarity dataframe that only contains duplicates, 
+    where duplicates are defined as sentences with a similarity score equal or higher than provided threshold."""
     # Substract 2 from the similarity score that matched itself, so that it turns the value to -1.
     df_duplicates = pd.DataFrame(
         np.subtract(
@@ -115,7 +116,6 @@ def get_duplicates_clusters(df_duplicates: pd.DataFrame) -> dict:
 
     return duplicate_dict
 
-
 def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torch.Tensor:
     """Return a new torch.Tensor with sub-arrays along a provided axis deleted.
     
@@ -140,16 +140,20 @@ def delete_for_torch_tensor(x: torch.Tensor, row_exclude, axis: int = 0) -> torc
 
     return x
 
-def remove_duplicates( similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
+def remove_duplicates(similarity_matrix: pd.DataFrame, dupli_dict: dict) -> pd.DataFrame:
     """Return a similarity matrix (pd.DataFrame) without duplicates based on provided duplicate dictionary."""
-    # Create a list with indexes on sentences with a duplicate.
+    # Create a flat list with indexes on sentences with a duplicate.
     duplicate_to_remove = [item for layer in dupli_dict.values() for item in layer]
-    print(f"Number of indexes to remove: {len(duplicate_to_remove)}")
+    print(f"Number of indexes to remove: {len(set(duplicate_to_remove))}")
 
     # Drop duplicates from `similarity` (both rows and columns)
     print(f"Similarities shape with duplicates: {similarity_matrix.shape}")
-    similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=0)
-    similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=1)
+    # similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=0)
+    # similarity_matrix = delete_for_torch_tensor(similarity_matrix, duplicate_to_remove, axis=1)
+
+    similarity_matrix.drop(duplicate_to_remove, axis=0, inplace=True)
+    similarity_matrix.drop(duplicate_to_remove, axis=1, inplace=True)
+
     print(f"Similarities shape without duplicates: {similarity_matrix.shape}")
 
     return similarity_matrix
@@ -167,6 +171,7 @@ def save_duplicate_dict(dupli_dict: dict, filename: str):
     )
     df_duplicate_dict.index.name = "kept"
     df_duplicate_dict.to_csv(f"data/vectors/duplicates/{filename}.csv")
+    print(f"Duplicate dictionary was been saved to '{f'data/vectors/duplicates/{filename}.csv'}'")
 
 def filter_similarity_matrix(matrix: torch.Tensor, edge_threshold: float, ) -> pd.DataFrame:
     """Return a compressed similarity matrix (pd.DataFrame) where only sentences with at least one similarity score equal or higher than `edge_threshold` is kept, and edges with lower similarity score than `edge_threshold` are removed (set to NaN)."""
@@ -235,13 +240,20 @@ def main():
     try:
         duplicate_dict = get_duplicates_clusters(
             get_duplicates_dataframe(
-                similarities,
+                torch.round(similarities, decimals=4), # similarities is round to 4 decimals to compensate float point errors.
                 threshold= args.duplicates_threshold
             )
         )
 
+        # # similarities as Tensor
+        # similarities = remove_duplicates(
+        #     similarities,
+        #     duplicate_dict,
+        # )
+
+        # similarities as pd.DataFrame
         similarities = remove_duplicates(
-            similarities,
+            pd.DataFrame(similarities),
             duplicate_dict,
         )
 
@@ -250,6 +262,7 @@ def main():
             duplicate_dict,
             f"dict_{'_'.join(args.input_file.split('_')[1:]).split('.', maxsplit=1)[0]}"
         )
+        # TODO: print where dict was saved to
 
     except ValueError:
         print("WARNING: A ValueError was raised. If the error is: 'No duplicates found in provided pd.DataFrame!', then there is no worries and the script will continue without any problems.")
