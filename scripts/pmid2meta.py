@@ -69,7 +69,7 @@ def collect_arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 # Get PDF URLs from list of PMIDs
-def get_meta_for_pmids(pmids: list, email: str) -> dict:
+def get_meta_for_pmids(pmids: list, email: str, column_names: list) -> dict:
     """Retrieve meta data of scientific papers of provided PMIDs.
     
     Provide a list with PMIDs (as strings) and an email address to get into the polite pool.
@@ -81,7 +81,7 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
         email (str): An email address of the user.
 
     Returns:
-        df_chunk_meta (pd.DataFrame): Data frame containing the following meta data: ["pmid", "doi", "pub_year", "is_oa", "landing_url", "pdf_url", "is_accepted", "is_published", "is_retracted", "cited_by_count", "referenced_count"]
+        df_chunk_meta (pd.DataFrame): Data frame containing the following meta data: ["pmid", "doi", "issn", "pub_year", "is_oa", "landing_url", "pdf_url", "is_accepted", "is_published", "is_retracted", "cited_by_count", "referenced_count"]
     """
 
     # build query url for OpenAlex
@@ -98,23 +98,6 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
         print(f'ERROR in `get_pdf_urls_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
         sys.exit()
 
-    # start collecting meta
-    column_names = [
-        "pmid",
-        "doi",
-        "pub_year",
-
-        "is_oa",
-        "landing_url",
-        "pdf_url",
-        "is_accepted",
-        "is_published",
-        "is_retracted",
-
-        "cited_by_count",
-        "referenced_count",
-    ]
-
     df_chunk_meta = pd.DataFrame(columns= column_names)
 
     # iterate over found pmids
@@ -126,11 +109,17 @@ def get_meta_for_pmids(pmids: list, email: str) -> dict:
         except AttributeError:
             doi = None
 
+        try:
+            issn = r['primary_location']['source']['issn_l']
+        except TypeError:
+            issn = None
+
         # place in a data frame
         df_part = pd.DataFrame(
             data= [[
                 r["ids"]["pmid"].split("/")[-1],
                 doi,
+                issn,
                 r["publication_year"],
 
                 r["primary_location"]['is_oa'],
@@ -209,6 +198,7 @@ def main():
     column_names = [
         "pmid",
         "doi",
+        "issn",
         "pub_year",
 
         "is_oa",
@@ -235,14 +225,14 @@ def main():
                 time.sleep(10)
             # Get meta data from OpenAlex
             print(f"Processing chunk {i+1}/{len(pmids_chunks)}")
-            df_chunk_meta = get_meta_for_pmids(chunk, config["email_address"])
+            df_chunk_meta = get_meta_for_pmids(chunk, config["email_address"], column_names)
             # Concatenate df_total_meta with new information
             df_total_meta = pd.concat([df_total_meta, df_chunk_meta], ignore_index= True)
 
     # if pmids is shorter than 100 items:
     else:
         # Get pdf urls from OpenAlex
-        df_total_meta = get_meta_for_pmids(pmids, config["email_address"])
+        df_total_meta = get_meta_for_pmids(pmids, config["email_address"], column_names)
 
     # Print metrics
     print_metrics(df_total_meta)
