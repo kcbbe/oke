@@ -173,7 +173,7 @@ def main():
             total_metrics[1][2] += 1
 
     # Report total_metrics
-    print("Total overview:")
+    print("---Total overview:")
     print(f"Ideally, {len(pmids)} pmids should be processed")
     print(f"Proportion of pmids missing both an xml file and pdf files: {round(total_metrics[1][2] / len(pmids) * 100, 2)}% ({total_metrics[1][2]}/{len(pmids)})")
     print(f"Proportion of already existing xml files: {round(total_metrics[1][0] / len(pmids) * 100, 2)}% ({total_metrics[1][0]}/{len(pmids)})")

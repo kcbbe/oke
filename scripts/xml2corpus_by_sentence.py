@@ -1,6 +1,7 @@
 """Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.
 
 This module processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+It assigns various identifiers to maintain traceability of the sentences (See the output example in this comment block).
 The resulting corpus is saved as a CSV file to the 'data/corpus/' directory.
 
 Code inspired by:
