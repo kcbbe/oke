@@ -1,0 +1,8 @@
+pmid, error_code, error_text, error_message,
+38367345, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+36244496, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+32919259, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+22734754, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+14504359, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+27660808, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1,
+38701644, 500, Indicate an internal service error, further described by a provided message, [BAD_INPUT_DATA] PDF to XML conversion failed with error code: 1

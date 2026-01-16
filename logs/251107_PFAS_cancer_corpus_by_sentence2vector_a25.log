@@ -1,0 +1,33 @@
+zo  9 nov 2025 19:46:37 CET
+2025-11-09 19:47:04.475305: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-11-09 19:47:04.547239: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-11-09 19:47:13.074413: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+Start of corpus_by_sentence2vector.py
+WARNING: Provided CSV with abbreviations was not found! If this is correct, then there's no worries. If it failed, check the config file if path is correct. The script will continue without correction. Current script is executed from /homes/jbeenen/git-repo/master_graduation_project
+Start processing 10417 sentences.
+2025-11-09 19:47:33.577682: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-11-09 19:47:33.642828: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-11-09 19:47:37.636316: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+End of corpus_by_sentence2vector.py
+/usr/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/loky-772870-fjfn864q'}
+  warnings.warn(
+zo  9 nov 2025 19:47:51 CET
+/homes/jbeenen/git-repo/master_graduation_project/scripts/similarity2graph.py:77: DeprecationWarning: __array_wrap__ must accept context and return_scalar arguments (positionally) in the future. (Deprecated NumPy 2.0)
+  np.subtract(
+/homes/jbeenen/git-repo/master_graduation_project/scripts/similarity2graph.py:176: DeprecationWarning: __array_wrap__ must accept context and return_scalar arguments (positionally) in the future. (Deprecated NumPy 2.0)
+  df_similarity_pre = pd.DataFrame(matrix - (np.identity(matrix.shape[0]) *2))
+Start of similarity2graph.py
+Number of indexes to remove: 239
+Similarities shape with duplicates: torch.Size([10417, 10417])
+Similarities shape without duplicates: torch.Size([10187, 10187])
+Data filtered to 0.4892
+Edge list (21884) filtered to 0.0009
+Create graph
+Graph with 4983 nodes and 10942 edges
+Successfully created graph
+Start saving graph as 'data/graphs/graph_thres_0_75_free_1000_251107_PFAS_cancer.pickle'
+Graph is successfully written to 'data/graphs/graph_thres_0_75_free_1000_251107_PFAS_cancer.pickle'
+End of similarity2graph.py
+zo  9 nov 2025 19:48:05 CET

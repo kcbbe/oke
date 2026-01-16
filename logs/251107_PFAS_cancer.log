@@ -1,0 +1,60 @@
+vr  7 nov 2025 11:09:06 CET
+Start of concept2pmid.py
+Arguments: Namespace(config_file='config.yaml', nr_pmids=1000, search_mode='free', output_file='pmid_free_1000_251107_PFAS_cancer.csv')
+Loaded credentials
+Query '(PFAS OR teflon OR PFOS OR PFOA) AND cancer' generated 512 PMID hits.
+PMIDs were successfully written to 'data/pmids/pmid_free_1000_251107_PFAS_cancer.csv'
+End of concept2pmid.py
+vr  7 nov 2025 11:09:10 CET
+Start of pmid2meta.py
+WARNING: Did not find 'data/meta/meta_free_1000_251107_PFAS_cancer.csv'. Possibly did not make 'data/meta/' directory? Application will continue in 'full' `query_mode`.
+Processing chunk 1/6
+Successful query: response time 40ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 2/6
+Successful query: response time 23ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 3/6
+Successful query: response time 19ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 4/6
+Successful query: response time 22ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 5/6
+Successful query: response time 22ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 6/6
+Successful query: response time 10ms
+---Total overview:
+497 papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)
+Proportion of PMIDs that returned an open access paper: 48.89% (243/497)
+Proportion of Open Access PMIDs with PDF URLs: 60.49% (147/243)
+Saving meta data
+Meta data is successfully written to 'data/meta/meta_free_1000_251107_PFAS_cancer.csv'
+End of pmid2meta.py
+vr  7 nov 2025 11:10:09 CET
+Start of meta2pdf.py
+48.89% (243/497) are Open Access papers. (NOTE: the total here is from the 'meta_*.csv'. If this differs from the previous total, then these PMIDs were not found in the OpenAlex database.)
+60.49% (147/243) PDF URLs are known.
+Trying to download listed PDF_URLs
+41.5% (61/147) papers are successful downloaded within this session.
+41.5% (61/147) papers were successful downloaded in total.
+Please find the downloaded pdf's in 'data/pdf_papers/'
+Download error log is successfully written to 'logs/errors_meta2pdf_free_1000_251107_PFAS_cancer.csv'
+End of meta2pdf.py
+vr  7 nov 2025 11:11:25 CET
+Start of pdf2xml.py
+Total overview:
+Ideally, 512 pmids should be processed
+Proportion of pmids missing both an xml file and pdf files: 88.09% (451/512)
+Proportion of already existing xml files: 0.0% (0/512)
+Proportion of pdf files attempted to be transformed into xml files: 11.91% (61/512)
+Proportion of successful transformations: 88.52% (54/61)
+XML parser error log is successfully written to 'logs/errors_pdf2xml_pmid_free_1000_251107_PFAS_cancer.csv'
+End of pdf2xml.py
+vr  7 nov 2025 11:15:00 CET
+Start of xml2corpus_by_sentence.py
+Proportion of pmid papers that will be parsed: 10.55% (54/512)
+Corpus dataframe is successfully written to 'data/corpus/corpus_free_1000_251107_PFAS_cancer.csv'
+End of xml2corpus_by_sentence.py
+vr  7 nov 2025 11:15:06 CET

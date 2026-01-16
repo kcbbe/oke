@@ -1,0 +1,26 @@
+ma 27 okt 2025 17:43:26 CET
+Start of meta2pdf.py
+38.48% (359/933) are Open Access papers. (NOTE: the total here is from the 'meta_*.csv'. If this differs from the previous total, then these PMIDs were not found in the OpenAlex database.)
+66.85% (240/359) PDF URLs are known.
+Trying to download listed PDF_URLs
+1.25% (3/240) papers are successful downloaded within this session.
+53.75% (129/240) papers were successful downloaded in total.
+Please find the downloaded pdf's in 'data/pdf_papers/'
+Download error log is successfully written to 'logs/errors_meta2pdf_free_1000_251013_pest_PD.csv'
+End of meta2pdf.py
+ma 27 okt 2025 17:43:37 CET
+Start of pdf2xml.py
+Total overview:
+Ideally, 935 pmids should be processed
+Proportion of pmids missing both an xml file and pdf files: 82.03% (767/935)
+Proportion of already existing xml files: 16.04% (150/935)
+Proportion of pdf files attempted to be transformed into xml files: 1.93% (18/935)
+Proportion of successful transformations: 11.11% (2/18)
+XML parser error log is successfully written to 'logs/errors_pdf2xml_pmid_free_1000_251013_pest_PD.csv'
+End of pdf2xml.py
+ma 27 okt 2025 17:44:01 CET
+Start of xml2corpus_by_sentence.py
+Proportion of pmid papers that will be parsed: 16.26% (152/935)
+Corpus dataframe saved to data/corpus/corpus_free_1000_251013_pest_PD.csv
+End of xml2corpus_by_sentence.py
+ma 27 okt 2025 17:44:17 CET

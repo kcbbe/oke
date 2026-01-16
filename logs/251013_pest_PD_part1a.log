@@ -1,0 +1,66 @@
+ma 27 okt 2025 17:24:43 CET
+Start of concept2pmid.py
+Arguments: Namespace(config_file='config.yaml', nr_pmids=1000, search_mode='free', output_file='pmid_free_1000_251013_pest_PD.csv')
+Loaded credentials
+Query '(pesticide OR pesticides) AND parkinson's' generated 935 PMID hits.
+PMIDs were successfully written to 'data/pmids/pmid_free_1000_251013_pest_PD.csv'
+End of concept2pmid.py
+ma 27 okt 2025 17:24:47 CET
+Start of pmid2meta.py
+WARNING: Did not find 'data/meta/meta_free_1000_251013_pest_PD.csv'. Possibly did not make 'data/meta/' directory? Application will continue in 'full' `query_mode`.
+Processing chunk 1/10
+Successful query: response time 213ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 2/10
+Successful query: response time 46ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 3/10
+Successful query: response time 123ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 4/10
+Successful query: response time 66ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 5/10
+Successful query: response time 153ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 6/10
+Successful query: response time 194ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 7/10
+Successful query: response time 389ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 8/10
+Successful query: response time 83ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 9/10
+Successful query: response time 97ms
+Sleeping for 10 seconds to avoid penalties from OpenAlex
+Processing chunk 10/10
+Successful query: response time 109ms
+---Total overview:
+933 papers were processed by OpenAlex. (NOTE: Only papers of which no pdf is found in the pdf_directory are being processed in this script.)
+Proportion of PMIDs that returned an open access paper: 38.48% (359/933)
+Proportion of Open Access PMIDs with PDF URLs: 66.85% (240/359)
+Saving meta data
+Meta data is successfully written to 'data/meta/meta_free_1000_251013_pest_PD.csv'
+End of pmid2meta.py
+ma 27 okt 2025 17:26:37 CET
+usage: meta2pdf.py [-h] -i INPUT_FILE -m {efficient,full}
+meta2pdf.py: error: the following arguments are required: -m
+Start of meta2pdf.py
+ma 27 okt 2025 17:26:37 CET
+Start of pdf2xml.py
+Total overview:
+Ideally, 935 pmids should be processed
+Proportion of pmids missing both an xml file and pdf files: 82.35% (770/935)
+Proportion of already existing xml files: 8.66% (81/935)
+Proportion of pdf files attempted to be transformed into xml files: 8.98% (84/935)
+Proportion of successful transformations: 82.14% (69/84)
+XML parser error log is successfully written to 'logs/errors_pdf2xml_pmid_free_1000_251013_pest_PD.csv'
+End of pdf2xml.py
+ma 27 okt 2025 17:30:43 CET
+Start of xml2corpus_by_sentence.py
+Proportion of pmid papers that will be parsed: 16.04% (150/935)
+Corpus dataframe saved to data/corpus/corpus_free_1000_251013_pest_PD.csv
+End of xml2corpus_by_sentence.py
+ma 27 okt 2025 17:31:01 CET

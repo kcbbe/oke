@@ -1,0 +1,32 @@
+ma  3 nov 2025 12:29:02 CET
+2025-11-03 12:29:28.113906: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-11-03 12:29:28.184526: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-11-03 12:29:36.666757: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+Start of corpus_by_sentence2vector.py
+Start processing 30484 sentences.
+2025-11-03 12:30:01.549210: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-11-03 12:30:01.620955: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F AVX512_VNNI AVX512_BF16 AVX512_FP16 AVX_VNNI AMX_TILE AMX_INT8 AMX_BF16 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2025-11-03 12:30:07.093352: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+End of corpus_by_sentence2vector.py
+/usr/lib/python3.13/multiprocessing/resource_tracker.py:301: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/loky-672000-5s1u5y3w'}
+  warnings.warn(
+ma  3 nov 2025 12:30:44 CET
+/homes/jbeenen/git-repo/master_graduation_project/scripts/similarity2graph.py:77: DeprecationWarning: __array_wrap__ must accept context and return_scalar arguments (positionally) in the future. (Deprecated NumPy 2.0)
+  np.subtract(
+/homes/jbeenen/git-repo/master_graduation_project/scripts/similarity2graph.py:176: DeprecationWarning: __array_wrap__ must accept context and return_scalar arguments (positionally) in the future. (Deprecated NumPy 2.0)
+  df_similarity_pre = pd.DataFrame(matrix - (np.identity(matrix.shape[0]) *2))
+Start of similarity2graph.py
+Number of indexes to remove: 137
+Similarities shape with duplicates: torch.Size([30484, 30484])
+Similarities shape without duplicates: torch.Size([30362, 30362])
+Data filtered to 0.5329
+Edge list (136620) filtered to 0.0005
+Create graph
+Graph with 16181 nodes and 68310 edges
+Successfully created graph
+Start saving graph as 'data/graphs/graph_thres_0_75_free_1000_251013_pest_PD.pickle'
+Graph is successfully written to 'data/graphs/graph_thres_0_75_free_1000_251013_pest_PD.pickle'
+End of similarity2graph.py
+ma  3 nov 2025 12:31:33 CET
