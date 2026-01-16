@@ -3,22 +3,19 @@
 Please find the github page containing [the code over here](https://github.com/CharmingChocobo/master_graduation_project/tree/main) and
 check out [this extensive documentation page](https://bioinf.nl/~jbeenen/oke/html/index.html).
 
-## TODO: About this project
+## About this project
 
-Note that 'concept' search mode is currently hard-coded to anchor with "Parkinson's Disease". This it is advised to use the 'free' search mode if this is not applicable to your research question.
-
-https://apimlqv2.tenwiseservice.nl/html/index.html
+The Open Knowledge Explorer (OKE) was developed as a modular text-mining pipeline designed to capture full open-access scientific publications by extracting and embedding their sentences, preserving provenance, and constructing a cosine similarity graph for downstream analysis.
 
 ## How to use
-- Create an venv and install the dependent libraries. Please find used Python version and libraries in the section 'Requirements'.
-- Make sure initial folder structure is present. Please view section 'Folder structure' in this readme.
+- Create an venv and install the libraries. Please find used Python version and libraries in the section 'Software requirements'.
 - Change the filename of `config_template.yaml` to `config.yaml`, and change the variables accordingly.
-- Change settings in `main_part1.sh` and `main_part2.sh`. Make sure they both use the same settings and check if pipes of interest are active.
-- If pdf2xml.py is active in `main_part1.sh`; make sure to activate the GROBID server by running `bash start_grobid_a19.sh` first, before running `main_part1.sh`. (Check with `curl <servername>:<portname>` if GROBID is alive.)
+- Change settings in `main_part1.sh` and `main_part2.sh`. Make sure they both use the same settings and check if pipes of interest are active.  !! Take extra care in checking the `#SBATCH` directory paths and job-name.
+- If `pdf2xml.py` is active in `main_part1.sh`; make sure to activate the GROBID server by running `bash start_grobid_a19.sh` first, before running `main_part1.sh`. (Check with `curl <servername>:<portname>` if GROBID is alive.)
 
 **NOTE: There are two separate 'main' scripts. `main_part1.sh` runs on assemblix2019 (CPU heavy) and `main_part2.sh` runs on assemblix2025 (GPU heavy). For GROBID to work, run `start_grobid_a19.sh` on the same device as `main_part1.sh` will be running.**
 
-- Run the application by entering `bash main_part1.sh && sbatch main_part2.sh` in the terminal. Log files will be create and can be found in `logs/`.
+- Run the application by entering `bash main_part1.sh && sbatch main_part2.sh` in the terminal. Log files will be created and can be found in `logs/`.
   
 **WARNING: Path to where data will be written (`data/`) is currently hard-coded. Make sure that there is enough disk space to avoid disappointments. Please view section 'Storage requirements' in this readme for more information.**
 
@@ -27,42 +24,24 @@ https://apimlqv2.tenwiseservice.nl/html/index.html
 ## Configuration
 Please use `config.yaml` to modify the configuration. Note that the parenthesis denotes for which script they are required.
 
-**Tenwise credentials (concept2pmid, pmid2meta)**
-- "path_to_credentials": "path/to/credentials"
-- "email_address": "user@domain.com"
-
-**Search settings (concept2pmid)**
-- **concept search**
-- "path_to_concept_ids": "path/to/all_pesticide_concept_ids.tsv"
-- **free search**
-- "free_search_terms": "(pesticide OR pesticides) AND parkinson's"
-
-**GROBID settings (pdf2xml)**
-- "grobid_servername" : "server_alias"
-- "grobid_portnumber" : "portnumber"
-
-**[Optional] Abbreviation settings (corpus_by_sentence2vector)**
-- "path_to_abbr" : "path/to/dict_abbr.csv"
-
 ## Folder structure
 **Initial structure**
 ```bash
 .
-├── data/concepts/concept_ids.txt
+├── data/ [optional]concepts/concept_ids.txt
 ├── docs/
-├── TODO: explorations/
-│   ├──pre_vectorization/
+├── explorations/
+│   ├──pre_embedding/
 │   │   ├── corpus.ipynb
 │   │   ├── meta.ipynb
-│   │   └── pmid_dropouts.ipynb
-│   ├──post_vectorization/
+│   │   └── literature_yield.ipynb
+│   ├──post_embedding/
 │   │   ├── intermezzo/ 
 │   │   │   ├── cosine_intermezzo.ipynb
 │   │   │   └── norm_intermezzo.ipynb
 │   │   ├── cluster_sentences.ipynb
 │   │   ├── semantic_search.ipynb
-│   │   ├── sentence_pairs.ipynb
-│   │   └── test_networkx.ipynb
+│   │   └── sentence_pairs.ipynb
 ├── scripts/
 │   ├── concept2pmid.py
 │   ├── corpus_by_sentence2vector.py
@@ -77,7 +56,7 @@ Please use `config.yaml` to modify the configuration. Note that the parenthesis 
 ├── main_part1.sh
 └── main_part2.sh
 ```
-In `data/` the following new folders will be created; corpus, graphs, meta, pdf_papers, pmids, vectors, and xml_papers. Various log files will be created and are found in `logs/`. In `exploration/` the data in `data/` can be explored/analyzed, as well as creating a Sankey diagram of papers that made it to the corpus by manually entering the numbers found in one of the log files (`pre_vactorization/pmid_dropouts.ipynb`).
+In `data/` the following new folders will be created; corpus, graphs, meta, pdf_papers, pmids, vectors, and xml_papers. Various log files will be created and are found in `logs/`. In `exploration/` the data in `data/` can be explored/analyzed, as well as creating a Sankey diagram of papers that made it to the corpus by manually entering the numbers found in one of the log files (`pre_embedding/literature_yield.ipynb`).
 
 ## Software requirements
 - Python: version 3.13.5, see `requirements.txt` for required libraries.
@@ -95,15 +74,28 @@ Of all the folders in this pipeline, `data/` will be the largest regarding disk 
 
 Flowchart of the OKE pipeline. Orange boxes represent shell scripts that execute multiple Python scripts. The initial input, shown in grey, is either a concept file or a free-text search term. Various files are generated by these scripts, where an asterisk denotes the experiment name. Error files are shown in red, while files in yellow are subsequently used by notebooks located in /explorations for further analysis.
 
-## Data source
-_TenWise KMAP:_
-https://apimlqv2.tenwiseservice.nl/html/index.html
+## Exploratory notebooks
+<img src="./docs/source/notebooks.png" width=500>
 
-_OpenAlex:_
+Overview of the OKE pipeline relevant outputs (yellow, as shown in Figure 4) and the associated Jupyter notebooks (white). Arrows indicate the dependencies between outputs and notebooks, while orange rectangles denote folder locations.
+
+The notebooks are organised into two categories: pre-embedding and post-embedding. The pre-embedding notebooks include `literature_yield.ipynb`, which generates a Sankey diagram to visualise literature yield; `meta.ipynb`, which describes the properties of the retrieved literature forming the corpus; and `corpus.ipynb`, which describes sentence content and properties, paper-level attributes, and header name distributions within the corpus.
+The post-embedding notebooks include `semantic_search.ipynb`, which enables retrieval of the top five most relevant sentences in response to a user query; `pairwise_similarity_distribution.ipynb`, which identifies pairs of sentences with the highest similarity and characterises the distribution of these pairs; and `cluster_sentences.ipynb`, which groups sentences into clusters based on cosine similarity scores and characterises their properties and content.
+
+Additionally, a subfolder named intermezzo contains two notebooks: `cosine_intermezzo.ipynb`, which explains the calculation of cosine similarity scores, and `norm_intermezzo.ipynb`, which explores properties associated with the norm of a sentence vector.
+
+## Reproduce results from thesis
+To reproduce the results from the thesis, several files are already found in the `data/` folder. Except for the embedding, similarity, and graph files, please find these in my [Teams](https://hanzenl.sharepoint.com/:f:/s/Afstudeerstage2/IgDONvNvwi7jRqHG42folCzpAUEiV7Z0Y-ybKjZvlQ_wPgU?e=AuYZea).
+(`Afstudeerstage - Jennefer/Documents/General/Code repository (0.25)/example files`)
+
+## Sources
+TenWise. (no date). Introduction – KMAP API 1 documentation. Retrieved January 14, 2026, from https://apimlqv2.tenwiseservice.nl/html/index.html
+
 Priem, J., Piwowar, H., & Orr, R. (2022). OpenAlex: A fully-open index of scholarly works, authors, venues, institutions, and concepts. ArXiv. https://arxiv.org/abs/2205.01833
 
-## AI usage
-It is disclosed in the comments whenever Copilot (version 1.7.4421) was used for generating code for this project. Furthermore, it helped with writing docstring and generating regex expressions for sentence extraction.
+GROBID (2008-2025) <https://github.com/kermitt2/grobid>. Github. Retrieved January 14, 2026, from https://grobid.readthedocs.io/
 
-## Design choices
-The supervisor requested a modular pipeline, where blocks in the pipeline would be easy to replaced.
+Reimers, N., & Gurevych, I. (2019). Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks. EMNLP-IJCNLP 2019 - 2019 Conference on Empirical Methods in Natural Language Processing and 9th International Joint Conference on Natural Language Processing, Proceedings of the Conference, 3982–3992. https://doi.org/10.18653/V1/D19-1410
+
+## AI usage
+All code was written by the author unless stated otherwise. Microsoft Copilot (version 1.7.4421) was used to support the creation of docstrings and the generation of regular  expressions for sentence extraction. It is explicitly indicated in the corresponding comments where code was generated by Copilot.
