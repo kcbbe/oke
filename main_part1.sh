@@ -36,19 +36,19 @@ mkdir -p logs/
 date &> $log_file
 ~/venv/graduation_3_13_5/bin/python scripts/concept2pmid.py -c $config_file -n $nr_pmids -m $search_mode -o "pmid_$full_exp_name.csv" &>> $log_file
 
-# # Get metadata by searching PMIDs in OpenAlex
+# Get metadata by searching PMIDs in OpenAlex
 date &>> $log_file
 ~/venv/graduation_3_13_5/bin/python scripts/pmid2meta.py -c $config_file -i "pmid_$full_exp_name.csv" -m "efficient" &>> $log_file
 
-# # Get PDFs by searching pdf_urls from metadata
+# Get PDFs by searching pdf_urls from metadata
 date &>> $log_file
 ~/venv/graduation_3_13_5/bin/python scripts/meta2pdf.py -i "pmid_$full_exp_name.csv" -m "full" &>> $log_file
 
-# # Get XMLs from PDFs using GROBID
+# Get XMLs from PDFs using GROBID
 date &>> $log_file
 ~/venv/graduation_3_13_5/bin/python scripts/pdf2xml.py -c $config_file -i "pmid_$full_exp_name.csv" &>> $log_file
 
-# # Get corpus dataframe from XMLs
+# Get corpus dataframe from XMLs
 date &>> $log_file
 ~/venv/graduation_3_13_5/bin/python scripts/xml2corpus_by_sentence.py -i "pmid_$full_exp_name.csv" &>> $log_file
 

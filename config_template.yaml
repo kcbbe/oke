@@ -13,4 +13,4 @@
 "grobid_portnumber" : "portnumber"
 
 # [Optional] Abbreviation settings (corpus_by_sentence2vector)
-"path_to_abbr" : "path/to/dict_abbr.csv"
+# "path_to_abbr" : "path/to/dict_abbr.csv"
