@@ -177,7 +177,7 @@ def search_free(session: requests.Session, payload: dict, credentials: dict, fre
 # Optional TODO: this function (search_concept_pmids) should be split into two functions:
 # 1) Finds the concept_ids of `search_terms`
 # 2) Read in `concept_id_file` and query TenWise for PMIDs.
-def search_concept_pmids(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, retmax: int):
+def search_concept_pmids(session: requests.Session, payload: dict, credentials: dict, path_to_concept_ids: str, anchor: list, retmax: int):
     """Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.
 
     Search PMIDs in the TenWise Knowledge Map that must include 'parkinson' and at least one concept from concept_ids provided in path_to_concept_ids.
@@ -192,27 +192,12 @@ def search_concept_pmids(session: requests.Session, payload: dict, credentials: 
         payload (dict): A payload for building queries. (Created using `start_tenwise_session` function.)
         credentials (dict): Must contain following keys: 'APIKEY' and 'ADDRESS'.
         path_to_concept_ids (str): Path to predefined concept_ids.
+        anchor (list): Concept_ids of which all concepts that need to be mentioned in the returned PMIDs.
         retmax (int): Maximum number of PMIDs to return. (default: 50)
 
     Returns:
         hits_on_concept_ids (list): A list with pmid, hitnr, score. Where 'pmid' are the PMIDs, 'hitnr' are number of unique concept_ids found in paper, and 'score' is the proportion of 'hitnr' to the total number of concept_ids requested. In example: ['pmid, hitnr, score', '32943485, 9, 0.00367', '...']
     """
-    # Get all Parkinsons Disease concept_ids
-    payload['terms'] = "parkinson"
-    payload['wildcard'] = 'true'
-
-    results = session.post(
-        credentials["ADDRESS"] + "concept/search/",
-        payload
-    )
-    payload['wildcard'] = 'false' # <- Turn off wildcard (cleaning after myself)
-
-    js = results.json()
-
-    # Get the one concept_id for ("parkinson's disease" = 'TWDIS_06685')
-    park_hit = [k for k, v in js['result']['hits'].items() if v[0].lower() == "parkinson's disease"]
-
-
     # Get all pesticide concept_ids
     # Current format is tab-delimited: `TWPHI_XXXXX \t name_pesticide`
     pest_hits = pd.read_csv(
@@ -223,7 +208,7 @@ def search_concept_pmids(session: requests.Session, payload: dict, credentials: 
 
     # Combine both concept_ids
     payload['concept_ids'] = ",".join(pest_hits)
-    payload['anchor'] = ",".join(park_hit)
+    payload['anchor'] = ",".join(anchor)
     payload['retmax'] = str(retmax)
     results = session.post(
         credentials["ADDRESS"] + "conceptset/evidence/",
@@ -296,6 +281,7 @@ def main():
             payload,
             creds,
             path_to_concept_ids = config["path_to_concept_ids"],
+            anchor = config["anchor"],
             retmax = args.nr_pmids
         )
 
