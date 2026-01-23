@@ -293,13 +293,13 @@ def main():
     output_file_name = f"data/pmids/{args.output_file}"
     try:
         with open(output_file_name, "w", encoding="utf-8") as output:
-            output.write(',\n'.join(pmid_hits))
+            output.write(',\n'.join([str(hit) for hit in pmid_hits]))
         print(f"PMIDs were successfully written to '{output_file_name}'")
 
     except FileNotFoundError:
         Path("data/pmids").mkdir(exist_ok = True)
         with open(output_file_name, "w", encoding="utf-8") as output:
-            output.write(',\n'.join(pmid_hits))
+            output.write(',\n'.join([str(hit) for hit in pmid_hits]))
         print(f"PMIDs were successfully written to '{output_file_name}'")
     
     print("End of concept2pmid.py")
