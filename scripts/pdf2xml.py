@@ -35,6 +35,7 @@ Output:
 
 
 # IMPORTS
+import sys
 import argparse
 from pathlib import Path
 import requests
@@ -88,11 +89,17 @@ def get_xml_from_pdf_papers(servername: str, portnumber: str, pmid: str) -> list
         input_json = {"input": handle.read()}
 
     # Let GROBID process pdf into xml
-    response = requests.post(
-        f'http://{servername}:{portnumber}/api/processFulltextDocument',
-        files = input_json,
-        timeout = 60
-    )
+    try:
+        response = requests.post(
+            f'http://{servername}:{portnumber}/api/processFulltextDocument',
+            files = input_json,
+            timeout = 60
+        )
+    
+    except (ConnectionError, ConnectionRefusedError, requests.exceptions.ConnectionError) as e:
+        print(f"CONNECTION ERROR! Please check if GROBID server is online with `curl {servername}:{portnumber}` (it should return html code if it is online)")
+        print(e)
+        sys.exit()
 
     # Check if the response is successful and save the xml file
     if response.status_code == 200:
