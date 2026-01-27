@@ -91,6 +91,8 @@ def get_pdf_papers_from_url(pdf_urls: dict) -> list:
     Returns:
         collect_errors (list): For example: [['pmid', 'error_code', 'error_message'], ['22420260', 403, 'Forbidden'], ...]
     """
+    # Create `pdf_papers` directory, if it does not yet exists.
+    Path("data/pdf_papers/").mkdir(exist_ok = True)
 
     # Collect results
     collect_errors = [['pmid', 'error_code', 'error_message']]
