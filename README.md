@@ -67,7 +67,7 @@ In `data/` the following new folders will be created; corpus, graphs, meta, pdf_
 
 ## Hardware requirements
 It is recommended to have at least 6.0 GB space available in the storage medium.
-Of all the folders in this pipeline, `data/` will be the largest regarding disk usage, where the similarity matrix (`similarity_*.pickle`) in `data/vectors/` will take most space. As an indication, a corpus with 30483 sentences of 152 papers will generate a similarity matrix of ~3.5 GB.
+Of all the folders in this pipeline, `data/` will be the largest regarding disk usage, where the similarity matrix (`similarity_*.pickle`) in `data/vectors/` will take most space. As an indication, a corpus with 30,483 sentences of 152 papers will generate a similarity matrix of ~3.5 GB.
 
 ## Flowchart
 <img src="./docs/source/pipeline_flowchart.png" width=500>

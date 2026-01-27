@@ -17,6 +17,7 @@
 experiment_name="251013_pest_PD"
 search_mode="free"  # "free" or "concept"
 nr_pmids=1000
+venv_path=~/venv/graduation_3_13_5
 sbert_model="NeuML/pubmedbert-base-embeddings"  # For other models, see https://huggingface.co/models?library=sentence-transformers&sort=trending&search=pubmed
 
 config_file="config.yaml"
@@ -29,6 +30,10 @@ full_exp_name="${search_mode}_${nr_pmids}_${experiment_name}"
 # Message that script is in progress
 echo "Busy with experiment: $full_exp_name"
 echo "See log file for progress: $log_file"
+
+source "$venv_path/bin/activate"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
 # Get sentence embedding matrix and cosine similarity score matrix from corpus
 date &> $log_file
