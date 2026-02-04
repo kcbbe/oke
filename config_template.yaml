@@ -1,5 +1,5 @@
 # Tenwise credentials (concept2pmid, pmid2meta)
-"path_to_credentials": "path/to/credentials"
+"path_to_credentials": "path/to/credentials.tsv"
 "email_address": "user@domain.com"
 # (Optional) when searching with 'concept search' ("TWDIS_06685" = Parkinson's disease)
 "anchor":  ["TWDIS_06685"]

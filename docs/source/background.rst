@@ -15,11 +15,11 @@ Frequently Asked Questions
 .. dropdown:: **Are all academic papers processed?**
     :open:
 
-    Unfortunately, no. Only open access papers are automatically processed that are hosted on websites that do not check for bot activity. If you like to include other sources as well, then you'll like the answer to the next question. |:wink:|
+    Unfortunately, no. Only open access papers are automatically processed that are hosted on websites and do not check for bot activity. If you like to include other sources as well, then you'll like the answer to the next question. |:wink:|
 
-.. dropdown:: **Can I manually add my favorite papers?**
+.. dropdown:: **Can I manually feed papers to the pipeline?**
 
-    Yes! You will need to have the PDF, its PubMed ID, and associated meta data. Follow this protocol and be successful:
+    Yes! You will need to have the PDF, its PubMed ID, and associated meta data. Please follow this protocol and be successful:
         
         - Rename the PDF to its PubMed ID.
         - Place the PDF in `data/pdf_papers`.
