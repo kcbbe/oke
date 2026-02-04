@@ -10,18 +10,20 @@
 # - Get PDF URLs from OpenAlex API (https://docs.openalex.org/)
 
 
-# Settings
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SETTINGS
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
 experiment_name="251013_pest_PD"
 search_mode="free"  # "free" or "concept"
 nr_pmids=1000
-venv_path=~/venv/graduation_3_13_5
 
+venv_path=~/venv/graduation_3_13_5
 config_file="config.yaml"
+
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
 log_file="logs/${experiment_name}.log"
 full_exp_name="${search_mode}_${nr_pmids}_${experiment_name}"
-
-# ~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
 # Message that script is in progress
 echo "Busy with experiment: $full_exp_name"
@@ -32,6 +34,8 @@ mkdir -p logs/
 
 source "$venv_path/bin/activate"
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~
+# PIPES
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~	
 
 # Get PMIDs from querying TenWise database (find the search settings in the configuration file)
