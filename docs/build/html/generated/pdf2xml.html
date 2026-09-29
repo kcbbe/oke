@@ -1,0 +1,226 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>pdf2xml &mdash; Open Knowledge Explorer 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/twemoji.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+      <script src="../_static/twemoji.js"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="xml2corpus_by_sentence" href="xml2corpus_by_sentence.html" />
+    <link rel="prev" title="meta2pdf" href="meta2pdf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme_link.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../package_reference.html">Package Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concept2pmid.html">concept2pmid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmid2meta.html">pmid2meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta2pdf.html">meta2pdf</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">pdf2xml</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#pdf2xml.collect_arguments"><code class="docutils literal notranslate"><span class="pre">collect_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf2xml.get_xml_from_pdf_papers"><code class="docutils literal notranslate"><span class="pre">get_xml_from_pdf_papers()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pdf2xml.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="xml2corpus_by_sentence.html">xml2corpus_by_sentence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corpus_by_sentence2vector.html">corpus_by_sentence2vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="similarity2graph.html">similarity2graph</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Open Knowledge Explorer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../package_reference.html">Package Reference</a></li>
+      <li class="breadcrumb-item active">pdf2xml</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/pdf2xml.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-pdf2xml">
+<span id="pdf2xml"></span><h1>pdf2xml</h1>
+<p>Parse PDFs to TEI XML format.</p>
+<p>This module collects arguments, loads the configuration file, reads the pmids from the input file,
+checks if the corresponding pdf files are available, and processes the pdf files into xml files using the GROBID server.
+It saves the xml files in the <cite>data/xml_papers/</cite> directory and logs errors in the <cite>logs/</cite> directory.
+It reports the total number of processed pmids, the proportion of missing xml and pdf files, and any errors encountered during the transformation.</p>
+<p>Read PMIDs from the ‘experiment’ csv file,
+Checks if the corresponding pdf files are available in the <cite>data/pdf_papers/</cite> directory,
+If the pdf files are available, it checks if the corresponding xml files are already available in the <cite>data/xml_papers/</cite> directory.
+If the xml files are not available, it process the pdf files into xml files using the GROBID server.</p>
+<p>Code inspired by:
+<a class="reference external" href="https://github.com/TenWise-Dev/jrc-public/blob/main/lib/PDF2Tei.py">https://github.com/TenWise-Dev/jrc-public/blob/main/lib/PDF2Tei.py</a></p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python pdf2xml.py -c config.yaml -i pmids_in.csv</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">param -c<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-even">param –config_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-odd">param -i<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the input file, incl. its suffix.</p>
+</dd>
+<dt class="field-even">param –input_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the input file, incl. its suffix.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Input:</dt><dd><p>A CSV file with at least one column header named ‘pmid’, were the values corresponds to its PubMed Identifier.
+A configuration file (config.yaml) is required. Please make sure the correct GROBID servername and portnumber is in the configuration file (config.yaml).</p>
+</dd>
+<dt>Output:</dt><dd><p>XMLs are saved to ‘./data/xml_papers/’.
+It reports which errors it encountered when failing to convert a PDF to an XML.</p>
+</dd>
+</dl>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pdf2xml.collect_arguments" title="pdf2xml.collect_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_arguments</span></code></a>()</p></td>
+<td><p>Collect arguments from the command line.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#pdf2xml.get_xml_from_pdf_papers" title="pdf2xml.get_xml_from_pdf_papers"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_xml_from_pdf_papers</span></code></a>(servername, ...)</p></td>
+<td><p>Transforms a single pdf into a single xml using the GROBID server.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#pdf2xml.main" title="pdf2xml.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Parse PDFs to TEI XML format.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="pdf2xml.collect_arguments">
+<span class="sig-prename descclassname"><span class="pre">pdf2xml.</span></span><span class="sig-name descname"><span class="pre">collect_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span></dt>
+<dd><p>Collect arguments from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdf2xml.get_xml_from_pdf_papers">
+<span class="sig-prename descclassname"><span class="pre">pdf2xml.</span></span><span class="sig-name descname"><span class="pre">get_xml_from_pdf_papers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">servername</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">portnumber</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pmid</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span></dt>
+<dd><p>Transforms a single pdf into a single xml using the GROBID server.</p>
+<p>The function reads the pdf file, with pmid (e.g. 12345678.pdf) from the <cite>data/pdf_papers/</cite> directory,
+sends it to the GROBID server, and saves the xml file in the <cite>data/xml_papers/</cite> directory.
+If the transformation is successful, the xml file is saved in the <cite>data/xml_papers/</cite> directory.
+If the transformation is not successful, the error code and message are returned.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>servername</strong> (<em>str</em>) – The name of the server where GROBID is running.</p></li>
+<li><p><strong>portnumber</strong> (<em>str</em>) – The port number where GROBID is running.</p></li>
+<li><p><strong>pmid</strong> (<em>str</em>) – The pmid of the paper to be transformed.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of errors that occurred during the transformation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>collect_errors (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="pdf2xml.main">
+<span class="sig-prename descclassname"><span class="pre">pdf2xml.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Parse PDFs to TEI XML format.</p>
+<p>This function collects arguments, loads the configuration file, reads the pmids from the input file,
+checks if the corresponding pdf files are available, and processes the pdf files into xml files using the GROBID server.
+It saves the xml files in the <cite>data/xml_papers/</cite> directory and logs errors in the <cite>logs/</cite> directory.
+It reports the total number of processed pmids, the proportion of missing xml and pdf files, and any errors encountered during the transformation.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="meta2pdf.html" class="btn btn-neutral float-left" title="meta2pdf" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="xml2corpus_by_sentence.html" class="btn btn-neutral float-right" title="xml2corpus_by_sentence" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Research Centre BioBased Economy (Hanze University of Applied Sciences).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,214 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>corpus_by_sentence2vector &mdash; Open Knowledge Explorer 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/twemoji.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+      <script src="../_static/twemoji.js"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="similarity2graph" href="similarity2graph.html" />
+    <link rel="prev" title="xml2corpus_by_sentence" href="xml2corpus_by_sentence.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme_link.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../package_reference.html">Package Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concept2pmid.html">concept2pmid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmid2meta.html">pmid2meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta2pdf.html">meta2pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf2xml.html">pdf2xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xml2corpus_by_sentence.html">xml2corpus_by_sentence</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">corpus_by_sentence2vector</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#corpus_by_sentence2vector.collect_arguments"><code class="docutils literal notranslate"><span class="pre">collect_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#corpus_by_sentence2vector.csv_to_dict"><code class="docutils literal notranslate"><span class="pre">csv_to_dict()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#corpus_by_sentence2vector.preprocess_corpus_for_embedder"><code class="docutils literal notranslate"><span class="pre">preprocess_corpus_for_embedder()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#corpus_by_sentence2vector.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="similarity2graph.html">similarity2graph</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Open Knowledge Explorer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../package_reference.html">Package Reference</a></li>
+      <li class="breadcrumb-item active">corpus_by_sentence2vector</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/corpus_by_sentence2vector.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-corpus_by_sentence2vector">
+<span id="corpus-by-sentence2vector"></span><h1>corpus_by_sentence2vector</h1>
+<p>Transform a sentence-based corpus into vectors and calculate similarity scores.</p>
+<p>This module embeds a sentence-based corpus by transforming it into vectors with SBERT and calculate cosine similarity scores between the sentence vectors.
+Both the embedded sentences and cosine similarity scores are saved as a pickle.</p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python corpus_by_sentence2vector.py -i corpus_free_3600_250606.csv -m NeuML/pubmedbert-base-embeddings</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">param -c<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-even">param –config_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-odd">param -i<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the input file containing the corpus. The column name containing the sentences should be “sentence_text”.</p>
+</dd>
+<dt class="field-even">param –input_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the input file containing the corpus. The column name containing the sentences should be “sentence_text”.</p>
+</dd>
+<dt class="field-odd">param -m<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of an SBERT supported model. (default: ‘NeuML/pubmedbert-base-embeddings’) For other models, see <a class="reference external" href="https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=pubmed">https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=pubmed</a></p>
+</dd>
+<dt class="field-even">param –sbert_model<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of an SBERT supported model. (default: ‘NeuML/pubmedbert-base-embeddings’) For other models, see <a class="reference external" href="https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=pubmed">https://huggingface.co/models?library=sentence-transformers&amp;sort=trending&amp;search=pubmed</a></p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>Input:</dt><dd><p>A CSV file with a column header named ‘sentence_text’, where each row contains a single sentence.</p>
+</dd>
+<dt>Output:</dt><dd><p>Two pickled matrixes:
+1) [embedding_*.pickle] Where each sentence per row is represented by an n-dimensional vector in columns.
+2) [similarity_*.pickle] Where for each sentence per row the cosine similarity score is calculated for each sentence in columns.</p>
+</dd>
+</dl>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#corpus_by_sentence2vector.collect_arguments" title="corpus_by_sentence2vector.collect_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_arguments</span></code></a>()</p></td>
+<td><p>Collect arguments from the command line.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#corpus_by_sentence2vector.csv_to_dict" title="corpus_by_sentence2vector.csv_to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">csv_to_dict</span></code></a>(path_to_csv)</p></td>
+<td><p>Read csv and transform it into a dictionary where the first column will be the key and the second column the value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#corpus_by_sentence2vector.main" title="corpus_by_sentence2vector.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Transform a sentence-based corpus into vectors and calculate similarity scores.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#corpus_by_sentence2vector.preprocess_corpus_for_embedder" title="corpus_by_sentence2vector.preprocess_corpus_for_embedder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">preprocess_corpus_for_embedder</span></code></a>(serie[, ...])</p></td>
+<td><p>Pre-process sentences (in pd.Series) to a list of sentences that is ready for an embedder.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="corpus_by_sentence2vector.collect_arguments">
+<span class="sig-prename descclassname"><span class="pre">corpus_by_sentence2vector.</span></span><span class="sig-name descname"><span class="pre">collect_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span></dt>
+<dd><p>Collect arguments from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="corpus_by_sentence2vector.csv_to_dict">
+<span class="sig-prename descclassname"><span class="pre">corpus_by_sentence2vector.</span></span><span class="sig-name descname"><span class="pre">csv_to_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_csv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span></dt>
+<dd><p>Read csv and transform it into a dictionary where the first column will be the key and the second column the value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="corpus_by_sentence2vector.preprocess_corpus_for_embedder">
+<span class="sig-prename descclassname"><span class="pre">corpus_by_sentence2vector.</span></span><span class="sig-name descname"><span class="pre">preprocess_corpus_for_embedder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">serie</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">replace_abbr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">array</span></span></span></dt>
+<dd><p>Pre-process sentences (in pd.Series) to a list of sentences that is ready for an embedder.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="corpus_by_sentence2vector.main">
+<span class="sig-prename descclassname"><span class="pre">corpus_by_sentence2vector.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Transform a sentence-based corpus into vectors and calculate similarity scores.</p>
+<p>This function is the main entry point of the corpus_by_sentence2vector.py script.
+It embeds a sentence-based corpus by transforming it into vectors with SBERT and calculate cosine similarity scores between the sentence vectors.
+Both the embedded sentences and cosine similarity scores are saved as a pickle.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="xml2corpus_by_sentence.html" class="btn btn-neutral float-left" title="xml2corpus_by_sentence" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="similarity2graph.html" class="btn btn-neutral float-right" title="similarity2graph" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Research Centre BioBased Economy (Hanze University of Applied Sciences).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
