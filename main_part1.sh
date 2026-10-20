@@ -17,7 +17,7 @@ experiment_name="251013_pest_PD"
 search_mode="free"  # "free" or "concept"
 nr_pmids=1000
 
-venv_path=~/venv/graduation_3_13_5
+venv_path=~/venv/oke
 config_file="config.yaml"
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~	
@@ -46,13 +46,17 @@ python scripts/concept2pmid.py -c $config_file -n $nr_pmids -m $search_mode -o "
 date &>> $log_file
 python scripts/pmid2meta.py -c $config_file -i "pmid_$full_exp_name.csv" -m "efficient" &>> $log_file
 
-# Get PDFs by searching pdf_urls from metadata
+# Get XMLs from OpenAlex through the metadata
 date &>> $log_file
-python scripts/meta2pdf.py -i "pmid_$full_exp_name.csv" -m "full" &>> $log_file
+python scripts/meta2xml.py -c $config_file -i "pmid_$full_exp_name.csv" -m "efficient" &>> $log_file
 
-# Get XMLs from PDFs using GROBID
-date &>> $log_file
-python scripts/pdf2xml.py -c $config_file -i "pmid_$full_exp_name.csv" &>> $log_file
+# # Get PDFs by searching pdf_urls from metadata
+# date &>> $log_file
+# python scripts/meta2pdf.py -i "pmid_$full_exp_name.csv" -m "full" &>> $log_file
+
+# # Get XMLs from PDFs using GROBID
+# date &>> $log_file
+# python scripts/pdf2xml.py -c $config_file -i "pmid_$full_exp_name.csv" &>> $log_file
 
 # Get corpus dataframe from XMLs
 date &>> $log_file

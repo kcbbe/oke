@@ -95,7 +95,7 @@ def get_meta_for_pmids(pmids: list, email: str, column_names: list) -> dict:
     try:
         print(f'Successful query: response time {response["meta"]["db_response_time_ms"]}ms')
     except KeyError:
-        print(f'ERROR in `get_pdf_urls_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
+        print(f'ERROR in `get_meta_from_pmids`: A problem occurred in the `get` statement to OpenAlex. Please see the following error message:\n{response["error"]} {response["message"]}')
         sys.exit()
 
     df_chunk_meta = pd.DataFrame(columns= column_names)
@@ -120,9 +120,11 @@ def get_meta_for_pmids(pmids: list, email: str, column_names: list) -> dict:
                 r["ids"]["pmid"].split("/")[-1],
                 doi,
                 issn,
+                r['id'].split("/")[-1],
                 r["publication_year"],
 
                 r["primary_location"]['is_oa'],
+                r["has_fulltext"],
                 r["primary_location"]['landing_page_url'],
                 r["primary_location"]['pdf_url'],
                 r["primary_location"]['is_accepted'],
@@ -199,9 +201,11 @@ def main():
         "pmid",
         "doi",
         "issn",
+        "work_id",
         "pub_year",
 
         "is_oa",
+        "has_fulltext",
         "landing_url",
         "pdf_url",
         "is_accepted",
