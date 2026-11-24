@@ -1,0 +1,325 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>concept2pmid &mdash; Open Knowledge Explorer 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/twemoji.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+      <script src="../_static/twemoji.js"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="pmid2meta" href="pmid2meta.html" />
+    <link rel="prev" title="Package Reference" href="../package_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme_link.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../package_reference.html">Package Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">concept2pmid</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.collect_arguments"><code class="docutils literal notranslate"><span class="pre">collect_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.get_credentials"><code class="docutils literal notranslate"><span class="pre">get_credentials()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.start_tenwise_session"><code class="docutils literal notranslate"><span class="pre">start_tenwise_session()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.search_free"><code class="docutils literal notranslate"><span class="pre">search_free()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.search_concept_pmids"><code class="docutils literal notranslate"><span class="pre">search_concept_pmids()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#concept2pmid.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pmid2meta.html">pmid2meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta2pdf.html">meta2pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf2xml.html">pdf2xml</a></li>
+<li class="toctree-l2"><a class="reference internal" href="xml2corpus_by_sentence.html">xml2corpus_by_sentence</a></li>
+<li class="toctree-l2"><a class="reference internal" href="corpus_by_sentence2vector.html">corpus_by_sentence2vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="similarity2graph.html">similarity2graph</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Open Knowledge Explorer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../package_reference.html">Package Reference</a></li>
+      <li class="breadcrumb-item active">concept2pmid</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/concept2pmid.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-concept2pmid">
+<span id="concept2pmid"></span><h1>concept2pmid</h1>
+<p>Find PubMed Identifiers (PMIDs) based on provided free terms or fixed concepts.</p>
+<p>This module finds relevant PMIDs on provided free terms or fixed concepts.
+Note that ‘concept’ search mode is currently hard-coded to anchor with “Parkinson’s Disease”. This it is advised to use the ‘free’ search mode if this is not applicable to your research question.</p>
+<p>Start a session with the TenWise Knowledge Map API to find PMIDs:
+1) Search on free text (example “(pesticide OR pesticides) AND parkinson’s”)
+2) Search on pre-defined concept_ids (reference to file with concept_ids)
+Results are saved in a CSV file.</p>
+<p>If search_mode is <cite>free</cite>, then a list only containing PMIDs is returned.
+If search_mode is <cite>concept</cite>, then results include the following: pmid, hitnr, score.
+Where ‘pmid’ are the PMIDs, ‘hitnr’ are number of unique concept_ids found in paper, and ‘score’ is the proportion of ‘hitnr’ to the total number of concept_ids requested.
+See link for more information: <a class="reference external" href="https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence">https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence</a></p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python concept2pmid.py -c config.yaml -n 1000 -m free -o pmid_{experiment_name}.csv</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">param -c<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-even">param –config_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to the configuration file (default: ‘config.yaml’)</p>
+</dd>
+<dt class="field-odd">param -n<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of PMIDs to be returned (default: 1000)</p>
+</dd>
+<dt class="field-even">param –nr_pmids<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of PMIDs to be returned (default: 1000)</p>
+</dd>
+<dt class="field-odd">param -m<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Search mode: ‘free’ or ‘concept’.</p>
+</dd>
+<dt class="field-even">param –search_mode<span class="colon">:</span></dt>
+<dd class="field-even"><p>Search mode: ‘free’ or ‘concept’.</p>
+</dd>
+<dt class="field-odd">param -o<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the output file, incl. its suffix.</p>
+</dd>
+<dt class="field-even">param –output_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the output file, incl. its suffix.</p>
+</dd>
+</dl>
+<dl>
+<dt>Input:</dt><dd><p>Please place search terms and concept_ids in the configuration file (config.yaml).
+A configuration file (config.yaml) is required. It contains the following keys:
+- path_to_concept_ids: Path to a file with concept_ids (tab-delimited)
+- free_search_terms: Search terms for free text search</p>
+</dd>
+<dt>Output:</dt><dd><p>An comma separated values (CSV) output file is generated.</p>
+<dl>
+<dt>Example::</dt><dd><p>pmid,</p>
+<p>34429776,</p>
+<p>6905769,</p>
+<p>…,</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#concept2pmid.collect_arguments" title="concept2pmid.collect_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_arguments</span></code></a>()</p></td>
+<td><p>Collect arguments from the command line.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#concept2pmid.get_credentials" title="concept2pmid.get_credentials"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_credentials</span></code></a>(path_to_text)</p></td>
+<td><p>Load a file with tab separated values from path_to_text and creates/returns a dictionary where the first column will be the key and the second column will be the value.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#concept2pmid.main" title="concept2pmid.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Find PubMed Identifiers (PMIDs) based on given free terms (<cite>free</cite>) or fixed concepts (<cite>concept</cite>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#concept2pmid.search_concept_pmids" title="concept2pmid.search_concept_pmids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search_concept_pmids</span></code></a>(session, payload, ...)</p></td>
+<td><p>Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#concept2pmid.search_free" title="concept2pmid.search_free"><code class="xref py py-obj docutils literal notranslate"><span class="pre">search_free</span></code></a>(session, payload, credentials, ...)</p></td>
+<td><p>Return PMIDs for from a free text search on the TenWise MEDLINE library.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#concept2pmid.start_tenwise_session" title="concept2pmid.start_tenwise_session"><code class="xref py py-obj docutils literal notranslate"><span class="pre">start_tenwise_session</span></code></a>(login_credentials)</p></td>
+<td><p>Initialise a session by using the provided login_credentials and returns the started session and payload.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.collect_arguments">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">collect_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span></dt>
+<dd><p>Collect arguments from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.get_credentials">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">get_credentials</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path_to_text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span></dt>
+<dd><p>Load a file with tab separated values from path_to_text and creates/returns a dictionary where the first column will be the key and the second column will be the value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.start_tenwise_session">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">start_tenwise_session</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">login_credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Initialise a session by using the provided login_credentials and returns the started session and payload.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>login_credentials</strong> (<em>dict</em>) – Must contain following keys: ‘APIKEY’ and ‘ADDRESS’.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An API session. Provides cookie persistence, connection-pooling, and configuration.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>session (requests.Session)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A payload template for building queries.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>payload (dict)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.search_free">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">search_free</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">free_terms</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return PMIDs for from a free text search on the TenWise MEDLINE library.</p>
+<p>Search PMIDs in the TenWise MEDLINE library on provided free_terms.
+The search query (free_terms) can follow the same syntax as for a PubMed search.
+Numbers of PMIDs being returned is controlled by <cite>retmax</cite>.
+See link for more information: <a class="reference external" href="https://apimlqv2.tenwiseservice.nl/html/all_help.html#refset-free-search">https://apimlqv2.tenwiseservice.nl/html/all_help.html#refset-free-search</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>requests.Session</em>) – An API session. Provide cookie persistence, connection-pooling, and configuration. (Created using <cite>start_tenwise_session</cite> function.)</p></li>
+<li><p><strong>payload</strong> (<em>dict</em>) – A payload for building queries. (Created using <cite>start_tenwise_session</cite> function.)</p></li>
+<li><p><strong>credentials</strong> (<em>dict</em>) – Must contain following keys: ‘APIKEY’ and ‘ADDRESS’.</p></li>
+<li><p><strong>free_terms</strong> (<em>str</em>) – A query.</p></li>
+<li><p><strong>retmax</strong> (<em>int</em>) – Maximum number of PMIDs to return. (default: 50)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list with PMIDs as strings. Example: [‘32943485’, ‘…’]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>hits_on_free_search (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.search_concept_pmids">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">search_concept_pmids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">session</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Session</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">credentials</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_concept_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">anchor</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">retmax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return PMIDs from TenWise Knowledge Map by searching on provided concept_ids.</p>
+<p>Search PMIDs in the TenWise Knowledge Map that must include ‘parkinson’ and at least one concept from concept_ids provided in path_to_concept_ids.
+path_to_concept_ids is a TXT file that is Tab-delimited where each line starts with the concept_id like so: <cite>TWPHI_XXXXX     name_pesticide</cite>
+Numbers of PMIDs being returned is controlled by <cite>retmax</cite>.
+Results include the following: pmid, hitnr, score.
+Where ‘pmid’ are the PMIDs, ‘hitnr’ are number of unique concept_ids found in paper, and ‘score’ is the proportion of ‘hitnr’ to the total number of concept_ids requested.
+See link for more information: <a class="reference external" href="https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence">https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>session</strong> (<em>requests.Session</em>) – An API session. Provide cookie persistence, connection-pooling, and configuration. (Created using <cite>start_tenwise_session</cite> function.)</p></li>
+<li><p><strong>payload</strong> (<em>dict</em>) – A payload for building queries. (Created using <cite>start_tenwise_session</cite> function.)</p></li>
+<li><p><strong>credentials</strong> (<em>dict</em>) – Must contain following keys: ‘APIKEY’ and ‘ADDRESS’.</p></li>
+<li><p><strong>path_to_concept_ids</strong> (<em>str</em>) – Path to predefined concept_ids.</p></li>
+<li><p><strong>anchor</strong> (<em>list</em>) – Concept_ids of which all concepts that need to be mentioned in the returned PMIDs.</p></li>
+<li><p><strong>retmax</strong> (<em>int</em>) – Maximum number of PMIDs to return. (default: 50)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list with pmid, hitnr, score. Where ‘pmid’ are the PMIDs, ‘hitnr’ are number of unique concept_ids found in paper, and ‘score’ is the proportion of ‘hitnr’ to the total number of concept_ids requested. In example: [‘pmid, hitnr, score’, ‘32943485, 9, 0.00367’, ‘…’]</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>hits_on_concept_ids (list)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="concept2pmid.main">
+<span class="sig-prename descclassname"><span class="pre">concept2pmid.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Find PubMed Identifiers (PMIDs) based on given free terms (<cite>free</cite>) or fixed concepts (<cite>concept</cite>).</p>
+<p>This function is the main entry point of the concept2pmid.py script.
+Start a session with the TenWise Knowledge Map API to find PMIDs:
+1) Search on free text (e.g. “pesticides” and “Parkinson’s disease”)
+2) Search on pre-defined concept_ids (e.g. “pesticides” and “Parkinson’s disease”)
+Results are saved in a CSV file.</p>
+<p>If search_mode is <cite>free</cite>, then a list only containing PMIDs is returned.
+If search_mode is <cite>concept</cite>, then results include the following: pmid, hitnr, score.
+Where ‘pmid’ are the PMIDs, ‘hitnr’ are number of unique concept_ids found in paper, and ‘score’ is the proportion of ‘hitnr’ to the total number of concept_ids requested.
+See link for more information: <a class="reference external" href="https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence">https://apimlqv2.tenwiseservice.nl/html/all_help.html#conceptset-evidence</a></p>
+<p>Results are saved in a CSV file.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../package_reference.html" class="btn btn-neutral float-left" title="Package Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="pmid2meta.html" class="btn btn-neutral float-right" title="pmid2meta" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Research Centre BioBased Economy (Hanze University of Applied Sciences).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

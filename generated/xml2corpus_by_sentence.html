@@ -1,0 +1,287 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xml2corpus_by_sentence &mdash; Open Knowledge Explorer 0.1 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="../_static/twemoji.css" />
+      <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=2709fde1"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="../_static/copybutton.js?v=f281be69"></script>
+      <script src="https://unpkg.com/twemoji@latest/dist/twemoji.min.js"></script>
+      <script src="../_static/twemoji.js"></script>
+      <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="corpus_by_sentence2vector" href="corpus_by_sentence2vector.html" />
+    <link rel="prev" title="pdf2xml" href="pdf2xml.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html">
+            
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../background.html">Background</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../readme_link.html">Getting started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../package_reference.html">Package Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concept2pmid.html">concept2pmid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pmid2meta.html">pmid2meta</a></li>
+<li class="toctree-l2"><a class="reference internal" href="meta2pdf.html">meta2pdf</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pdf2xml.html">pdf2xml</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">xml2corpus_by_sentence</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#xml2corpus_by_sentence.collect_arguments"><code class="docutils literal notranslate"><span class="pre">collect_arguments()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml2corpus_by_sentence.get_body"><code class="docutils literal notranslate"><span class="pre">get_body()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml2corpus_by_sentence.clean_paragraphs"><code class="docutils literal notranslate"><span class="pre">clean_paragraphs()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml2corpus_by_sentence.flatten_body"><code class="docutils literal notranslate"><span class="pre">flatten_body()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#xml2corpus_by_sentence.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="corpus_by_sentence2vector.html">corpus_by_sentence2vector</a></li>
+<li class="toctree-l2"><a class="reference internal" href="similarity2graph.html">similarity2graph</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">Open Knowledge Explorer</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../package_reference.html">Package Reference</a></li>
+      <li class="breadcrumb-item active">xml2corpus_by_sentence</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/generated/xml2corpus_by_sentence.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-xml2corpus_by_sentence">
+<span id="xml2corpus-by-sentence"></span><h1>xml2corpus_by_sentence</h1>
+<p>Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.</p>
+<p>This module processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+It assigns various identifiers to maintain traceability of the sentences (See the output example in this comment block).
+The resulting corpus is saved as a CSV file to the ‘data/corpus/’ directory.</p>
+<p>Code inspired by:
+<a class="reference external" href="https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py">https://github.com/TenWise-Dev/jrc-public/blob/main/lib/Tei2MaterialsMethods.py</a></p>
+<dl class="simple">
+<dt>Usage:</dt><dd><p>python xml2corpus_by_sentence.py -i pmids_in.csv</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">param -i<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Name of the input file containing PMIDs.</p>
+</dd>
+<dt class="field-even">param input_file<span class="colon">:</span></dt>
+<dd class="field-even"><p>Name of the input file containing PMIDs.</p>
+</dd>
+</dl>
+<dl>
+<dt>Input:</dt><dd><p>A CSV file with a column header named ‘pmid’, where the values corresponds to its PubMed Identifier.</p>
+</dd>
+<dt>Output:</dt><dd><p>An CSV output file is generated.</p>
+<dl>
+<dt>Example::</dt><dd><p>paper_id,paper_name,head_id,head_name,paragraph_id,sentence_id,sentence_text</p>
+<p>0,17900545,0,title,0,0,EPIGALLOCATECHIN GALLATE (EGCG) POTENTIATES…</p>
+<p>…,</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Functions</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#xml2corpus_by_sentence.clean_paragraphs" title="xml2corpus_by_sentence.clean_paragraphs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">clean_paragraphs</span></code></a>(body)</p></td>
+<td><p>Cleans the paragraphs by removing all references and turns bs4.element.Tag into strings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#xml2corpus_by_sentence.collect_arguments" title="xml2corpus_by_sentence.collect_arguments"><code class="xref py py-obj docutils literal notranslate"><span class="pre">collect_arguments</span></code></a>()</p></td>
+<td><p>Collect arguments from the command line.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#xml2corpus_by_sentence.flatten_body" title="xml2corpus_by_sentence.flatten_body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">flatten_body</span></code></a>(body, paper_id, name)</p></td>
+<td><p>Flattens a nested list representing the body of a document into a pandas DataFrame with sentence-level granularity.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#xml2corpus_by_sentence.get_body" title="xml2corpus_by_sentence.get_body"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_body</span></code></a>(xml)</p></td>
+<td><p>Extracts the body of the xml file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#xml2corpus_by_sentence.main" title="xml2corpus_by_sentence.main"><code class="xref py py-obj docutils literal notranslate"><span class="pre">main</span></code></a>()</p></td>
+<td><p>Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py function">
+<dt class="sig sig-object py" id="xml2corpus_by_sentence.collect_arguments">
+<span class="sig-prename descclassname"><span class="pre">xml2corpus_by_sentence.</span></span><span class="sig-name descname"><span class="pre">collect_arguments</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span></dt>
+<dd><p>Collect arguments from the command line.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="xml2corpus_by_sentence.get_body">
+<span class="sig-prename descclassname"><span class="pre">xml2corpus_by_sentence.</span></span><span class="sig-name descname"><span class="pre">get_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">xml</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span></dt>
+<dd><p>Extracts the body of the xml file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of all headers and paragraphs in the xml file.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="xml2corpus_by_sentence.clean_paragraphs">
+<span class="sig-prename descclassname"><span class="pre">xml2corpus_by_sentence.</span></span><span class="sig-name descname"><span class="pre">clean_paragraphs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span></dt>
+<dd><p>Cleans the paragraphs by removing all references and turns bs4.element.Tag into strings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>body</strong> (<em>list</em>) – A list of all headers and paragraphs in the xml file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of all headers and paragraphs in the xml file without references.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="xml2corpus_by_sentence.flatten_body">
+<span class="sig-prename descclassname"><span class="pre">xml2corpus_by_sentence.</span></span><span class="sig-name descname"><span class="pre">flatten_body</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">paper_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span></dt>
+<dd><p>Flattens a nested list representing the body of a document into a pandas DataFrame with sentence-level granularity.
+Each entry in the input list should represent a section or heading with associated paragraphs. The function processes this structure to produce a DataFrame where each row corresponds to a single sentence, annotated with identifiers for the paper, heading, paragraph, and sentence.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>body</strong> (<em>list</em>) – A list of tuples or lists, where each element contains a heading name and a list of paragraphs.</p></li>
+<li><p><strong>paper_id</strong> (<em>int</em>) – Identifier of the paper.</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the paper.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A DataFrame with the following columns:</dt><dd><ul class="simple">
+<li><p>head_id: Index of the heading within the body.</p></li>
+<li><p>head_name: Name of the heading or section.</p></li>
+<li><p>paragraph_id: Index of the paragraph within the heading.</p></li>
+<li><p>sentence_text: The text of the sentence.</p></li>
+<li><p>sentence_id: Index of the sentence within the paragraph.</p></li>
+<li><p>paper_name: Name of the paper (requires ‘name’ variable in scope).</p></li>
+<li><p>paper_id: Identifier of the paper (requires ‘id’ variable in scope).</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p>Sentences are split using a regular expression that matches sentence-ending punctuation followed by whitespace.</p></li>
+<li><p>Rows with empty paragraphs are removed.</p></li>
+</ul>
+<dl>
+<dt>Example input:</dt><dd><dl class="simple">
+<dt>body = [</dt><dd><p>[‘Introduction’, [‘This is the first sentence. This is the second sentence.’, ‘This is the third sentence.’]],
+[‘Methods’, [‘This is a method.’]]</p>
+</dd>
+</dl>
+<p>]
+paper_id = 1
+name = ‘example_paper’</p>
+</dd>
+<dt>Example output:</dt><dd><p>head_id  head_name    paragraph_id  sentence_text                sentence_id paper_name    paper_id
+0        Introduction 0             This is the first sentence.  0           example_paper        0
+0        Introduction 0             This is the second sentence. 1           example_paper        0
+1        Methods      0             This is a method.            0           example_paper        0</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="xml2corpus_by_sentence.main">
+<span class="sig-prename descclassname"><span class="pre">xml2corpus_by_sentence.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span></dt>
+<dd><p>Process scientific TEI XML papers into a CSV file containing the corpus on sentence level.</p>
+<p>This function is the main entry point of the xml2corpus_by_sentence.py script.
+It processes the XML files into a corpus of sentences, extracting and cleaning the text, removes references, and splits the text into sentences.
+The resulting corpus is saved as a CSV file to the ‘data/corpus/’ directory.</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="pdf2xml.html" class="btn btn-neutral float-left" title="pdf2xml" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="corpus_by_sentence2vector.html" class="btn btn-neutral float-right" title="corpus_by_sentence2vector" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2026, Research Centre BioBased Economy (Hanze University of Applied Sciences).</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
