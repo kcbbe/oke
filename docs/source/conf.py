@@ -46,7 +46,7 @@ version = t
 
 # Logo
 html_static_path = ["_static"]
-html_logo = "_static/logo.png"
+html_logo = "./logo.png"
 html_theme_options = {
     "logo_only": True,
 }
