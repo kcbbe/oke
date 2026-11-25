@@ -86,17 +86,17 @@ Here we will highlight sentence clustering and semantic search. For the complete
 <h1>Exploration without prior knowledge [sentence clustering]</h1>
 <p>Sentence clustering provides insight into knowledge in an unsupervised and therefore unbiased way. The clustering was done according to the sentence’s cosine similarity scores with the <a class="reference external" href="https://www.sbert.net/examples/sentence_transformer/applications/clustering/README.html#fast-clustering">fast clustering algorithm</a> available in the SBERT library.</p>
 <p>Here is a use case example where the pipeline was used for “(pesticide OR pesticides) AND parkinson’s”</p>
-<img src="./docs/source/image.png" width=500><p><em>Figure 1: Visualisations of the 975 clustered sentences. Both plots share the same legend. Annotations is in order of cluster size. (Left) UMAP projection of sentence embeddings, highlighting five main clusters (A–E). (Right) Spring graph representation based on cosine similarity scores, with cluster indices shown. Edge weights correspond to similarity scores. Weights smaller than 0.75 are excluded.</em></p>
+<img src="./docs/source/image.png" width=700><p><em>Figure 1: Visualisations of the 975 clustered sentences. Both plots share the same legend. Annotations is in order of cluster size. (Left) UMAP projection of sentence embeddings, highlighting five main clusters (A–E). (Right) Spring graph representation based on cosine similarity scores, with cluster indices shown. Edge weights correspond to similarity scores. Weights smaller than 0.75 are excluded.</em></p>
 <p>Two different visualisations are depicted of these clusters in Figure 1; namely a UMAP and a spring graph. Both confirming identified cluster pairs. Note that the UMAP represents relationships in a two‑dimensional embedding (implicitly including the vector norm), whereas the graph represents connectivity strengths between sentences via edge weights (excluding the norm) – this is also the reason why no axis are depicted in the graph representation. Note therefore that the graph only shows the relation between sentences that are connected.</p>
 <p>Topics that are addressed in the clustered sentences can be deducted from differential word clouds, see Figure 2. Differential word clouds are visualisations of word frequencies that are specific to given sentence cluster and are created by subtracting word frequencies in sentences outside a given cluster from those within the cluster.</p>
-<img src="./docs/source/image-1.png" width=500><p><em>Figure 2: Differential word clouds of sentence clusters based on similarity. The bigger the word, the more often it appeared.</em></p>
+<img src="./docs/source/image-1.png" width=700><p><em>Figure 2: Differential word clouds of sentence clusters based on similarity. The bigger the word, the more often it appeared.</em></p>
 </section>
 <section id="exploration-with-prior-knowledge-semantic-search">
 <h1>Exploration with prior knowledge [semantic search]</h1>
 <p>Semantic search provides a means of navigating the sentence embedding space by retrieving sentences that are semantically similar to an asked query.</p>
 <p>Here is a use case example where the pipeline was used for “(pesticide OR pesticides) AND parkinson’s”</p>
 <p><em>Table 1: The top five results are presented for the queried question, including the cosine similarity score (cos_sim), cross-encoder score (cross_score), PMID, year of publication, peer-review status (published), and retraction status. Sentences are ranked according to their cross_score.</em></p>
-<img src="./docs/source/image-3.png" width=500><img src="./docs/source/image-2.png" width=500></section>
+<img src="./docs/source/image-3.png" width=700><img src="./docs/source/image-2.png" width=700></section>
 
 
            </div>
