@@ -22,7 +22,7 @@ check out `this extensive documentation page <https://kcbbe.github.io/oke/>`_.
    :caption: Contents
 
    background
-   usage_examples
+   usage_link
    readme_link
    package_reference
 

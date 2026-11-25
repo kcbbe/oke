@@ -7,7 +7,7 @@ Sentence clustering provides insight into knowledge in an unsupervised and there
 
 Here is a use case example where the pipeline was used for "(pesticide OR pesticides) AND parkinson's"
 
-![alt text](image.png)
+<img src="image.png" width=500>
 
 _Figure 1: Visualisations of the 975 clustered sentences. Both plots share the same legend. Annotations is in order of cluster size. (Left) UMAP projection of sentence embeddings, highlighting five main clusters (A–E). (Right) Spring graph representation based on cosine similarity scores, with cluster indices shown. Edge weights correspond to similarity scores. Weights smaller than 0.75 are excluded._
 
@@ -15,7 +15,7 @@ Two different visualisations are depicted of these clusters in Figure 1; namely 
 
 Topics that are addressed in the clustered sentences can be deducted from differential word clouds, see Figure 2. Differential word clouds are visualisations of word frequencies that are specific to given sentence cluster and are created by subtracting word frequencies in sentences outside a given cluster from those within the cluster.
 
-![alt text](image-1.png)
+<img src="image-1.png" width=500>
 
 _Figure 2: Differential word clouds of sentence clusters based on similarity. The bigger the word, the more often it appeared._
 
@@ -26,6 +26,6 @@ Here is a use case example where the pipeline was used for "(pesticide OR pestic
 
 _Table 1: The top five results are presented for the queried question, including the cosine similarity score (cos_sim), cross-encoder score (cross_score), PMID, year of publication, peer-review status (published), and retraction status. Sentences are ranked according to their cross_score._
 
-![alt text](image-3.png)
+<img src="image-3.png" width=500>
 
-![alt text](image-2.png)
+<img src="image-2.png" width=500>
