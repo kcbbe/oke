@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Getting started &mdash; Open Knowledge Explorer 0.1 documentation</title>
+  <title>Getting Started &mdash; Open Knowledge Explorer 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -28,7 +28,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Package Reference" href="package_reference.html" />
-    <link rel="prev" title="Background" href="background.html" /> 
+    <link rel="prev" title="Usage Examples" href="usage_examples.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,7 +53,8 @@
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting started</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="usage_examples.html">Usage Examples</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#about-this-project">About this project</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-use">How to use</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#configuration">Configuration</a></li>
@@ -84,7 +85,7 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Getting started</li>
+      <li class="breadcrumb-item active">Getting Started</li>
       <li class="wy-breadcrumbs-aside">
             <a href="_sources/readme_link.rst.txt" rel="nofollow"> View page source</a>
       </li>
@@ -95,16 +96,17 @@
            <div itemprop="articleBody">
              
   <section id="getting-started">
-<h1>Getting started</h1>
+<h1>Getting Started</h1>
 <p><strong>Open Knowledge Explorer</strong></p>
 <p>Please find the github page containing <a class="reference external" href="https://github.com/CharmingChocobo/master_graduation_project/tree/main">the code over here</a> and
-check out <a class="reference external" href="https://bioinf.nl/~jbeenen/oke/html/index.html">this extensive documentation page</a>.</p>
+check out <a class="reference external" href="https://kcbbe.github.io/oke/">this extensive documentation page</a>.</p>
 <section id="about-this-project">
 <h2>About this project</h2>
 <p>The Open Knowledge Explorer (OKE) was developed as a modular text-mining pipeline designed to capture full open-access scientific publications by extracting and embedding their sentences, preserving provenance, and constructing a cosine similarity graph for downstream analysis.</p>
 </section>
 <section id="how-to-use">
 <h2>How to use</h2>
+<p>NOTE: Current version is designed to be used on the Hanze University of Applied Sciences servers.</p>
 <ul class="simple">
 <li><p>Create an venv and install the libraries. Please find used Python version and libraries in the section ‘Software requirements’.</p></li>
 <li><p>Change the filename of <code class="docutils literal notranslate"><span class="pre">config_template.yaml</span></code> to <code class="docutils literal notranslate"><span class="pre">config.yaml</span></code>, and change the variables accordingly.</p></li>
@@ -129,9 +131,8 @@ check out <a class="reference external" href="https://bioinf.nl/~jbeenen/oke/htm
 <span class="c1">#SBATCH --chdir /homes/your_name/git-repo/</span>
 </pre></div>
 </div>
-<ul class="simple">
-<li><p>If <code class="docutils literal notranslate"><span class="pre">scripts/pdf2xml.py</span></code> is active in <code class="docutils literal notranslate"><span class="pre">main_part1.sh</span></code>; make sure to activate the GROBID server in an separate window by running <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">start_grobid_a19.sh</span></code> first, before running <code class="docutils literal notranslate"><span class="pre">main_part1.sh</span></code>. (Check with <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">&lt;servername&gt;:&lt;portname&gt;</span></code> if GROBID is alive.)</p></li>
-</ul>
+<p>NOTE: meta2pdf.py and pdf2xml.py is now obsolete since to OpenAlex now also provides direct downloads to XML files. So please use meta2xml.py now instead.</p>
+<p><span class="raw-html-md"><del>- If ``scripts/pdf2xml.py`</span> is active in <code class="docutils literal notranslate"><span class="pre">main_part1.sh</span></code>; make sure to activate the GROBID server in an separate window by running <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">start_grobid_a19.sh</span></code> first, before running <code class="docutils literal notranslate"><span class="pre">main_part1.sh</span></code>. (Check with <code class="docutils literal notranslate"><span class="pre">curl</span> <span class="pre">&lt;servername&gt;:&lt;portname&gt;</span></code> if GROBID is alive.)&lt;/del&gt;`</p>
 <p><strong>NOTE: There are two separate ‘main’ scripts. ``main_part1.sh`` runs on assemblix2019 (CPU heavy) and ``main_part2.sh`` runs on assemblix2025 (GPU heavy). For GROBID to work, run ``start_grobid_a19.sh`` on the same device as ``main_part1.sh`` will be running.</strong></p>
 <ul class="simple">
 <li><p>Run the application by entering <code class="docutils literal notranslate"><span class="pre">bash</span> <span class="pre">main_part1.sh</span> <span class="pre">&amp;&amp;</span> <span class="pre">sbatch</span> <span class="pre">main_part2.sh</span></code> in the terminal. Log files will be created and can be found in <code class="docutils literal notranslate"><span class="pre">logs/</span></code>.</p></li>
@@ -203,6 +204,7 @@ Of all the folders in this pipeline, <code class="docutils literal notranslate">
 <section id="flowchart">
 <h2>Flowchart</h2>
 <img src="./docs/source/pipeline_flowchart.png" width=500><p>Flowchart of the OKE pipeline. Orange boxes represent shell scripts that execute multiple Python scripts. The initial input, shown in grey, is either a concept file or a free-text search term. Various files are generated by these scripts, where an asterisk denotes the experiment name. Error files are shown in red, while files in yellow are subsequently used by notebooks located in /explorations for further analysis.</p>
+<p>NOTE: meta2pdf.py and pdf2xml.py is now obsolete since to OpenAlex now also provides direct downloads to XML files. So please use meta2xml.py now instead.</p>
 </section>
 <section id="exploratory-notebooks">
 <h2>Exploratory notebooks</h2>
@@ -228,7 +230,7 @@ The post-embedding notebooks include <code class="docutils literal notranslate">
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="background.html" class="btn btn-neutral float-left" title="Background" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="usage_examples.html" class="btn btn-neutral float-left" title="Usage Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="package_reference.html" class="btn btn-neutral float-right" title="Package Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

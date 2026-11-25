@@ -10,6 +10,7 @@ The pipeline consist out of multiple python scripts. Below is a brief descriptio
     concept2pmid
     pmid2meta
     meta2pdf
+    meta2xml
     pdf2xml
     xml2corpus_by_sentence
     corpus_by_sentence2vector
