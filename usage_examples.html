@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage Examples &mdash; Open Knowledge Explorer 0.1 documentation</title>
+  <title>Exploration without prior knowledge [sentence clustering] &mdash; Open Knowledge Explorer 0.1 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
@@ -26,9 +26,7 @@
       <script src="_static/design-tabs.js?v=f930bc37"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Getting Started" href="readme_link.html" />
-    <link rel="prev" title="Background" href="background.html" /> 
+    <link rel="search" title="Search" href="search.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,13 +49,9 @@
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
               <p class="caption" role="heading"><span class="caption-text">Contents</span></p>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="background.html">Background</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Usage Examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#exploration-without-prior-knowledge-sentence-clustering">Exploration without prior knowledge [sentence clustering]</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#exploration-with-prior-knowledge-semantic-search">Exploration with prior knowledge [semantic search]</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="usage_link.html">Usage Examples</a></li>
 <li class="toctree-l1"><a class="reference internal" href="readme_link.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="package_reference.html">Package Reference</a></li>
 </ul>
@@ -76,9 +70,9 @@
           <div role="navigation" aria-label="Page navigation">
   <ul class="wy-breadcrumbs">
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
-      <li class="breadcrumb-item active">Usage Examples</li>
+      <li class="breadcrumb-item active">Exploration without prior knowledge [sentence clustering]</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/usage_examples.rst.txt" rel="nofollow"> View page source</a>
+            <a href="_sources/usage_examples.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -86,42 +80,28 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <section id="usage-examples">
-<h1>Usage Examples</h1>
-<p>There are multiple options for analysing the obtained corpus once the pipeline is finished.
+  <p>There are multiple options for analysing the obtained corpus once the pipeline is finished.
 Here we will highlight sentence clustering and semantic search. For the complete overview of options, see the ‘<a class="reference external" href="https://kcbbe.github.io/oke/readme_link.html#exploratory-notebooks">Getting Started</a>’.</p>
 <section id="exploration-without-prior-knowledge-sentence-clustering">
-<h2>Exploration without prior knowledge [sentence clustering]</h2>
+<h1>Exploration without prior knowledge [sentence clustering]</h1>
 <p>Sentence clustering provides insight into knowledge in an unsupervised and therefore unbiased way. The clustering was done according to the sentence’s cosine similarity scores with the <a class="reference external" href="https://www.sbert.net/examples/sentence_transformer/applications/clustering/README.html#fast-clustering">fast clustering algorithm</a> available in the SBERT library.</p>
 <p>Here is a use case example where the pipeline was used for “(pesticide OR pesticides) AND parkinson’s”</p>
-<a class="reference external image-reference" href="image.png"><img alt="alt text" src="image.png" />
-</a>
-<p><em>Figure 1: Visualisations of the 975 clustered sentences. Both plots share the same legend. Annotations is in order of cluster size. (Left) UMAP projection of sentence embeddings, highlighting five main clusters (A–E). (Right) Spring graph representation based on cosine similarity scores, with cluster indices shown. Edge weights correspond to similarity scores. Weights smaller than 0.75 are excluded.</em></p>
+<img src="image.png" width=500><p><em>Figure 1: Visualisations of the 975 clustered sentences. Both plots share the same legend. Annotations is in order of cluster size. (Left) UMAP projection of sentence embeddings, highlighting five main clusters (A–E). (Right) Spring graph representation based on cosine similarity scores, with cluster indices shown. Edge weights correspond to similarity scores. Weights smaller than 0.75 are excluded.</em></p>
 <p>Two different visualisations are depicted of these clusters in Figure 1; namely a UMAP and a spring graph. Both confirming identified cluster pairs. Note that the UMAP represents relationships in a two‑dimensional embedding (implicitly including the vector norm), whereas the graph represents connectivity strengths between sentences via edge weights (excluding the norm) – this is also the reason why no axis are depicted in the graph representation. Note therefore that the graph only shows the relation between sentences that are connected.</p>
 <p>Topics that are addressed in the clustered sentences can be deducted from differential word clouds, see Figure 2. Differential word clouds are visualisations of word frequencies that are specific to given sentence cluster and are created by subtracting word frequencies in sentences outside a given cluster from those within the cluster.</p>
-<a class="reference external image-reference" href="image-1.png"><img alt="alt text" src="image-1.png" />
-</a>
-<p><em>Figure 2: Differential word clouds of sentence clusters based on similarity. The bigger the word, the more often it appeared.</em></p>
+<img src="image-1.png" width=500><p><em>Figure 2: Differential word clouds of sentence clusters based on similarity. The bigger the word, the more often it appeared.</em></p>
 </section>
 <section id="exploration-with-prior-knowledge-semantic-search">
-<h2>Exploration with prior knowledge [semantic search]</h2>
+<h1>Exploration with prior knowledge [semantic search]</h1>
 <p>Semantic search provides a means of navigating the sentence embedding space by retrieving sentences that are semantically similar to an asked query.</p>
 <p>Here is a use case example where the pipeline was used for “(pesticide OR pesticides) AND parkinson’s”</p>
 <p><em>Table 1: The top five results are presented for the queried question, including the cosine similarity score (cos_sim), cross-encoder score (cross_score), PMID, year of publication, peer-review status (published), and retraction status. Sentences are ranked according to their cross_score.</em></p>
-<a class="reference external image-reference" href="image-3.png"><img alt="alt text" src="image-3.png" />
-</a>
-<a class="reference external image-reference" href="image-2.png"><img alt="alt text" src="image-2.png" />
-</a>
-</section>
-</section>
+<img src="image-3.png" width=500><img src="image-2.png" width=500></section>
 
 
            </div>
           </div>
-          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="background.html" class="btn btn-neutral float-left" title="Background" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="readme_link.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
-    </div>
+          <footer>
 
   <hr/>
 

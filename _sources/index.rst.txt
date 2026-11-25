@@ -22,10 +22,9 @@ check out `this extensive documentation page <https://kcbbe.github.io/oke/>`_.
    :caption: Contents
 
    background
-   usage_examples
+   usage_link
    readme_link
    package_reference
-   
 
 .. Ref to how to link to README.md https://stackoverflow.com/questions/46278683/include-my-markdown-readme-into-sphinx
 
