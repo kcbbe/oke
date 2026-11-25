@@ -35,3 +35,7 @@ Frequently Asked Questions
 .. dropdown:: **I'm only interested in peer-reviewed papers. Is there an easy way to apply this as an filter?**
 
     Yes! Within the exploratory python notebooks it is possible to filter on peer-reviewed paper thanks to the meta data file located in `data/meta`. Whenever we thought is would be applicable, we already added the code for you to do so.
+
+.. dropdown:: **How long does processing take?**
+
+    |:confetti_ball:| The full pipeline, incl. analysis takes LESS THAN 30 MINUTES! |:confetti_ball:|
