@@ -1,4 +1,5 @@
-"""Download full scientific PDFs by using column `pdf_urls` from the metadata CSV file.
+"""NOTE: Please use meta2xml.py instead of meta2pdf.py and then pdf2xml.py. This script can still be used to download PDFs.
+Download full scientific PDFs by using column `pdf_urls` from the metadata CSV file.
 
 This module downloads full scientific papers as PDF by using the URLs provided in the metadata CSV file for PMIDs.
 After downloading, it reports which errors it encountered when failing to retrieve a PDF.

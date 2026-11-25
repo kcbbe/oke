@@ -13,14 +13,16 @@ Overview
 
 Open knowledge explorer is a python pipeline for finding relations between concepts. It processes sentences from **full open access papers** into **sentence embeddings** for knowledge exploration with **valid references** to papers - making given findings **traceable**. 
 Please find the github page containing `the code over here <https://github.com/CharmingChocobo/master_graduation_project/tree/main>`_ and
-check out `this extensive documentation page <https://bioinf.nl/~jbeenen/oke/html/index.html>`_.
+check out `this extensive documentation page <https://kcbbe.github.io/oke/>`_.
 
+`Here <https://www.youtube.com/watch?v=49l90segUQY>`_ you can find the pitch for this tool and see what it can do for you.
 
 .. toctree::
    :maxdepth: 3
    :caption: Contents
 
    background
+   usage_examples
    readme_link
    package_reference
 
